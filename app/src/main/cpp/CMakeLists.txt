@@ -91,3 +91,18 @@ target_link_libraries( # Specifies the target library.
                        android
                        )
 
+include(ExternalProject)
+ExternalProject_Add(handycpp
+        GIT_REPOSITORY https://github.com/zhangfuwen/handycpp
+        GIT_TAG main
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/handycpp/src"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/handycpp/build"
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+        TEST_COMMAND ""
+        )
+
+add_dependencies(native-render handycpp)
+target_include_directories(native-render PRIVATE ${CMAKE_BINARY_DIR}/handycpp/src/include)
+
+message("cmake_binary_dir is ${CMAKE_BINARY_DIR}")
