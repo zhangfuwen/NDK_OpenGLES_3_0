@@ -181,18 +181,8 @@ void PBOSample::Init()
 		std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
 		std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
 		LOGCATI("fInd.size %d", fInd.size());
-//    for(int i = 0; i< fInd.size();i++) {
-//        FUN_INFO("fInd[i].size %d", fInd[i].size());
-//    }
 
-		std::vector<std::array<int, 3>> fIndInt(fInd.size());
-		for(int i = 0; i< fInd.size();i++) {
-			fIndInt[i][0] = fInd[i][0];
-			fIndInt[i][1] = fInd[i][1];
-			fIndInt[i][2] = fInd[i][2];
-		}
-
-
+		// vertices
 		std::vector<std::array<float, 3>> vPosFloat(vPos.size());
 		for(int i = 0; i< vPos.size();i++) {
 			vPosFloat[i][0] = vPos[i][0];
@@ -204,10 +194,30 @@ void PBOSample::Init()
 		glBufferData(GL_ARRAY_BUFFER, vPosFloat.size()*3*sizeof(float), &vPosFloat[0][0], GL_STATIC_DRAW);
 		GO_CHECK_GL_ERROR();
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, fIndInt.size()*3*sizeof(int), &fIndInt[0][0] , GL_STATIC_DRAW);
-		GO_CHECK_GL_ERROR();
-		m_bunnyNumElements = fIndInt.size();
+		if(m_bunnyWireframe) {
+		    std::vector<std::array<int, 2>> edges(fInd.size()*3); // every triange has three edges
+		    for(int i = 0; i< fInd.size(); i++) {
+		    	edges[i*3+0] = { (int)fInd[i][0], (int)fInd[i][1]};
+				edges[i*3+1] = { (int)fInd[i][1], (int)fInd[i][2]};
+				edges[i*3+2] = { (int)fInd[i][2], (int)fInd[i][0]};
+			}
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, edges.size()*2*sizeof(int), &edges[0][0] , GL_STATIC_DRAW);
+			GO_CHECK_GL_ERROR();
+			m_bunnyNumElements = edges.size();
+		}else {
+			std::vector<std::array<int, 3>> fIndInt(fInd.size());
+			for(int i = 0; i< fInd.size();i++) {
+				fIndInt[i][0] = fInd[i][0];
+				fIndInt[i][1] = fInd[i][1];
+				fIndInt[i][2] = fInd[i][2];
+			}
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, fIndInt.size()*3*sizeof(int), &fIndInt[0][0] , GL_STATIC_DRAW);
+			GO_CHECK_GL_ERROR();
+			m_bunnyNumElements = fIndInt.size();
+		}
+
 #else
 
 		static float tableVerticesWithTriangles[] = {
@@ -390,12 +400,12 @@ void PBOSample::Draw(int screenW, int screenH)
 #else
 //	printBunnyVars();
 	static float x = 0;
-	x += 1;
+//	x += 1;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	m_ScaleX = 2;
-	m_ScaleY = 2;
-	UpdateMVPMatrix(m_bunnyMVPMatrix, 0, (int)x*10, (float)screenW / screenH * x);
-	glLineWidth(3.0f);
+	m_ScaleX = 3;
+	m_ScaleY = 3;
+	UpdateMVPMatrix(m_bunnyMVPMatrix, 0, (int)x*10, (float)screenW / screenH * x, 0, -0.1, 0);
+	glLineWidth(1.0f);
 	glDisable(GL_POLYGON_OFFSET_FILL);
 
 
@@ -403,7 +413,12 @@ void PBOSample::Draw(int screenW, int screenH)
 	glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
 	glBindVertexArray(m_bunnyVAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-	glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
+	if(m_bunnyWireframe) {
+		glDrawElements(GL_LINES, m_bunnyNumElements, GL_UNSIGNED_INT, 0);
+
+	} else {
+		glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
+	}
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -602,7 +617,7 @@ bool PBOSample::CreateFrameBufferObj()
 
 }
 
-void PBOSample::UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio)
+void PBOSample::UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio, float transx, float transy, float transz)
 {
     LOGCATE("PBOSample::UpdateMVPMatrix angleX = %d, angleY = %d, ratio = %f", angleX, angleY, ratio);
     angleX = angleX % 360;
@@ -628,7 +643,7 @@ void PBOSample::UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, fl
     Model = glm::scale(Model, glm::vec3(m_ScaleX, m_ScaleY, 1.0f));
     Model = glm::rotate(Model, radiansX, glm::vec3(1.0f, 0.0f, 0.0f));
     Model = glm::rotate(Model, radiansY, glm::vec3(0.0f, 1.0f, 0.0f));
-    Model = glm::translate(Model, glm::vec3(0.0f, 0.0f, 0.0f));
+    Model = glm::translate(Model, glm::vec3(transx, transy, transz));
     mvpMatrix = Projection * View * Model;
 }
 

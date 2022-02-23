@@ -24,7 +24,7 @@ public:
 
 	virtual void Destroy();
 
-    void UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio);
+    void UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio, float transx = 0, float transy = 0, float transz = 0);
 
 	bool CreateFrameBufferObj();
 
@@ -51,6 +51,7 @@ private:
 	glm::mat4 m_bunnyMVPMatrix;
 	GLuint m_bunnyMVPUniformLoc;
 	int m_bunnyNumElements;
+	bool m_bunnyWireframe = true;
 	void printBunnyVars() {
 		LOGCATE("program:%u", m_bunnyProgramObj);
 		LOGCATE("vertexshader:%d", m_bunnyVertexShader);
