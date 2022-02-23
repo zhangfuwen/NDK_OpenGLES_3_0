@@ -48,6 +48,8 @@ private:
 	GLuint m_bunnyVBO;
 	GLuint m_bunnyEBO;
 	GLuint m_bunnyVAO;
+	glm::mat4 m_bunnyMVPMatrix;
+	GLuint m_bunnyMVPUniformLoc;
 	int m_bunnyNumElements;
 	void printBunnyVars() {
 		LOGCATE("program:%u", m_bunnyProgramObj);
@@ -56,6 +58,7 @@ private:
 		LOGCATE("Position:%d", m_bunnyVertexAttribPosition);
 		LOGCATE("VBO:%d, EBO:%d, VAO:%d", m_bunnyVBO, m_bunnyEBO, m_bunnyVAO);
 		LOGCATE("numElements:%u", m_bunnyNumElements);
+		LOGCATE("mvpLoc:%u", m_bunnyMVPUniformLoc);
 	}
 
 	GLuint m_FboProgramObj;

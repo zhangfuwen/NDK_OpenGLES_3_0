@@ -146,8 +146,9 @@ void PBOSample::Init()
 	const char bunnyVertexShaderSrc[] =
 			"#version 300 es                            \n"
 			"layout(location = 0) in vec4 a_Position;\n"
-			 "void main() {\n"
-			 "	gl_Position=a_Position;\n"
+			"uniform mat4 u_MVPMatrix;                  \n"
+			"void main() {\n"
+			 "	gl_Position=u_MVPMatrix * a_Position;\n"
 			 "}\n";
 
 	const char bunnyFragmentShaderSrc[] =
@@ -168,6 +169,7 @@ void PBOSample::Init()
 		m_bunnyProgramObj = GLUtils::CreateProgram(bunnyVertexShaderSrc, bunnyFragmentShaderSrc, m_bunnyVertexShader, m_bunnyFragmentShader);
 		GO_CHECK_GL_ERROR();
 		m_bunnyVertexAttribPosition = glGetAttribLocation(m_bunnyProgramObj, "a_Position");
+		m_bunnyMVPUniformLoc = glGetUniformLocation(m_bunnyProgramObj, "u_MVPMatrix");
 //		m_bunnyVertexAttribPosition = 0;
 		GO_CHECK_GL_ERROR();
 		glGenBuffers(1, &m_bunnyVBO);
@@ -387,12 +389,24 @@ void PBOSample::Draw(int screenW, int screenH)
 	glBindTexture(GL_TEXTURE_2D, 0);
 #else
 //	printBunnyVars();
+	static float x = 0;
+	x += 1;
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	m_ScaleX = 2;
+	m_ScaleY = 2;
+	UpdateMVPMatrix(m_bunnyMVPMatrix, 0, (int)x*10, (float)screenW / screenH * x);
+	glLineWidth(3.0f);
+	glDisable(GL_POLYGON_OFFSET_FILL);
+
+
 	glUseProgram(m_bunnyProgramObj);
+	glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
 	glBindVertexArray(m_bunnyVAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
 	glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glEnable(GL_POLYGON_OFFSET_FILL);
 #endif
 
 	//Download
