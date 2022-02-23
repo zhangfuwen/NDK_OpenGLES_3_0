@@ -245,7 +245,7 @@ void PBOSample::Init()
 
 		glBindVertexArray(m_bunnyVAO);
 
-		glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_TRUE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(m_bunnyVertexAttribPosition);
 		GO_CHECK_GL_ERROR();
 
@@ -386,15 +386,12 @@ void PBOSample::Draw(int screenW, int screenH)
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 #else
-	printBunnyVars();
+//	printBunnyVars();
 	glUseProgram(m_bunnyProgramObj);
-	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_bunnyVAO);
-	GO_CHECK_GL_ERROR();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
 	glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
-//	glDrawArrays(GL_TRIANGLES, 0, 6);
-	GO_CHECK_GL_ERROR();
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 #endif
 
