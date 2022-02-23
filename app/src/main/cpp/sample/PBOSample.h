@@ -40,9 +40,28 @@ private:
 	GLuint m_VboIds[4] = {GL_NONE};;
 	GLint m_SamplerLoc;
 	NativeImage m_RenderImage;
+
+	GLuint m_bunnyProgramObj;
+	GLuint m_bunnyVertexShader;
+	GLuint m_bunnyFragmentShader;
+	GLuint m_bunnyVertexAttribPosition;
+	GLuint m_bunnyVBO;
+	GLuint m_bunnyEBO;
+	GLuint m_bunnyVAO;
+	int m_bunnyNumElements;
+	void printBunnyVars() {
+		LOGCATE("program:%u", m_bunnyProgramObj);
+		LOGCATE("vertexshader:%d", m_bunnyVertexShader);
+		LOGCATE("fragment:%d", m_bunnyFragmentShader);
+		LOGCATE("Position:%d", m_bunnyVertexAttribPosition);
+		LOGCATE("VBO:%d, EBO:%d, VAO:%d", m_bunnyVBO, m_bunnyEBO, m_bunnyVAO);
+		LOGCATE("numElements:%u", m_bunnyNumElements);
+	}
+
 	GLuint m_FboProgramObj;
 	GLuint m_FboVertexShader;
 	GLuint m_FboFragmentShader;
+
 	GLint m_FboSamplerLoc;
 	GLint m_MVPMatrixLoc;
 

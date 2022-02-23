@@ -15,6 +15,7 @@
 #include <gtc/matrix_transform.hpp>
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
+#include <happly.h>
 #include "PBOSample.h"
 
 //#define PBO_UPLOAD
@@ -142,11 +143,121 @@ void PBOSample::Init()
 			"    outColor = vec4(vec3(luminance), tempColor.a);\n"
 			"}"; // 输出灰度图
 
+	const char bunnyVertexShaderSrc[] =
+			"#version 300 es                            \n"
+			"layout(location = 0) in vec4 a_Position;\n"
+			 "void main() {\n"
+			 "	gl_Position=a_Position;\n"
+			 "}\n";
+
+	const char bunnyFragmentShaderSrc[] =
+			"#version 300 es                            \n"
+			"precision mediump float;\n"
+			"layout(location = 0) out vec4 outColor;\n"
+		  "void main(){\n"
+		  "	outColor = vec4(1.0,1.0,0.0,1.0);\n"
+		  "}\n";
 	// 编译链接用于普通渲染的着色器程序
 	m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr, m_VertexShader, m_FragmentShader);
 
 	// 编译链接用于离屏渲染的着色器程序
 	m_FboProgramObj = GLUtils::CreateProgram(vFboShaderStr, fFboShaderStr, m_FboVertexShader, m_FboFragmentShader);
+
+	// 编译链接用于渲染兔子的着色器程序
+	{
+		m_bunnyProgramObj = GLUtils::CreateProgram(bunnyVertexShaderSrc, bunnyFragmentShaderSrc, m_bunnyVertexShader, m_bunnyFragmentShader);
+		GO_CHECK_GL_ERROR();
+		m_bunnyVertexAttribPosition = glGetAttribLocation(m_bunnyProgramObj, "a_Position");
+//		m_bunnyVertexAttribPosition = 0;
+		GO_CHECK_GL_ERROR();
+		glGenBuffers(1, &m_bunnyVBO);
+		glGenBuffers(1, &m_bunnyEBO);
+		glGenVertexArrays(1, &m_bunnyVAO);
+
+#if 0
+		happly::PLYData plyIn("/data/data/com.byteflow.app/files/bun_zipper.ply");
+		std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
+		std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
+		LOGCATI("fInd.size %d", fInd.size());
+//    for(int i = 0; i< fInd.size();i++) {
+//        FUN_INFO("fInd[i].size %d", fInd[i].size());
+//    }
+
+		std::vector<std::array<int, 3>> fIndInt(fInd.size());
+		for(int i = 0; i< fInd.size();i++) {
+			fIndInt[i][0] = fInd[i][0];
+			fIndInt[i][1] = fInd[i][1];
+			fIndInt[i][2] = fInd[i][2];
+		}
+
+
+		std::vector<std::array<float, 3>> vPosFloat(vPos.size());
+		for(int i = 0; i< vPos.size();i++) {
+			vPosFloat[i][0] = vPos[i][0];
+			vPosFloat[i][1] = vPos[i][1];
+			vPosFloat[i][2] = vPos[i][2];
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBO);
+		glBufferData(GL_ARRAY_BUFFER, vPosFloat.size()*3*sizeof(float), &vPosFloat[0][0], GL_STATIC_DRAW);
+		GO_CHECK_GL_ERROR();
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, fIndInt.size()*3*sizeof(int), &fIndInt[0][0] , GL_STATIC_DRAW);
+		GO_CHECK_GL_ERROR();
+		m_bunnyNumElements = fIndInt.size();
+#else
+
+		static float tableVerticesWithTriangles[] = {
+				// Triangle1
+				-0.5f,
+				-0.5f,
+
+				0.5f,
+				0.5f,
+
+				-0.5f,
+				0.5f,
+				// Triangle2
+				-0.5f,
+				-0.5f,
+
+				0.5f,
+				-0.5f,
+
+				0.5f,
+				0.5f,
+		};
+		static int elements[] = {
+				1,2,3,
+				4,5,6,
+				7,8,9,
+				10,11, 12
+		};
+		glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBO);
+		glBufferData(GL_ARRAY_BUFFER, 12*sizeof(float), tableVerticesWithTriangles, GL_STATIC_DRAW);
+		GO_CHECK_GL_ERROR();
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*sizeof(int), elements , GL_STATIC_DRAW);
+		m_bunnyNumElements = 2;
+#endif
+
+		glBindVertexArray(m_bunnyVAO);
+
+		glVertexAttribPointer(m_bunnyVertexAttribPosition, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(m_bunnyVertexAttribPosition);
+		GO_CHECK_GL_ERROR();
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		GO_CHECK_GL_ERROR();
+
+
+	}
+
+
 
 	if (m_ProgramObj == GL_NONE || m_FboProgramObj == GL_NONE)
 	{
@@ -262,6 +373,8 @@ void PBOSample::Draw(int screenW, int screenH)
 
 	// Do FBO off screen rendering
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
+
+#if 0
 	glUseProgram(m_FboProgramObj);
 	glBindVertexArray(m_VaoIds[1]);
 	glActiveTexture(GL_TEXTURE0);
@@ -272,6 +385,17 @@ void PBOSample::Draw(int screenW, int screenH)
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+#else
+	printBunnyVars();
+	glUseProgram(m_bunnyProgramObj);
+	GO_CHECK_GL_ERROR();
+	glBindVertexArray(m_bunnyVAO);
+	GO_CHECK_GL_ERROR();
+//	glDrawElements(GL_TRIANGLES, m_bunnyNumElements, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	GO_CHECK_GL_ERROR();
+	glBindVertexArray(0);
+#endif
 
 	//Download
 	DownloadPixels();
