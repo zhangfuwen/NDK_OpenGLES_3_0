@@ -174,7 +174,7 @@ void PBOSample::Init()
 		glGenBuffers(1, &m_bunnyEBO);
 		glGenVertexArrays(1, &m_bunnyVAO);
 
-#if 0
+#if 1
 		happly::PLYData plyIn("/data/data/com.byteflow.app/files/bun_zipper.ply");
 		std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
 		std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
@@ -245,7 +245,7 @@ void PBOSample::Init()
 
 		glBindVertexArray(m_bunnyVAO);
 
-		glVertexAttribPointer(m_bunnyVertexAttribPosition, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(m_bunnyVertexAttribPosition);
 		GO_CHECK_GL_ERROR();
 
