@@ -51,7 +51,7 @@ private:
 	glm::mat4 m_bunnyMVPMatrix;
 	GLuint m_bunnyMVPUniformLoc;
 	int m_bunnyNumElements;
-	bool m_bunnyWireframe = true;
+	bool m_bunnyWireframe = false;
 	void printBunnyVars() {
 		LOGCATE("program:%u", m_bunnyProgramObj);
 		LOGCATE("vertexshader:%d", m_bunnyVertexShader);
