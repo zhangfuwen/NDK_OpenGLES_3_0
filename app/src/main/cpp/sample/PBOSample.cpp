@@ -239,7 +239,7 @@ void PBOSample::Init()
 		GO_CHECK_GL_ERROR();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3*sizeof(int), elements , GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(int), elements , GL_STATIC_DRAW);
 		m_bunnyNumElements = 2;
 #endif
 
@@ -391,8 +391,9 @@ void PBOSample::Draw(int screenW, int screenH)
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_bunnyVAO);
 	GO_CHECK_GL_ERROR();
-//	glDrawElements(GL_TRIANGLES, m_bunnyNumElements, GL_UNSIGNED_INT, 0);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
+	glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
+//	glDrawArrays(GL_TRIANGLES, 0, 6);
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(0);
 #endif
