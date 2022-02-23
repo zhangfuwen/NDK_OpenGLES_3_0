@@ -452,6 +452,8 @@ void PBOSample::UploadPixels() {
 
 }
 
+#include "handycpp/image.h"
+
 void PBOSample::DownloadPixels() {
     int dataSize = m_RenderImage.width * m_RenderImage.height * 4;
 	NativeImage nativeImage = m_RenderImage;
@@ -462,14 +464,14 @@ void PBOSample::DownloadPixels() {
 	nativeImage.ppPlane[0] = pBuffer;
 	BEGIN_TIME("DownloadPixels glReadPixels without PBO")
 		glReadPixels(0, 0, nativeImage.width, nativeImage.height, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
-	//NativeImageUtil::DumpNativeImage(&nativeImage, "/sdcard/DCIM", "Normal");
+	NativeImageUtil::DumpNativeImage(&nativeImage, "/sdcard/DCIM", "Normal");
 	END_TIME("DownloadPixels glReadPixels without PBO")
     delete []pBuffer;
 
     int index = m_FrameIndex % 2;
     int nextIndex = (index + 1) % 2;
 
-    BEGIN_TIME("DownloadPixels glReadPixels with PBO")
+    BEGIN_TIME("DownloadPixels glReadPixels with PBO ")
     glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[index]);
     glReadPixels(0, 0, m_RenderImage.width, m_RenderImage.height, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     END_TIME("DownloadPixels glReadPixels with PBO")
@@ -482,7 +484,10 @@ void PBOSample::DownloadPixels() {
 
     if (bufPtr) {
         nativeImage.ppPlane[0] = bufPtr;
-        //NativeImageUtil::DumpNativeImage(&nativeImage, "/sdcard/DCIM", "PBO");
+        handycpp::image::writeBmp("/data/data/com.byteflow.app/files/1.bmp", bufPtr, nativeImage.width, nativeImage.height, 4);
+
+//        NativeImageUtil::DumpNativeImage(&nativeImage, "/data/data/com.byteflow.app/files/", "PBO");
+
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
     }
     END_TIME("DownloadPixels PBO glMapBufferRange")

@@ -91,6 +91,7 @@ target_link_libraries( # Specifies the target library.
                        android
                        )
 
+
 include(ExternalProject)
 ExternalProject_Add(handycpp
         GIT_REPOSITORY https://github.com/zhangfuwen/handycpp
@@ -102,7 +103,18 @@ ExternalProject_Add(handycpp
         TEST_COMMAND ""
         )
 
-add_dependencies(native-render handycpp)
-target_include_directories(native-render PRIVATE ${CMAKE_BINARY_DIR}/handycpp/src/include)
+ExternalProject_add(happly
+        GIT_REPOSITORY  https://github.com/nmwsharp/happly
+        GIT_TAG master
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/happly/src"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/happly/build"
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+        TEST_COMMAND ""
+        )
 
-message("cmake_binary_dir is ${CMAKE_BINARY_DIR}")
+add_dependencies(native-render handycpp)
+add_dependencies(native-render happly)
+target_include_directories(native-render PRIVATE ${CMAKE_BINARY_DIR}/handycpp/src/include)
+target_include_directories(native-render PRIVATE ${CMAKE_BINARY_DIR}/happly/src)
