@@ -23,7 +23,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: install ninja
-      run: apt install ninja
+      run: sudo apt install ninja
     - name: Build with Gradle
       run: unset ANDROID_NDK_HOME && ./gradlew build
       
