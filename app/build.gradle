@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 31
     buildToolsVersion "29.0.3"
-    ndkVersion "18.0.5002713"
+    ndkVersion "21.3.6528147"
     defaultConfig {
         applicationId "com.byteflow.app"
         minSdkVersion 26
