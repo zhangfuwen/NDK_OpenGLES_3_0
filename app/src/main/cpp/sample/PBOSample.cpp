@@ -180,7 +180,7 @@ void PBOSample::Init()
 		glGenVertexArrays(1, &m_bunnyVAO);
 
 #if 1
-		happly::PLYData plyIn("/data/data/com.byteflow.app/files/bun_zipper.ply");
+		happly::PLYData plyIn("/sdcard/documents/bunny_3851.ply");
 		std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
 		std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
 		LOGCATI("fInd.size %d", fInd.size());
