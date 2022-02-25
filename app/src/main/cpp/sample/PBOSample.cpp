@@ -159,7 +159,7 @@ void PBOSample::Init()
 			"in highp float zDepth; \n"
 			"layout(location = 0) out vec4 outColor;\n"
 		  "void main(){\n"
-		  "	outColor = vec4(1.0,1.0, 1.0,1.0)*zDepth;\n"
+		  "	outColor = vec4(1.0,1.0, 1.0,1.0)*(1.0 - zDepth);\n"
 		  "}\n";
 	// 编译链接用于普通渲染的着色器程序
 	m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr, m_VertexShader, m_FragmentShader);
