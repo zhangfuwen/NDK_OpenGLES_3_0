@@ -9,6 +9,7 @@
 #include <detail/type_mat.hpp>
 #include "GLSampleBase.h"
 #include "../util/ImageDef.h"
+#include "../Components/MeshRenderer.h"
 
 class PBOSample : public GLSampleBase
 {
@@ -41,26 +42,7 @@ private:
 	GLint m_SamplerLoc;
 	NativeImage m_RenderImage;
 
-	GLuint m_bunnyProgramObj;
-	GLuint m_bunnyVertexShader;
-	GLuint m_bunnyFragmentShader;
-	GLuint m_bunnyVertexAttribPosition;
-	GLuint m_bunnyVBO;
-	GLuint m_bunnyEBO;
-	GLuint m_bunnyVAO;
-	glm::mat4 m_bunnyMVPMatrix;
-	GLuint m_bunnyMVPUniformLoc;
-	int m_bunnyNumElements;
-	bool m_bunnyWireframe = false;
-	void printBunnyVars() {
-		LOGCATE("program:%u", m_bunnyProgramObj);
-		LOGCATE("vertexshader:%d", m_bunnyVertexShader);
-		LOGCATE("fragment:%d", m_bunnyFragmentShader);
-		LOGCATE("Position:%d", m_bunnyVertexAttribPosition);
-		LOGCATE("VBO:%d, EBO:%d, VAO:%d", m_bunnyVBO, m_bunnyEBO, m_bunnyVAO);
-		LOGCATE("numElements:%u", m_bunnyNumElements);
-		LOGCATE("mvpLoc:%u", m_bunnyMVPUniformLoc);
-	}
+	MeshRenderer *m_meshRenderer = nullptr;
 
 	GLuint m_FboProgramObj;
 	GLuint m_FboVertexShader;

@@ -1,12 +1,16 @@
 //
 // Created by zhangfuwen on 2022/2/24.
 //
+#define  LOG_TAG "ByteFlow"
+#include <android/log.h>
 
+#define  FUN_PRINT(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 #include "MeshRenderer.h"
 #include "Transform.h"
 #include <handycpp/logging.h>
 #include <GLUtils.h>
 #include <happly.h>
+#include <ext.hpp>
 
 void MeshRenderer::printBunnyVars() {
     FUN_INFO("program:%u", m_bunnyProgramObj);
@@ -16,6 +20,8 @@ void MeshRenderer::printBunnyVars() {
     FUN_INFO("VBO:%d, EBO:%d, VAO:%d", m_bunnyVBO, m_bunnyEBO, m_bunnyVAO);
     FUN_INFO("numElements:%u", m_bunnyNumElements);
     FUN_INFO("mvpLoc:%u", m_bunnyMVPUniformLoc);
+    auto s = glm::to_string(m_bunnyMVPMatrix);
+    FUN_INFO("mvp: %s", s.c_str());
 }
 
 bool MeshRenderer::Init() {
@@ -49,7 +55,7 @@ bool MeshRenderer::Init() {
         glGenVertexArrays(1, &m_bunnyVAO);
 
 #if 1
-        happly::PLYData plyIn("/data/data/com.byteflow.app/files/bun_zipper.ply");
+        happly::PLYData plyIn("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/bunny_3851.ply");
         std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
         std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
         FUN_INFO("fInd.size %d", fInd.size());
@@ -135,6 +141,7 @@ bool MeshRenderer::Init() {
 
 
     }
+    return true;
 
 }
 
@@ -178,7 +185,7 @@ bool MeshRenderer::Draw(const Transform &transform) {
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 #else
-//	printBunnyVars();
+	printBunnyVars();
     static float x = 0;
 //	x += 1;
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -201,4 +208,5 @@ bool MeshRenderer::Draw(const Transform &transform) {
     glBindVertexArray(0);
     glEnable(GL_POLYGON_OFFSET_FILL);
 #endif
+    return true;
 }

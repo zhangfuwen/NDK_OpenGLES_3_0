@@ -24,14 +24,18 @@ private:
     GLuint m_bunnyVBO;
     GLuint m_bunnyEBO;
     GLuint m_bunnyVAO;
-    glm::mat4 m_bunnyMVPMatrix;
+    glm::mat4 m_bunnyMVPMatrix{1.0f};
     GLuint m_bunnyMVPUniformLoc;
     int m_bunnyNumElements;
     bool m_bunnyWireframe = false;
 
     void printBunnyVars();
+
+public:
     bool Init();
+
     bool Draw(const Transform & transform);
+
     void Finalize();
 };
 

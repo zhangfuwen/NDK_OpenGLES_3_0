@@ -9,9 +9,9 @@
 #include "../glm/glm.hpp"
 class Transform {
 public:
-    glm::vec3 translation;
-    glm::vec3 scale;
-    glm::vec3 rotation; // by degrees
+    glm::vec3 translation = {0.0f, 0.0f, 0.0f};
+    glm::vec3 scale = { 1.0f, 1.0f, 1.0f};
+    glm::vec3 rotation = {0.0f, 0.0f, 0.0f}; // by degrees
 
 
     void GetMVPMatrix(glm::mat4 &mvpMatrix) const;

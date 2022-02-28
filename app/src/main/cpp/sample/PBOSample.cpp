@@ -167,110 +167,8 @@ void PBOSample::Init()
 	// 编译链接用于离屏渲染的着色器程序
 	m_FboProgramObj = GLUtils::CreateProgram(vFboShaderStr, fFboShaderStr, m_FboVertexShader, m_FboFragmentShader);
 
-	// 编译链接用于渲染兔子的着色器程序
-	{
-		m_bunnyProgramObj = GLUtils::CreateProgram(bunnyVertexShaderSrc, bunnyFragmentShaderSrc, m_bunnyVertexShader, m_bunnyFragmentShader);
-		GO_CHECK_GL_ERROR();
-		m_bunnyVertexAttribPosition = glGetAttribLocation(m_bunnyProgramObj, "a_Position");
-		m_bunnyMVPUniformLoc = glGetUniformLocation(m_bunnyProgramObj, "u_MVPMatrix");
-//		m_bunnyVertexAttribPosition = 0;
-		GO_CHECK_GL_ERROR();
-		glGenBuffers(1, &m_bunnyVBO);
-		glGenBuffers(1, &m_bunnyEBO);
-		glGenVertexArrays(1, &m_bunnyVAO);
-
-#if 1
-		happly::PLYData plyIn("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/bunny_3851.ply");
-		std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
-		std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
-		LOGCATI("fInd.size %d", fInd.size());
-
-		// vertices
-		std::vector<std::array<float, 3>> vPosFloat(vPos.size());
-		for(int i = 0; i< vPos.size();i++) {
-			vPosFloat[i][0] = vPos[i][0];
-			vPosFloat[i][1] = vPos[i][1];
-			vPosFloat[i][2] = vPos[i][2];
-		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBO);
-		glBufferData(GL_ARRAY_BUFFER, vPosFloat.size()*3*sizeof(float), &vPosFloat[0][0], GL_STATIC_DRAW);
-		GO_CHECK_GL_ERROR();
-
-		if(m_bunnyWireframe) {
-		    std::vector<std::array<int, 2>> edges(fInd.size()*3); // every triange has three edges
-		    for(int i = 0; i< fInd.size(); i++) {
-		    	edges[i*3+0] = { (int)fInd[i][0], (int)fInd[i][1]};
-				edges[i*3+1] = { (int)fInd[i][1], (int)fInd[i][2]};
-				edges[i*3+2] = { (int)fInd[i][2], (int)fInd[i][0]};
-			}
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, edges.size()*2*sizeof(int), &edges[0][0] , GL_STATIC_DRAW);
-			GO_CHECK_GL_ERROR();
-			m_bunnyNumElements = edges.size();
-		}else {
-			std::vector<std::array<int, 3>> fIndInt(fInd.size());
-			for(int i = 0; i< fInd.size();i++) {
-				fIndInt[i][0] = fInd[i][0];
-				fIndInt[i][1] = fInd[i][1];
-				fIndInt[i][2] = fInd[i][2];
-			}
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, fIndInt.size()*3*sizeof(int), &fIndInt[0][0] , GL_STATIC_DRAW);
-			GO_CHECK_GL_ERROR();
-			m_bunnyNumElements = fIndInt.size();
-		}
-
-#else
-
-		static float tableVerticesWithTriangles[] = {
-				// Triangle1
-				-0.5f,
-				-0.5f,
-
-				0.5f,
-				0.5f,
-
-				-0.5f,
-				0.5f,
-				// Triangle2
-				-0.5f,
-				-0.5f,
-
-				0.5f,
-				-0.5f,
-
-				0.5f,
-				0.5f,
-		};
-		static int elements[] = {
-				1,2,3,
-				4,5,6,
-				7,8,9,
-				10,11, 12
-		};
-		glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBO);
-		glBufferData(GL_ARRAY_BUFFER, 12*sizeof(float), tableVerticesWithTriangles, GL_STATIC_DRAW);
-		GO_CHECK_GL_ERROR();
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(int), elements , GL_STATIC_DRAW);
-		m_bunnyNumElements = 2;
-#endif
-
-		glBindVertexArray(m_bunnyVAO);
-
-		glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_TRUE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(m_bunnyVertexAttribPosition);
-		GO_CHECK_GL_ERROR();
-
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		GO_CHECK_GL_ERROR();
-
-
-	}
+	m_meshRenderer = new MeshRenderer();
+	m_meshRenderer->Init();
 
 
 
@@ -389,44 +287,8 @@ void PBOSample::Draw(int screenW, int screenH)
 	// Do FBO off screen rendering
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
 
-#if 0
-	glUseProgram(m_FboProgramObj);
-	glBindVertexArray(m_VaoIds[1]);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_ImageTextureId);
-	glUniform1i(m_FboSamplerLoc, 0);
-	GO_CHECK_GL_ERROR();
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void *)0);
-	GO_CHECK_GL_ERROR();
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-#else
-//	printBunnyVars();
-	static float x = 0;
-//	x += 1;
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	m_ScaleX = 3;
-	m_ScaleY = 3;
-	UpdateMVPMatrix(m_bunnyMVPMatrix, 0, (int)x*10, (float)screenW / screenH * x, 0, -0.1, 0);
-	glLineWidth(1.0f);
-	glDisable(GL_POLYGON_OFFSET_FILL);
-
-
-	glUseProgram(m_bunnyProgramObj);
-	glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
-	glBindVertexArray(m_bunnyVAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-	if(m_bunnyWireframe) {
-		glDrawElements(GL_LINES, m_bunnyNumElements, GL_UNSIGNED_INT, 0);
-
-	} else {
-		glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
-	}
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-#endif
-
+	Transform transform;
+	m_meshRenderer->Draw(transform);
 	//Download
 	DownloadPixels();
 
@@ -498,6 +360,12 @@ void PBOSample::Destroy()
 
     if (m_UploadPboIds[0]) {
         glDeleteBuffers(2, m_UploadPboIds);
+    }
+
+    if(m_meshRenderer) {
+    	m_meshRenderer->Finalize();
+    	delete m_meshRenderer;
+    	m_meshRenderer = nullptr;
     }
 
 }
