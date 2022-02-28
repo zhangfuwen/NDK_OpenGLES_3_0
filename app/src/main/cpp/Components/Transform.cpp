@@ -21,7 +21,7 @@ void Transform::GetMVPMatrix(glm::mat4 &mvpMatrix) const
 
     // View matrix
     glm::mat4 View = glm::lookAt(
-            glm::vec3(0, 0, 1), // Camera is at (0,0,1), in World Space
+           glm::vec3(0.0f, 0.0f, 0.8f), // Camera is at (1,1,1), in World Space
             glm::vec3(0, 0, 0), // and looks at the origin
             glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
     );

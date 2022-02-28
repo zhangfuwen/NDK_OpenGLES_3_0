@@ -35,6 +35,7 @@ public:
     bool Init();
 
     bool Draw(const Transform & transform);
+    bool Draw();
 
     void Finalize();
 };

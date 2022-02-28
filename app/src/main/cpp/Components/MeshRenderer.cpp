@@ -41,7 +41,7 @@ bool MeshRenderer::Init() {
             "in highp float zDepth; \n"
             "layout(location = 0) out vec4 outColor;\n"
             "void main(){\n"
-            "	outColor = vec4(1.0,1.0, 1.0,1.0)*(1.0 - zDepth);\n"
+            "	outColor = vec4(0.5*(1.0 - zDepth),0.5, 0.5,1.0);\n"
             "}\n";
 
     // 编译链接用于渲染兔子的着色器程序
@@ -55,7 +55,7 @@ bool MeshRenderer::Init() {
         glGenVertexArrays(1, &m_bunnyVAO);
 
 #if 1
-        happly::PLYData plyIn("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/bunny_3851.ply");
+        happly::PLYData plyIn("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/bun_zipper.ply");
         std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
         std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
         FUN_INFO("fInd.size %d", fInd.size());
@@ -190,6 +190,49 @@ bool MeshRenderer::Draw(const Transform &transform) {
 //	x += 1;
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     transform.GetMVPMatrix(m_bunnyMVPMatrix);
+    glLineWidth(1.0f);
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+
+    glUseProgram(m_bunnyProgramObj);
+    glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
+    glBindVertexArray(m_bunnyVAO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
+    if(m_bunnyWireframe) {
+        glDrawElements(GL_LINES, m_bunnyNumElements, GL_UNSIGNED_INT, 0);
+
+    } else {
+        glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
+    }
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+#endif
+    return true;
+}
+
+bool MeshRenderer::Draw() {
+#if 0
+    glUseProgram(m_FboProgramObj);
+	glBindVertexArray(m_VaoIds[1]);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_ImageTextureId);
+	glUniform1i(m_FboSamplerLoc, 0);
+	GO_CHECK_GL_ERROR();
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void *)0);
+	GO_CHECK_GL_ERROR();
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+#else
+    printBunnyVars();
+    static float x = 0;
+//	x += 1;
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glLineWidth(1.0f);
     glDisable(GL_POLYGON_OFFSET_FILL);
 

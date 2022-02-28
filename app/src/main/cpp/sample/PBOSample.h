@@ -22,6 +22,7 @@ public:
 
 	virtual void Init();
 	virtual void Draw(int screenW, int screenH);
+	void UpdateTransformMatrix(float rotateX, float rotateY, float scaleX, float scaleY) override;
 
 	virtual void Destroy();
 

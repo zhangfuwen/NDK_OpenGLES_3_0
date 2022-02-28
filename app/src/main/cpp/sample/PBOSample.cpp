@@ -274,6 +274,15 @@ void PBOSample::Init()
 
 }
 
+void PBOSample::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX, float scaleY)
+{
+	GLSampleBase::UpdateTransformMatrix(rotateX, rotateY, scaleX, scaleY);
+	m_AngleX = static_cast<int>(rotateX);
+	m_AngleY = static_cast<int>(rotateY);
+	m_ScaleX = scaleX;
+	m_ScaleY = scaleY;
+}
+
 void PBOSample::Draw(int screenW, int screenH)
 {
 	// 离屏渲染
@@ -288,6 +297,11 @@ void PBOSample::Draw(int screenW, int screenH)
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
 
 	Transform transform;
+	m_AngleX %= 360;
+	m_AngleY %= 360;
+	transform.scale = { 3.0f, 3.0f, 3.0f};
+	transform.rotation = { m_AngleX, m_AngleY, 0.0f};
+	transform.translation = { 0.0f, -0.1f, 0.0f};
 	m_meshRenderer->Draw(transform);
 	//Download
 	DownloadPixels();
@@ -297,7 +311,7 @@ void PBOSample::Draw(int screenW, int screenH)
 	// 普通渲染
 	// Do normal rendering
 	glViewport(0, 0, screenW, screenH);
-    UpdateMVPMatrix(m_MVPMatrix, m_AngleX, m_AngleY, (float)screenW / screenH);
+    UpdateMVPMatrix(m_MVPMatrix, 180.0, 0.0, (float)screenW / screenH);
     glUseProgram(m_ProgramObj);
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_VaoIds[0]);
@@ -606,7 +620,9 @@ void PBOSample::DownloadPixels() {
 
     if (bufPtr) {
         nativeImage.ppPlane[0] = bufPtr;
+#if 0
         handycpp::image::writeBmp("/data/data/com.byteflow.app/files/1.bmp", bufPtr, nativeImage.width, nativeImage.height, 4);
+#endif
 
 //        NativeImageUtil::DumpNativeImage(&nativeImage, "/data/data/com.byteflow.app/files/", "PBO");
 
@@ -615,8 +631,10 @@ void PBOSample::DownloadPixels() {
     END_TIME("DownloadPixels PBO glMapBufferRange")
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
+#if 0
     int stride = 0;
     auto buf = readAhardwareBuffer(hardwareBuffer, stride);
 	handycpp::image::writeBmp("/data/data/com.byteflow.app/files/2.bmp", (unsigned char*)buf.get(), stride, nativeImage.height, 4);
+#endif
 
 }
