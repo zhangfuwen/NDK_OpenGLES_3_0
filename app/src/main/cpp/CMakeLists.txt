@@ -26,7 +26,6 @@ include_directories(
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 file(GLOB src-files
-        ${CMAKE_SOURCE_DIR}/Components/*.cpp
         ${CMAKE_SOURCE_DIR}/*.cpp
         ${CMAKE_SOURCE_DIR}/render/*.cpp
         ${CMAKE_SOURCE_DIR}/util/*.cpp
@@ -42,6 +41,10 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
              ${src-files}
+            ${CMAKE_SOURCE_DIR}/Components/Transform.cpp
+            ${CMAKE_SOURCE_DIR}/Components/MeshRenderer.cpp
+            ${CMAKE_SOURCE_DIR}/Components/ObjMeshRenderer.cpp
+            ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

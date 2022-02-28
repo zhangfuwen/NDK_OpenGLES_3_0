@@ -17,6 +17,7 @@
 #include <opencv2/opencv.hpp>
 #include <happly.h>
 #include "PBOSample.h"
+#include "../Components/ObjMeshRenderer.h"
 
 //#define PBO_UPLOAD
 #define PBO_DOWNLOAD
@@ -169,6 +170,8 @@ void PBOSample::Init()
 
 	m_meshRenderer = new MeshRenderer();
 	m_meshRenderer->Init();
+	m_objMeshRenderer = new ObjMeshRenderer();
+	m_objMeshRenderer->Init();
 
 
 
