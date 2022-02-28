@@ -24,8 +24,13 @@ private:
     GLuint m_bunnyVertexShader;
     GLuint m_bunnyFragmentShader;
     GLuint m_bunnyVertexAttribPosition;
-    GLuint m_bunnyVBO;
-    GLuint m_bunnyEBO;
+    GLuint m_bunnyVertexAttribNormal;
+    GLuint m_bunnyVertexAttribTexCoord;
+
+    GLuint m_bunnyVBOPosition;
+    GLuint m_bunnyVBONormal;
+    GLuint m_bunnyVBOTexCoord;
+
     GLuint m_bunnyVAO;
     glm::mat4 m_bunnyMVPMatrix{1.0f};
     GLuint m_bunnyMVPUniformLoc;
@@ -38,7 +43,6 @@ public:
     bool Init();
 
     bool Draw(const Transform & transform);
-    bool Draw();
 
     void Finalize();
 };

@@ -3,6 +3,9 @@
 //
 #include <android/log.h>
 
+#define LOG_TAG "ByteFlow"
+#define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
+#include "handycpp/logging.h"
 #include "ObjMeshRenderer.h"
 #include "Transform.h"
 #include <handycpp/logging.h>
@@ -17,7 +20,9 @@ void ObjMeshRenderer::printBunnyVars() {
     FUN_INFO("vertexshader:%d", m_bunnyVertexShader);
     FUN_INFO("fragment:%d", m_bunnyFragmentShader);
     FUN_INFO("Position:%d", m_bunnyVertexAttribPosition);
-    FUN_INFO("VBO:%d, EBO:%d, VAO:%d", m_bunnyVBO, m_bunnyEBO, m_bunnyVAO);
+    FUN_INFO("Normal:%d", m_bunnyVertexAttribNormal);
+    FUN_INFO("TexCoord:%d", m_bunnyVertexAttribTexCoord);
+    FUN_INFO("VBO:%d,%d,%d , VAO:%d", m_bunnyVBOPosition, m_bunnyVBONormal, m_bunnyVBOTexCoord, m_bunnyVAO);
     FUN_INFO("numElements:%u", m_bunnyNumElements);
     FUN_INFO("mvpLoc:%u", m_bunnyMVPUniformLoc);
     auto s = glm::to_string(m_bunnyMVPMatrix);
@@ -29,6 +34,8 @@ bool ObjMeshRenderer::Init() {
     const char bunnyVertexShaderSrc[] =
             "#version 300 es                            \n"
             "layout(location = 0) in vec4 a_Position;\n"
+            "layout(location = 1) in vec4 a_Normal;\n"
+            "layout(location = 2) in vec2 a_TexCoord;\n"
             "uniform mat4 u_MVPMatrix;                  \n"
             "out highp float zDepth; \n"
             "void main() {\n"
@@ -49,10 +56,15 @@ bool ObjMeshRenderer::Init() {
     {
         m_bunnyProgramObj = GLUtils::CreateProgram(bunnyVertexShaderSrc, bunnyFragmentShaderSrc, m_bunnyVertexShader, m_bunnyFragmentShader);
         m_bunnyVertexAttribPosition = glGetAttribLocation(m_bunnyProgramObj, "a_Position");
+        m_bunnyVertexAttribNormal = glGetAttribLocation(m_bunnyProgramObj, "a_Normal");
+        m_bunnyVertexAttribTexCoord = glGetAttribLocation(m_bunnyProgramObj, "a_TexCoord");
+        m_bunnyVertexAttribNormal =1;
+        m_bunnyVertexAttribTexCoord = 2;
         m_bunnyMVPUniformLoc = glGetUniformLocation(m_bunnyProgramObj, "u_MVPMatrix");
 //		m_bunnyVertexAttribPosition = 0;
-        glGenBuffers(1, &m_bunnyVBO);
-        glGenBuffers(1, &m_bunnyEBO);
+        glGenBuffers(1, &m_bunnyVBOPosition);
+        glGenBuffers(1, &m_bunnyVBONormal);
+        glGenBuffers(1, &m_bunnyVBOTexCoord);
         glGenVertexArrays(1, &m_bunnyVAO);
 
 #if 1
@@ -60,75 +72,57 @@ bool ObjMeshRenderer::Init() {
         m_objLoader->LoadObjFile();
         m_objLoader->Dump();
 
+        std::vector<glm::vec3> vertices;
+        std::vector<glm::vec3> normals;
+        std::vector<glm::vec2> texCoords;
 
+        for(const auto & face : m_objLoader->faces) {
+            vertices.push_back(m_objLoader->vertices[face[0].vertex_index]);
+            vertices.push_back(m_objLoader->vertices[face[1].vertex_index]);
+            vertices.push_back(m_objLoader->vertices[face[2].vertex_index]);
+            normals.push_back(m_objLoader->normals[face[0].normal_index]);
+            normals.push_back(m_objLoader->normals[face[1].normal_index]);
+            normals.push_back(m_objLoader->normals[face[2].normal_index]);
+            texCoords.push_back(m_objLoader->texCoords[face[0].texCord_index]);
+            texCoords.push_back(m_objLoader->texCoords[face[1].texCord_index]);
+            texCoords.push_back(m_objLoader->texCoords[face[2].texCord_index]);
 
-//        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBO);
-//        glBufferData(GL_ARRAY_BUFFER, vPosFloat.size()*3*sizeof(float), &vPosFloat[0][0], GL_STATIC_DRAW);
-
-//        if(m_bunnyWireframe) {
-//            std::vector<std::array<int, 2>> edges(fInd.size()*3); // every triange has three edges
-//            for(int i = 0; i< fInd.size(); i++) {
-//                edges[i*3+0] = { (int)fInd[i][0], (int)fInd[i][1]};
-//                edges[i*3+1] = { (int)fInd[i][1], (int)fInd[i][2]};
-//                edges[i*3+2] = { (int)fInd[i][2], (int)fInd[i][0]};
-//            }
-//            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-//            glBufferData(GL_ELEMENT_ARRAY_BUFFER, edges.size()*2*sizeof(int), &edges[0][0] , GL_STATIC_DRAW);
-//            m_bunnyNumElements = edges.size();
-//        }else {
-//            std::vector<std::array<int, 3>> fIndInt(fInd.size());
-//            for(int i = 0; i< fInd.size();i++) {
-//                fIndInt[i][0] = fInd[i][0];
-//                fIndInt[i][1] = fInd[i][1];
-//                fIndInt[i][2] = fInd[i][2];
-//            }
-//            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-//            glBufferData(GL_ELEMENT_ARRAY_BUFFER, fIndInt.size()*3*sizeof(int), &fIndInt[0][0] , GL_STATIC_DRAW);
-//            m_bunnyNumElements = fIndInt.size();
-//        }
-//
-#else
-//
-//        static float tableVerticesWithTriangles[] = {
-//				// Triangle1
-//				-0.5f,
-//				-0.5f,
-//
-//				0.5f,
-//				0.5f,
-//
-//				-0.5f,
-//				0.5f,
-//				// Triangle2
-//				-0.5f,
-//				-0.5f,
-//
-//				0.5f,
-//				-0.5f,
-//
-//				0.5f,
-//				0.5f,
-//		};
-//		static int elements[] = {
-//				1,2,3,
-//				4,5,6,
-//				7,8,9,
-//				10,11, 12
-//		};
-//		glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBO);
-//		glBufferData(GL_ARRAY_BUFFER, 12*sizeof(float), tableVerticesWithTriangles, GL_STATIC_DRAW);
-//		GO_CHECK_GL_ERROR();
-//
-//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-//		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(int), elements , GL_STATIC_DRAW);
-//		m_bunnyNumElements = 2;
-
+            vertices.push_back(m_objLoader->vertices[face[2].vertex_index]);
+            vertices.push_back(m_objLoader->vertices[face[3].vertex_index]);
+            vertices.push_back(m_objLoader->vertices[face[1].vertex_index]);
+            normals.push_back(m_objLoader->normals[face[2].normal_index]);
+            normals.push_back(m_objLoader->normals[face[3].normal_index]);
+            normals.push_back(m_objLoader->normals[face[1].normal_index]);
+            texCoords.push_back(m_objLoader->texCoords[face[2].texCord_index]);
+            texCoords.push_back(m_objLoader->texCoords[face[3].texCord_index]);
+            texCoords.push_back(m_objLoader->texCoords[face[1].texCord_index]);
+        }
+        m_bunnyNumElements = m_objLoader->faces.size()*6;
 #endif
+
+
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOPosition);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size()*3*sizeof(float), &vertices[0][0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBONormal);
+        glBufferData(GL_ARRAY_BUFFER, normals.size()*3*sizeof(float), &normals[0][0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOTexCoord);
+        glBufferData(GL_ARRAY_BUFFER, texCoords.size()*2*sizeof(float), &texCoords[0][0], GL_STATIC_DRAW);
 
         glBindVertexArray(m_bunnyVAO);
 
-        glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_TRUE, 3 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOPosition);
+        glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBONormal);
+        glVertexAttribPointer(m_bunnyVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOTexCoord);
+        glVertexAttribPointer(m_bunnyVertexAttribTexCoord, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
         glEnableVertexAttribArray(m_bunnyVertexAttribPosition);
+        glEnableVertexAttribArray(m_bunnyVertexAttribNormal);
+        glEnableVertexAttribArray(m_bunnyVertexAttribTexCoord);
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -157,13 +151,17 @@ void ObjMeshRenderer::Finalize() {
         glDeleteVertexArrays(1, &m_bunnyVAO);
         m_bunnyVAO = 0;
     }
-    if(m_bunnyVBO) {
-        glDeleteBuffers(1, &m_bunnyVBO);
-        m_bunnyVBO = 0;
+    if(m_bunnyVBOPosition) {
+        glDeleteBuffers(1, &m_bunnyVBOPosition);
+        m_bunnyVBOPosition = 0;
     }
-    if(m_bunnyEBO) {
-        glDeleteBuffers(1, &m_bunnyEBO);
-        m_bunnyEBO = 0;
+    if(m_bunnyVBONormal) {
+        glDeleteBuffers(1, &m_bunnyVBONormal);
+        m_bunnyVBONormal = 0;
+    }
+    if(m_bunnyVBOTexCoord) {
+        glDeleteBuffers(1, &m_bunnyVBOTexCoord);
+        m_bunnyVBOTexCoord = 0;
     }
 }
 
@@ -195,12 +193,11 @@ bool ObjMeshRenderer::Draw(const Transform &transform) {
     glUseProgram(m_bunnyProgramObj);
     glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
     glBindVertexArray(m_bunnyVAO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
     if(m_bunnyWireframe) {
-        glDrawElements(GL_LINES, m_bunnyNumElements, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_LINES, 0, m_bunnyNumElements);
 
     } else {
-        glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, m_bunnyNumElements);
     }
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -211,40 +208,3 @@ bool ObjMeshRenderer::Draw(const Transform &transform) {
     return true;
 }
 
-bool ObjMeshRenderer::Draw() {
-#if 0
-    glUseProgram(m_FboProgramObj);
-	glBindVertexArray(m_VaoIds[1]);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_ImageTextureId);
-	glUniform1i(m_FboSamplerLoc, 0);
-	GO_CHECK_GL_ERROR();
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void *)0);
-	GO_CHECK_GL_ERROR();
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-#else
-    printBunnyVars();
-    static float x = 0;
-//	x += 1;
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    glLineWidth(1.0f);
-    glDisable(GL_POLYGON_OFFSET_FILL);
-
-
-    glUseProgram(m_bunnyProgramObj);
-    glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
-    glBindVertexArray(m_bunnyVAO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_bunnyEBO);
-    if(m_bunnyWireframe) {
-        glDrawElements(GL_LINES, m_bunnyNumElements, GL_UNSIGNED_INT, 0);
-
-    } else {
-        glDrawElements(GL_TRIANGLES, m_bunnyNumElements*3, GL_UNSIGNED_INT, 0);
-    }
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-#endif
-    return true;
-}

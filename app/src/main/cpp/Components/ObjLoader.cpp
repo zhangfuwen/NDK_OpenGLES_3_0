@@ -81,20 +81,20 @@ int ObjLoader::LoadObjFile(std::string filePath) {
         if(line[0] == 'v') {
             if(line[1] == ' ') {
                 float x,y,z;
-                sscanf(line.substr(3).c_str(), "%f, %f, %f", &x, &y, &z);
+                sscanf(line.substr(3).c_str(), "%f %f %f", &x, &y, &z);
                 vertices.emplace_back(x, y, z);
             } else if (line[1] == 'n') {
                 float x,y,z;
-                sscanf(line.substr(3).c_str(), "%f, %f, %f", &x, &y, &z);
+                sscanf(line.substr(3).c_str(), "%f %f %f", &x, &y, &z);
                 normals.emplace_back(x, y, z);
             } else if(line[1] == 't') {
                 float u,v;
-                sscanf(line.substr(3).c_str(), "%f, %f", &u, &v);
+                sscanf(line.substr(3).c_str(), "%f %f", &u, &v);
                 texCoords.emplace_back(u, v);
             }
         } else if(line[0] == 'f') {
             int v1,t1,n1,v2,t2,n2,v3,t3,n3, v4,t4,n4;
-            sscanf(line.substr(2).c_str(), "%d/%d/%d/%d %d/%d/%d/%d %d/%d/%d/%d",
+            sscanf(line.substr(2).c_str(), "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d",
                    &v1, &t1, &n1
                     ,&v2, &t2, &n2
                     ,&v3, &t3, &n3

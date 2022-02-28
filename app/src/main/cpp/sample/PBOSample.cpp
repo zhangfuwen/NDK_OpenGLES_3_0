@@ -302,10 +302,11 @@ void PBOSample::Draw(int screenW, int screenH)
 	Transform transform;
 	m_AngleX %= 360;
 	m_AngleY %= 360;
-	transform.scale = { 3.0f, 3.0f, 3.0f};
+	transform.scale = { 0.3f, 0.3f, 0.3f};
 	transform.rotation = { m_AngleX, m_AngleY, 0.0f};
-	transform.translation = { 0.0f, -0.1f, 0.0f};
-	m_meshRenderer->Draw(transform);
+	transform.translation = { 0.0f, -2.5f, 0.0f};
+//	m_meshRenderer->Draw(transform);
+	m_objMeshRenderer->Draw(transform);
 	//Download
 	DownloadPixels();
 
