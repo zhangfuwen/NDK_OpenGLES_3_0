@@ -144,10 +144,10 @@ bool ObjMeshRenderer::Init() {
     if(m_objLoader->materials[0].m_textureFiles.count("map_Ka")) {
         std::string textureFileName = m_objLoader->materials[0].m_textureFiles["map_Ka"];
         auto data = handycpp::image::readPngAsRgba(textureFileName);
+        FUN_INFO("map_Ka: %d, %d", data.width, data.height);
         glActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &m_colorTexutre);
         glBindTexture(GL_TEXTURE_2D, m_colorTexutre);
-        auto chunk = handycpp::file::readFile(textureFileName);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data.rgba_image[0]);
         glActiveTexture(GL_TEXTURE0);
 
