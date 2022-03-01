@@ -149,9 +149,15 @@ bool ObjMeshRenderer::Init() {
         glGenTextures(1, &m_colorTexutre);
         glBindTexture(GL_TEXTURE_2D, m_colorTexutre);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data.rgba_image[0]);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glActiveTexture(GL_TEXTURE0);
 
         glUniform1ui(m_colorSampler, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
     } else {
         FUN_INFO("no texture file found");
     }
