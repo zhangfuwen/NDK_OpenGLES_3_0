@@ -177,6 +177,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements ScaleGestureDetect
             case SAMPLE_TYPE_BASIC_LIGHTING:
             case SAMPLE_TYPE_INSTANCING:
             case SAMPLE_TYPE_3D_MODEL:
+            case SAMPLE_TYPE_PBO:
             case SAMPLE_TYPE_KEY_VISUALIZE_AUDIO:
             case SAMPLE_TYPE_KEY_TEXT_RENDER:
             {

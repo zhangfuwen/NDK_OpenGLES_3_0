@@ -7,6 +7,11 @@
 #define __ANDROID_API__ 29
 #undef EGL_ANDROID_get_native_client_buffer
 #include <EGL/egl.h>
+
+#define LOG_TAG "ByteFlow"
+#define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
+#include "handycpp/logging.h"
+
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
@@ -302,9 +307,10 @@ void PBOSample::Draw(int screenW, int screenH)
 	Transform transform;
 	m_AngleX %= 360;
 	m_AngleY %= 360;
-	transform.scale = { 0.3f, 0.3f, 0.3f};
-	transform.rotation = { m_AngleX, m_AngleY, 0.0f};
-	transform.translation = { 0.0f, -2.5f, 0.0f};
+	transform.scale = { 0.3f*m_ScaleX, 0.3f*m_ScaleY, 0.3f};
+	FUN_INFO("Scale %f %f", m_ScaleX, m_ScaleY);
+	transform.rotation = { m_AngleX/m_ScaleX, m_AngleY/m_ScaleY, 0.0f};
+	transform.translation = { 0.0f, -2.5f, 1.0f};
 //	m_meshRenderer->Draw(transform);
 	m_objMeshRenderer->Draw(transform);
 	//Download

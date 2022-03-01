@@ -89,8 +89,8 @@ int ObjLoader::LoadObjFile(std::string filePath) {
                 sscanf(line.substr(3).c_str(), "%f %f %f", &x, &y, &z);
                 normals.emplace_back(x, y, z);
             } else if(line[1] == 't') {
-                float u,v;
-                sscanf(line.substr(3).c_str(), "%f %f", &u, &v);
+                float u,v, z;
+                sscanf(line.substr(3).c_str(), "%f %f %f", &u, &v, &z);
                 texCoords.emplace_back(u, v);
             }
         } else if(line[0] == 'f') {

@@ -35,14 +35,14 @@ void ObjMeshRenderer::printBunnyVars() {
 bool ObjMeshRenderer::Init() {
     const char bunnyVertexShaderSrc[] =
             "#version 300 es                            \n"
-            "layout(location = 0) in vec4 a_Position;\n"
-            "layout(location = 1) in vec4 a_Normal;\n"
+            "layout(location = 0) in vec3 a_Position;\n"
+            "layout(location = 1) in vec3 a_Normal;\n"
             "layout(location = 2) in vec2 a_TexCoord;\n"
             "uniform mat4 u_MVPMatrix;                  \n"
             "out highp float zDepth; \n"
             "out mediump vec2 texCoord; \n"
             "void main() {\n"
-            "	gl_Position=u_MVPMatrix * a_Position;\n"
+            "	gl_Position=u_MVPMatrix * vec4(a_Position, 1.0f);\n"
             "	zDepth = gl_Position.z/gl_Position.w;\n"
             "   texCoord = a_TexCoord; \n"
             "}\n";
@@ -78,52 +78,79 @@ bool ObjMeshRenderer::Init() {
         glGenBuffers(1, &m_bunnyVBOTexCoord);
         glGenVertexArrays(1, &m_bunnyVAO);
 
-#if 1
         m_objLoader = new ObjLoader();
-        m_objLoader->LoadObjFile();
+//    m_objLoader->LoadObjFile();
+    m_objLoader->LoadObjFile("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/1.obj");
         m_objLoader->Dump();
 
-        std::vector<glm::vec3> vertices;
-        std::vector<glm::vec3> normals;
-        std::vector<glm::vec2> texCoords;
+
+        if(m_bunnyWireframe) {
+            for(const auto & face : m_objLoader->faces) {
+                lines.push_back(m_objLoader->vertices[face[0].vertex_index]);
+                lines.push_back(m_objLoader->vertices[face[1].vertex_index]);
+                lines.push_back(m_objLoader->vertices[face[2].vertex_index]);
+                lines.push_back(m_objLoader->vertices[face[3].vertex_index]);
+            }
+            m_bunnyNumElements = m_objLoader->faces.size()*2;
+        } else {
 
         for(const auto & face : m_objLoader->faces) {
             vertices.push_back(m_objLoader->vertices[face[0].vertex_index]);
             vertices.push_back(m_objLoader->vertices[face[1].vertex_index]);
             vertices.push_back(m_objLoader->vertices[face[2].vertex_index]);
-            normals.push_back(m_objLoader->normals[face[0].normal_index]);
-            normals.push_back(m_objLoader->normals[face[1].normal_index]);
-            normals.push_back(m_objLoader->normals[face[2].normal_index]);
-            texCoords.push_back(m_objLoader->texCoords[face[0].texCord_index]);
-            texCoords.push_back(m_objLoader->texCoords[face[1].texCord_index]);
-            texCoords.push_back(m_objLoader->texCoords[face[2].texCord_index]);
-
+            vertices.push_back(m_objLoader->vertices[face[0].vertex_index]);
             vertices.push_back(m_objLoader->vertices[face[2].vertex_index]);
             vertices.push_back(m_objLoader->vertices[face[3].vertex_index]);
-            vertices.push_back(m_objLoader->vertices[face[1].vertex_index]);
-            normals.push_back(m_objLoader->normals[face[2].normal_index]);
-            normals.push_back(m_objLoader->normals[face[3].normal_index]);
-            normals.push_back(m_objLoader->normals[face[1].normal_index]);
-            texCoords.push_back(m_objLoader->texCoords[face[2].texCord_index]);
-            texCoords.push_back(m_objLoader->texCoords[face[3].texCord_index]);
-            texCoords.push_back(m_objLoader->texCoords[face[1].texCord_index]);
+
+            if(!m_objLoader->normals.empty()) {
+                normals.push_back(m_objLoader->normals[face[0].normal_index]);
+                normals.push_back(m_objLoader->normals[face[1].normal_index]);
+                normals.push_back(m_objLoader->normals[face[2].normal_index]);
+                normals.push_back(m_objLoader->normals[face[0].normal_index]);
+                normals.push_back(m_objLoader->normals[face[2].normal_index]);
+                normals.push_back(m_objLoader->normals[face[3].normal_index]);
+            }
+
+            if(!m_objLoader->texCoords.empty()) {
+                texCoords.push_back(m_objLoader->texCoords[face[0].texCord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[1].texCord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[2].texCord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[0].texCord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[2].texCord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[3].texCord_index]);
+            }
         }
         m_bunnyNumElements = m_objLoader->faces.size()*6;
-#endif
 
+        }
 
 
         glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOPosition);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size()*3*sizeof(float), &vertices[0][0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBONormal);
-        glBufferData(GL_ARRAY_BUFFER, normals.size()*3*sizeof(float), &normals[0][0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOTexCoord);
-        glBufferData(GL_ARRAY_BUFFER, texCoords.size()*2*sizeof(float), &texCoords[0][0], GL_STATIC_DRAW);
+        if(m_bunnyWireframe) {
+            glBufferData(GL_ARRAY_BUFFER, lines.size()*3*sizeof(float), &lines[0][0], GL_STATIC_DRAW);
+        } else {
+            glBufferData(GL_ARRAY_BUFFER, vertices.size()*3*sizeof(float), &vertices[0][0], GL_STATIC_DRAW);
+        }
+
+        if(!normals.empty()) {
+            glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBONormal);
+            glBufferData(GL_ARRAY_BUFFER, normals.size()*3*sizeof(float), &normals[0][0], GL_STATIC_DRAW);
+        }
+        if(!texCoords.empty()) {
+            glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOTexCoord);
+            glBufferData(GL_ARRAY_BUFFER, texCoords.size()*2*sizeof(float), &texCoords[0][0], GL_STATIC_DRAW);
+        }
 
         glBindVertexArray(m_bunnyVAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOPosition);
-        glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        if(m_bunnyWireframe)  {
+            glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+        } else {
+            glVertexAttribPointer(m_bunnyVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+        }
 
         glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBONormal);
         glVertexAttribPointer(m_bunnyVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -141,7 +168,7 @@ bool ObjMeshRenderer::Init() {
 
 
 
-    if(m_objLoader->materials[0].m_textureFiles.count("map_Ka")) {
+    if(!m_objLoader->materials.empty() && m_objLoader->materials[0].m_textureFiles.count("map_Ka")) {
         std::string textureFileName = m_objLoader->materials[0].m_textureFiles["map_Ka"];
         auto data = handycpp::image::readPngAsRgba(textureFileName);
         FUN_INFO("map_Ka: %d, %d", data.width, data.height);
@@ -222,16 +249,31 @@ bool ObjMeshRenderer::Draw(const Transform &transform) {
     glCullFace(GL_BACK);
 
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_colorTexutre);
+    if(m_colorTexutre!=0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_colorTexutre);
+    }
     glUseProgram(m_bunnyProgramObj);
     glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
     glBindVertexArray(m_bunnyVAO);
     if(m_bunnyWireframe) {
-        glDrawArrays(GL_LINES, 0, m_bunnyNumElements);
+        //glDrawArrays(GL_LINES, 0, m_bunnyNumElements);
+        glDrawArrays(GL_LINES, 0, 8);
 
     } else {
+        /*
+        static int start = 0;
+        if(start < m_bunnyNumElements) {
+            start ++;
+        }
+         */
         glDrawArrays(GL_TRIANGLES, 0, m_bunnyNumElements);
+        /*
+        int i = start/100*6;
+        for(;i<start/100*6+6; i++) {
+            FUN_INFO("vertex %d: %f %f %f",i, vertices[i].x, vertices[i].y, vertices[i].z );
+        }
+         */
     }
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

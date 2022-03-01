@@ -38,9 +38,15 @@ private:
     glm::mat4 m_bunnyMVPMatrix{1.0f};
     GLuint m_bunnyMVPUniformLoc;
     int m_bunnyNumElements;
-    bool m_bunnyWireframe = false;
+    bool m_bunnyWireframe = true;
 
     void printBunnyVars();
+
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> texCoords;
+
+    std::vector<glm::vec3> lines;
 
 public:
     bool Init();
