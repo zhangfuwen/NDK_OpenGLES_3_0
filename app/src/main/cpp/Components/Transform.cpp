@@ -15,7 +15,7 @@ void Transform::GetMVPMatrix(glm::mat4 &mvpMatrix) const
     float radiansZ = static_cast<float>(MATH_PI / 180.0f * rotation[2]);
 
     // Projection matrix
-    glm::mat4 Projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f);
+    glm::mat4 Projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.7f);
     //glm::mat4 Projection = glm::frustum(-ratio, ratio, -1.0f, 1.0f, 1.0f, 100);
     //glm::mat4 Projection = glm::perspective(45.0f,ratio, 0.1f,100.f);
 

@@ -305,12 +305,12 @@ void PBOSample::Draw(int screenW, int screenH)
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
 
 	Transform transform;
-	m_AngleX %= 360;
-	m_AngleY %= 360;
-	transform.scale = { 0.3f*m_ScaleX, 0.3f*m_ScaleY, 0.3f};
+//	m_AngleX %= 360;
+//	m_AngleY %= 360;
+	transform.scale = { 0.2f*m_ScaleX, 0.2f*m_ScaleY, 0.3f};
 	FUN_INFO("Scale %f %f", m_ScaleX, m_ScaleY);
-	transform.rotation = { m_AngleX/m_ScaleX, m_AngleY/m_ScaleY, 0.0f};
-	transform.translation = { 0.0f, -2.5f, 1.0f};
+	transform.rotation = { (int)(m_AngleX/m_ScaleX) % 360, (int)(m_AngleY/m_ScaleY) % 360, 0.0f};
+	transform.translation = { 0.0f, -2.5f, 1.5f};
 //	m_meshRenderer->Draw(transform);
 	m_objMeshRenderer->Draw(transform);
 	//Download
@@ -535,7 +535,7 @@ void PBOSample::UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, fl
 
     // Model matrix
     glm::mat4 Model = glm::mat4(1.0f);
-    Model = glm::scale(Model, glm::vec3(m_ScaleX, m_ScaleY, 1.0f));
+    Model = glm::scale(Model, glm::vec3(1.0f, 1.0f, 1.0f));
     Model = glm::rotate(Model, radiansX, glm::vec3(1.0f, 0.0f, 0.0f));
     Model = glm::rotate(Model, radiansY, glm::vec3(0.0f, 1.0f, 0.0f));
     Model = glm::translate(Model, glm::vec3(transx, transy, transz));
