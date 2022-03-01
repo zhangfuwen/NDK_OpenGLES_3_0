@@ -152,6 +152,8 @@ bool ObjMeshRenderer::Init() {
         glActiveTexture(GL_TEXTURE0);
 
         glUniform1ui(m_colorSampler, 0);
+    } else {
+        FUN_INFO("no texture file found");
     }
 
     return true;
@@ -214,6 +216,8 @@ bool ObjMeshRenderer::Draw(const Transform &transform) {
     glCullFace(GL_BACK);
 
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_colorTexutre);
     glUseProgram(m_bunnyProgramObj);
     glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
     glBindVertexArray(m_bunnyVAO);
