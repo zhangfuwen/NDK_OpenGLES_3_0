@@ -5,7 +5,7 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -DANDROID_STL=c++_shared -stdlib=libc++ ")
-set(jnilibs "${CMAKE_SOURCE_DIR}/../jniLibs")
+set(jnilibs "${CMAKE_SOURCE_DIR}/../prebuiltLibs")
 
 link_directories(${CMAKE_BINARY_DIR}/install/lib)
 include_directories(
