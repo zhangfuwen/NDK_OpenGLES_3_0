@@ -44,7 +44,7 @@ bool ObjMeshRenderer::Init() {
             "void main() {\n"
             "	gl_Position=u_MVPMatrix * vec4(a_Position, 1.0f);\n"
             "	zDepth = gl_Position.z/gl_Position.w;\n"
-            "   texCoord = a_TexCoord; \n"
+            "   texCoord = vec2(a_TexCoord.x, 1.0f - a_TexCoord.y); \n"
             "}\n";
 
     const char bunnyFragmentShaderSrc[] =
@@ -55,7 +55,8 @@ bool ObjMeshRenderer::Init() {
             "in mediump vec2 texCoord; \n"
             "layout(location = 0) out vec4 outColor;\n"
             "void main(){\n"
-            "	outColor = texture(color_sampler, texCoord);\n"
+            "	vec4 color = texture(color_sampler, texCoord);\n"
+            "   outColor = vec4(vec3(color), 1.0f); \n"
             "}\n";
 
     // 编译链接用于渲染兔子的着色器程序
@@ -168,7 +169,7 @@ bool ObjMeshRenderer::Init() {
         glVertexAttribPointer(m_bunnyVertexAttribNormal, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOTexCoord);
-        glVertexAttribPointer(m_bunnyVertexAttribTexCoord, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glVertexAttribPointer(m_bunnyVertexAttribTexCoord, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
         glEnableVertexAttribArray(m_bunnyVertexAttribPosition);
         glEnableVertexAttribArray(m_bunnyVertexAttribNormal);

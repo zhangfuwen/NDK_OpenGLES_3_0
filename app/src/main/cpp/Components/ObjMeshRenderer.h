@@ -38,7 +38,7 @@ private:
     glm::mat4 m_bunnyMVPMatrix{1.0f};
     GLuint m_bunnyMVPUniformLoc;
     int m_bunnyNumElements;
-    bool m_bunnyWireframe = true;
+    bool m_bunnyWireframe = false;
 
     void printBunnyVars();
 
