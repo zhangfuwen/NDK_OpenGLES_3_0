@@ -79,8 +79,8 @@ bool ObjMeshRenderer::Init() {
         glGenVertexArrays(1, &m_bunnyVAO);
 
         m_objLoader = new ObjLoader();
-//    m_objLoader->LoadObjFile();
-    m_objLoader->LoadObjFile("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/1.obj");
+    m_objLoader->LoadObjFile();
+//    m_objLoader->LoadObjFile("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/1.obj");
         m_objLoader->Dump();
 
 
@@ -88,10 +88,14 @@ bool ObjMeshRenderer::Init() {
             for(const auto & face : m_objLoader->faces) {
                 lines.push_back(m_objLoader->vertices[face[0].vertex_index]);
                 lines.push_back(m_objLoader->vertices[face[1].vertex_index]);
+                lines.push_back(m_objLoader->vertices[face[1].vertex_index]);
+                lines.push_back(m_objLoader->vertices[face[2].vertex_index]);
                 lines.push_back(m_objLoader->vertices[face[2].vertex_index]);
                 lines.push_back(m_objLoader->vertices[face[3].vertex_index]);
+                lines.push_back(m_objLoader->vertices[face[3].vertex_index]);
+                lines.push_back(m_objLoader->vertices[face[0].vertex_index]);
             }
-            m_bunnyNumElements = m_objLoader->faces.size()*2;
+            m_bunnyNumElements = m_objLoader->faces.size()*8;
         } else {
 
         for(const auto & face : m_objLoader->faces) {
@@ -127,7 +131,15 @@ bool ObjMeshRenderer::Init() {
 
         glBindBuffer(GL_ARRAY_BUFFER, m_bunnyVBOPosition);
         if(m_bunnyWireframe) {
-            glBufferData(GL_ARRAY_BUFFER, lines.size()*3*sizeof(float), &lines[0][0], GL_STATIC_DRAW);
+            float * data = (float *)malloc(lines.size() *3 * sizeof(float));
+            auto x = data;
+            for(auto p : lines) {
+                *x = p.x;
+                *(x+1)= p.y;
+                *(x+2) = p.z;
+                x+=3;
+            }
+            glBufferData(GL_ARRAY_BUFFER, lines.size()*3*sizeof(float), data, GL_STATIC_DRAW);
         } else {
             glBufferData(GL_ARRAY_BUFFER, vertices.size()*3*sizeof(float), &vertices[0][0], GL_STATIC_DRAW);
         }
@@ -257,8 +269,8 @@ bool ObjMeshRenderer::Draw(const Transform &transform) {
     glUniformMatrix4fv(m_bunnyMVPUniformLoc, 1, GL_FALSE, &m_bunnyMVPMatrix[0][0]);
     glBindVertexArray(m_bunnyVAO);
     if(m_bunnyWireframe) {
-        //glDrawArrays(GL_LINES, 0, m_bunnyNumElements);
-        glDrawArrays(GL_LINES, 0, 8);
+        glDrawArrays(GL_LINES, 0, m_bunnyNumElements);
+        //glDrawArrays(GL_LINES, 0, 8);
 
     } else {
         /*

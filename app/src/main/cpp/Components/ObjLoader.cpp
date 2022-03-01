@@ -102,10 +102,10 @@ int ObjLoader::LoadObjFile(std::string filePath) {
                     ,&v4, &t4, &n4
             );
             faces.push_back(std::array<FaceVertexAttr, 4>{
-                                       FaceVertexAttr{v1,t1,n1},
-                                       FaceVertexAttr{v2,t2,n2},
-                                       FaceVertexAttr{v3,t3,n3},
-                                       FaceVertexAttr{v4,t4,n4}});
+                                       FaceVertexAttr{v1-1,t1-1,n1-1},
+                                       FaceVertexAttr{v2-1,t2-1,n2-1},
+                                       FaceVertexAttr{v3-1,t3-1,n3-1},
+                                       FaceVertexAttr{v4-1,t4-1,n4-1}});
         } else if(handycpp::string::starts_with(line, "mtllib")) {
             mtllib = line.substr(7);
         }
