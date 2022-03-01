@@ -58,7 +58,7 @@ int ObjLoader::LoadMtlLib(std::string path) {
             PARSE(Kd) else
             PARSE(Ks) else
             PARSE(Ke) else
-            if(handycpp::string::starts_with(line, "map_") && handycpp::string::starts_with(line, "bump")) {
+            if(handycpp::string::starts_with(line, "map_") || handycpp::string::starts_with(line, "bump")) {
                 auto spacePos = line.find(' ');
                 material->m_textureFiles[line.substr(0, spacePos)] = std::string(dirname(path.c_str())) + "/" + line.substr(spacePos+1);
             }
