@@ -27,6 +27,9 @@ private:
     GLuint m_bunnyVertexAttribNormal;
     GLuint m_bunnyVertexAttribTexCoord;
 
+    GLuint m_colorSampler;
+    GLuint m_colorTexutre;
+
     GLuint m_bunnyVBOPosition;
     GLuint m_bunnyVBONormal;
     GLuint m_bunnyVBOTexCoord;

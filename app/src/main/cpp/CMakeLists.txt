@@ -4,9 +4,10 @@
 # Sets the minimum version of CMake required to build the native library.
 
 cmake_minimum_required(VERSION 3.4.1)
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -DANDROID_STL=c++_shared -stdlib=libc++ ")
 set(jnilibs "${CMAKE_SOURCE_DIR}/../jniLibs")
 
+link_directories(${CMAKE_BINARY_DIR}/install/lib)
 include_directories(
         util
         render
@@ -96,15 +97,33 @@ target_link_libraries( # Specifies the target library.
                        android
                        )
 
+set(MyAndroidProject_DEFAULT_ARGS
+        -DANDROID_ABI:STRING=${ANDROID_ABI}
+        -DANDROID_NATIVE_API_LEVEL:STRING=${ANDROID_NATIVE_API_LEVEL}
+        -DANDROID_NDK:STRING=${ANDROID_NDK}
+        -DANDROID_PLATFORM:STRING=${ANDROID_PLATFORM}
+        -DANDROID_STL:STRING=${ANDROID_STL}
+        -DANDROID_TOOLCHAIN:STRING=${ANDROID_TOOLCHAIN}
+        -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+        -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+        -DCMAKE_GENERATOR:STRING=${CMAKE_GENERATOR}
+        -DCMAKE_MAKE_PROGRAM:FILEPATH=${CMAKE_MAKE_PROGRAM}
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_TOOLCHAIN_FILE}
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+        )
 
 include(ExternalProject)
-ExternalProject_Add(handycpp
+ExternalProject_Add(handycpp1
         GIT_REPOSITORY https://github.com/zhangfuwen/handycpp
         GIT_TAG main
+        CMAKE_ARGS -Wno-dev ${MyAndroidProject_DEFAULT_ARGS}
+        PREFIX ${CMAKE_BINARY_DIR}
         SOURCE_DIR "${CMAKE_BINARY_DIR}/handycpp/src"
         BINARY_DIR "${CMAKE_BINARY_DIR}/handycpp/build"
-        BUILD_COMMAND ""
-        INSTALL_COMMAND ""
+        INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+#        INSTALL_COMMAND ""
         TEST_COMMAND ""
         )
 
@@ -119,7 +138,14 @@ ExternalProject_add(happly
         TEST_COMMAND ""
         )
 
-add_dependencies(native-render handycpp)
+add_dependencies(native-render handycpp1)
 add_dependencies(native-render happly)
 target_include_directories(native-render PRIVATE ${CMAKE_BINARY_DIR}/handycpp/src/include)
 target_include_directories(native-render PRIVATE ${CMAKE_BINARY_DIR}/happly/src)
+
+#message(FATAL_ERROR "cmake binary dir ${CMAKE_BINARY_DIR}/handycpp/build")
+
+message("CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}")
+
+target_link_libraries(native-render handycpp.a)
+#target_link_libraries(native-render ${CMAKE_BINARY_DIR}/handycpp/build/libhandycpp.a)

@@ -13,6 +13,7 @@
 #include <GLUtils.h>
 #include <happly.h>
 #include <ext.hpp>
+#include <handycpp/image.h>
 
 
 void ObjMeshRenderer::printBunnyVars() {
@@ -22,6 +23,7 @@ void ObjMeshRenderer::printBunnyVars() {
     FUN_INFO("Position:%d", m_bunnyVertexAttribPosition);
     FUN_INFO("Normal:%d", m_bunnyVertexAttribNormal);
     FUN_INFO("TexCoord:%d", m_bunnyVertexAttribTexCoord);
+    FUN_INFO("ColorSampler:%d", m_colorSampler);
     FUN_INFO("VBO:%d,%d,%d , VAO:%d", m_bunnyVBOPosition, m_bunnyVBONormal, m_bunnyVBOTexCoord, m_bunnyVAO);
     FUN_INFO("numElements:%u", m_bunnyNumElements);
     FUN_INFO("mvpLoc:%u", m_bunnyMVPUniformLoc);
@@ -38,22 +40,25 @@ bool ObjMeshRenderer::Init() {
             "layout(location = 2) in vec2 a_TexCoord;\n"
             "uniform mat4 u_MVPMatrix;                  \n"
             "out highp float zDepth; \n"
+            "out mediump vec2 texCoord; \n"
             "void main() {\n"
             "	gl_Position=u_MVPMatrix * a_Position;\n"
             "	zDepth = gl_Position.z/gl_Position.w;\n"
+            "   texCoord = a_TexCoord; \n"
             "}\n";
 
     const char bunnyFragmentShaderSrc[] =
             "#version 300 es                            \n"
             "precision mediump float;\n"
+            " layout(location = 0) uniform sampler2D color_sampler; \n "
             "in highp float zDepth; \n"
+            "in mediump vec2 texCoord; \n"
             "layout(location = 0) out vec4 outColor;\n"
             "void main(){\n"
-            "	outColor = vec4(0.5*(1.0 - zDepth),0.5, 0.5,1.0);\n"
+            "	outColor = texture(color_sampler, texCoord);\n"
             "}\n";
 
     // 编译链接用于渲染兔子的着色器程序
-    {
         m_bunnyProgramObj = GLUtils::CreateProgram(bunnyVertexShaderSrc, bunnyFragmentShaderSrc, m_bunnyVertexShader, m_bunnyFragmentShader);
         m_bunnyVertexAttribPosition = glGetAttribLocation(m_bunnyProgramObj, "a_Position");
         m_bunnyVertexAttribNormal = glGetAttribLocation(m_bunnyProgramObj, "a_Normal");
@@ -61,6 +66,12 @@ bool ObjMeshRenderer::Init() {
         m_bunnyVertexAttribNormal =1;
         m_bunnyVertexAttribTexCoord = 2;
         m_bunnyMVPUniformLoc = glGetUniformLocation(m_bunnyProgramObj, "u_MVPMatrix");
+        m_colorSampler = glGetUniformLocation(m_bunnyProgramObj, "color_sampler");
+
+        if(m_colorSampler != 0) {
+            FUN_ERROR("color_sampler:%d", m_colorSampler);
+            m_colorSampler = 0;
+        }
 //		m_bunnyVertexAttribPosition = 0;
         glGenBuffers(1, &m_bunnyVBOPosition);
         glGenBuffers(1, &m_bunnyVBONormal);
@@ -129,7 +140,20 @@ bool ObjMeshRenderer::Init() {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
+
+    if(m_objLoader->materials[0].m_textureFiles.count("map_Ka")) {
+        std::string textureFileName = m_objLoader->materials[0].m_textureFiles["map_Ka"];
+        auto data = handycpp::image::readPngAsRgba(textureFileName);
+        glActiveTexture(GL_TEXTURE0);
+        glGenTextures(1, &m_colorTexutre);
+        glBindTexture(GL_TEXTURE_2D, m_colorTexutre);
+        auto chunk = handycpp::file::readFile(textureFileName);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data.rgba_image[0]);
+        glActiveTexture(GL_TEXTURE0);
+
+        glUniform1ui(m_colorSampler, 0);
     }
+
     return true;
 
 }
