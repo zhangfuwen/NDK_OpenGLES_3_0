@@ -18,7 +18,7 @@ public:
     std::vector<glm::vec3> normals = {};
     struct FaceVertexAttr {
         int vertex_index;
-        int texCord_index;
+        int tex_coord_index;
         int normal_index;
     };
     std::vector<std::array<FaceVertexAttr, 4>> faces = {};

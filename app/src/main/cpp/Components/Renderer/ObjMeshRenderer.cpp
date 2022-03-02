@@ -119,12 +119,12 @@ bool ObjMeshRenderer::Init() {
             }
 
             if (!m_objLoader->texCoords.empty()) {
-                texCoords.push_back(m_objLoader->texCoords[face[0].texCord_index]);
-                texCoords.push_back(m_objLoader->texCoords[face[1].texCord_index]);
-                texCoords.push_back(m_objLoader->texCoords[face[2].texCord_index]);
-                texCoords.push_back(m_objLoader->texCoords[face[0].texCord_index]);
-                texCoords.push_back(m_objLoader->texCoords[face[2].texCord_index]);
-                texCoords.push_back(m_objLoader->texCoords[face[3].texCord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[0].tex_coord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[1].tex_coord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[2].tex_coord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[0].tex_coord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[2].tex_coord_index]);
+                texCoords.push_back(m_objLoader->texCoords[face[3].tex_coord_index]);
             }
         }
         m_bunnyNumElements = m_objLoader->faces.size() * 6;

@@ -24,6 +24,7 @@
 #include "PBOSample.h"
 #include "../Components/Renderer/ObjMeshRenderer.h"
 #include "../Components/Renderer/WireFrameRenderer.h"
+#include "../Components/Renderer/TexturedMeshRenderer.h"
 
 //#define PBO_UPLOAD
 #define PBO_DOWNLOAD
@@ -176,9 +177,9 @@ void PBOSample::Init()
 
 	ObjLoader *objLoader = new ObjLoader();
 	objLoader->LoadObjFile();
-	auto renderer = new WireFrameRenderer();
+	auto renderer = new TexturedMeshRenderer();
 	renderer->Init();
-	renderer->LoadLines(objLoader);
+	renderer->LoadTexturedMesh(objLoader);
 	m_renderer = renderer;
 	delete objLoader;
 
