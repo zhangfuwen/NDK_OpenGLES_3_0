@@ -291,6 +291,7 @@ void PBOSample::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX
 	m_ScaleY = scaleY;
 }
 
+
 void PBOSample::Draw(int screenW, int screenH)
 {
 	// 离屏渲染
@@ -307,10 +308,10 @@ void PBOSample::Draw(int screenW, int screenH)
 	Transform transform;
 //	m_AngleX %= 360;
 //	m_AngleY %= 360;
-	transform.scale = { 0.2f*m_ScaleX, 0.2f*m_ScaleY, 0.3f};
+	transform.scale = { 0.2f*m_ScaleX, 0.2f*m_ScaleY, 0.2f};
 	FUN_INFO("Scale %f %f", m_ScaleX, m_ScaleY);
 	transform.rotation = { (int)(m_AngleX/m_ScaleX) % 360, (int)(m_AngleY/m_ScaleY) % 360, 0.0f};
-	transform.translation = { 0.0f, -2.5f, 1.5f};
+	transform.translation = { 0.0f, -1.0f, 1.0f};
 //	m_meshRenderer->Draw(transform);
 	m_objMeshRenderer->Draw(transform);
 	//Download
