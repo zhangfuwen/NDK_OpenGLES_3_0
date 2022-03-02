@@ -38,6 +38,9 @@ add_library(native-render SHARED
         ${CMAKE_SOURCE_DIR}/Components/Renderer/WireFrameRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/TexturedMeshRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp
+        ${CMAKE_SOURCE_DIR}/Components/PBOCanvas.cpp
+        ${CMAKE_SOURCE_DIR}/Entity/GameObject.cpp
+        ${CMAKE_SOURCE_DIR}/Components/GLESHelpers/OwnedResources.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
