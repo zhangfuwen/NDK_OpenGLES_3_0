@@ -23,6 +23,7 @@
 #include <happly.h>
 #include "PBOSample.h"
 #include "../Components/Renderer/ObjMeshRenderer.h"
+#include "../Components/Renderer/WireFrameRenderer.h"
 
 //#define PBO_UPLOAD
 #define PBO_DOWNLOAD
@@ -173,10 +174,13 @@ void PBOSample::Init()
 	// 编译链接用于离屏渲染的着色器程序
 	m_FboProgramObj = GLUtils::CreateProgram(vFboShaderStr, fFboShaderStr, m_FboVertexShader, m_FboFragmentShader);
 
-	m_meshRenderer = new MeshRenderer();
-	m_meshRenderer->Init();
-	m_objMeshRenderer = new ObjMeshRenderer();
-	m_objMeshRenderer->Init();
+	ObjLoader *objLoader = new ObjLoader();
+	objLoader->LoadObjFile();
+	auto renderer = new WireFrameRenderer();
+	renderer->Init();
+	renderer->LoadLines(objLoader);
+	m_renderer = renderer;
+	delete objLoader;
 
 
 
@@ -313,7 +317,7 @@ void PBOSample::Draw(int screenW, int screenH)
 	transform.rotation = { (int)(m_AngleX/m_ScaleX) % 360, (int)(m_AngleY/m_ScaleY) % 360, 0.0f};
 	transform.translation = { 0.0f, -1.0f, 1.0f};
 //	m_meshRenderer->Draw(transform);
-	m_objMeshRenderer->Draw(transform);
+	m_renderer->Draw(transform);
 	//Download
 	DownloadPixels();
 
@@ -387,11 +391,12 @@ void PBOSample::Destroy()
         glDeleteBuffers(2, m_UploadPboIds);
     }
 
-    if(m_meshRenderer) {
-    	m_meshRenderer->Finalize();
-    	delete m_meshRenderer;
-    	m_meshRenderer = nullptr;
+    if(m_renderer) {
+    	m_renderer->Finalize();
+    	delete m_renderer;
+		m_renderer = nullptr;
     }
+
 
 }
 
@@ -600,6 +605,7 @@ void PBOSample::UploadPixels() {
 }
 
 #include "handycpp/image.h"
+#include "../Components/Renderer/IRenderer.h"
 
 void PBOSample::DownloadPixels() {
     int dataSize = m_RenderImage.width * m_RenderImage.height * 4;

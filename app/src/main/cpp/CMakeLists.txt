@@ -35,17 +35,19 @@ file(GLOB src-files
         ${CMAKE_SOURCE_DIR}/looper/*.cpp)
 
 add_library( # Sets the name of the library.
-             native-render
+        native-render
 
-             # Sets the library as a shared library.
-             SHARED
+        # Sets the library as a shared library.
+        SHARED
 
-             # Provides a relative path to your source file(s).
-             ${src-files}
-            ${CMAKE_SOURCE_DIR}/Components/Transform.cpp
-            ${CMAKE_SOURCE_DIR}/Components/MeshRenderer.cpp
-            ${CMAKE_SOURCE_DIR}/Components/ObjMeshRenderer.cpp
-            ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp
+        # Provides a relative path to your source file(s).
+        ${src-files}
+        ${CMAKE_SOURCE_DIR}/Components/Transform.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Renderer/MeshRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Renderer/ObjMeshRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Renderer/WireFrameRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Renderer/TexturedMeshRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -55,19 +57,19 @@ add_library( # Sets the name of the library.
 # completing its build.
 
 find_library( # Sets the name of the path variable.
-              log-lib
+        log-lib
 
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log )
+        # Specifies the name of the NDK library that
+        # you want CMake to locate.
+        log)
 
-add_library(assimp SHARED IMPORTED )
+add_library(assimp SHARED IMPORTED)
 set_target_properties(assimp PROPERTIES IMPORTED_LOCATION ${jnilibs}/${ANDROID_ABI}/libassimp.so)
 
-add_library(opencv_java3 SHARED IMPORTED )
+add_library(opencv_java3 SHARED IMPORTED)
 set_target_properties(opencv_java3 PROPERTIES IMPORTED_LOCATION ${jnilibs}/${ANDROID_ABI}/libopencv_java3.so)
 
-add_library(freetype STATIC IMPORTED )
+add_library(freetype STATIC IMPORTED)
 set_target_properties(freetype PROPERTIES IMPORTED_LOCATION ${jnilibs}/${ANDROID_ABI}/libfreetype.a)
 
 # Specifies libraries CMake should link to your target library. You
@@ -85,17 +87,17 @@ set(third-party-libs
         opencv_java3)
 
 target_link_libraries( # Specifies the target library.
-                       native-render
+        native-render
 
-                       # Links the target library to the log library
-                       # included in the NDK.
-                       ${log-lib}
-                       ${third-party-libs}
-                       EGL
-                        GLESv2
-                       GLESv3
-                       android
-                       )
+        # Links the target library to the log library
+        # included in the NDK.
+        ${log-lib}
+        ${third-party-libs}
+        EGL
+        GLESv2
+        GLESv3
+        android
+        )
 
 set(MyAndroidProject_DEFAULT_ARGS
         -DANDROID_ABI:STRING=${ANDROID_ABI}
@@ -123,12 +125,12 @@ ExternalProject_Add(handycpp1
         SOURCE_DIR "${CMAKE_BINARY_DIR}/handycpp/src"
         BINARY_DIR "${CMAKE_BINARY_DIR}/handycpp/build"
         INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
-#        INSTALL_COMMAND ""
+        #        INSTALL_COMMAND ""
         TEST_COMMAND ""
         )
 
 ExternalProject_add(happly
-        GIT_REPOSITORY  https://github.com/nmwsharp/happly
+        GIT_REPOSITORY https://github.com/nmwsharp/happly
         GIT_TAG master
         SOURCE_DIR "${CMAKE_BINARY_DIR}/happly/src"
         BINARY_DIR "${CMAKE_BINARY_DIR}/happly/build"

@@ -9,8 +9,7 @@
 #include <detail/type_mat.hpp>
 #include "GLSampleBase.h"
 #include "../util/ImageDef.h"
-#include "../Components/Renderer/MeshRenderer.h"
-#include "../Components/Renderer/ObjMeshRenderer.h"
+#include "../Components/Renderer/IRenderer.h"
 
 class PBOSample : public GLSampleBase
 {
@@ -44,8 +43,7 @@ private:
 	GLint m_SamplerLoc;
 	NativeImage m_RenderImage;
 
-	MeshRenderer *m_meshRenderer = nullptr;
-	ObjMeshRenderer * m_objMeshRenderer = nullptr;
+	IRenderer * m_renderer = nullptr;
 
 	GLuint m_FboProgramObj;
 	GLuint m_FboVertexShader;
