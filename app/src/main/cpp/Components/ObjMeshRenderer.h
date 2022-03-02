@@ -51,7 +51,7 @@ private:
 public:
     bool Init();
 
-    bool Draw(const Transform & transform);
+    bool Draw(const Transform &transform);
 
     void Finalize();
 };

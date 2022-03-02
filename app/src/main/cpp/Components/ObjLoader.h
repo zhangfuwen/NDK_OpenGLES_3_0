@@ -4,6 +4,7 @@
 
 #ifndef NDK_OPENGLES_3_0_OBJLOADER_H
 #define NDK_OPENGLES_3_0_OBJLOADER_H
+
 #include <string>
 #include <vector>
 #include <array>
@@ -12,7 +13,7 @@
 
 class ObjLoader {
 public:
-    std::vector<glm::vec3> vertices ;
+    std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> texCoords = {};
     std::vector<glm::vec3> normals = {};
     struct FaceVertexAttr {
@@ -25,6 +26,7 @@ public:
 
     struct Material {
         Material(std::string name) : m_name(name) {}
+
         std::string m_name;
         float m_Ns;
         float m_Ni;
@@ -39,11 +41,15 @@ public:
         std::map<std::string, std::string> m_textureFiles;
 
     };
+
     std::vector<Material> materials;
 
 public:
     void Dump();
-    int LoadObjFile(std::string filePath = "/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/Apricot_02_hi_poly.obj");
+
+    int LoadObjFile(
+            std::string filePath = "/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/Apricot_02_hi_poly.obj");
+
     int LoadMtlLib(std::string path);
 };
 
