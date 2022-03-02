@@ -10,12 +10,12 @@
 
 #include "handycpp/logging.h"
 #include "TexturedMeshRenderer.h"
-#include "../Transform.h"
+#include "Components/Transform.h"
 #include <handycpp/logging.h>
 #include <handycpp/file.h>
 #include <GLUtils.h>
 #include <happly.h>
-#include <ext.hpp>
+#include <glm/ext.hpp>
 #include <handycpp/image.h>
 
 
@@ -34,6 +34,7 @@ void TexturedMeshRenderer::printBunnyVars() {
     FUN_INFO("mvp: %s", s.c_str());
     printf("adf");
 }
+
 
 int TexturedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
 

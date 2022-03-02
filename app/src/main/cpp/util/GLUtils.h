@@ -11,7 +11,7 @@
 
 #include <GLES3/gl3.h>
 #include <string>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 #define SHADER_TO_STRING(s) #s
 

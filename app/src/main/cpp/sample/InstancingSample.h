@@ -6,7 +6,7 @@
 #define NDK_OPENGLES_3_0_INSTANCINGSAMPLE_H
 
 
-#include <detail/type_mat.hpp>
+#include <glm/detail/type_mat.hpp>
 #include "GLSampleBase.h"
 #include "../util/ImageDef.h"
 

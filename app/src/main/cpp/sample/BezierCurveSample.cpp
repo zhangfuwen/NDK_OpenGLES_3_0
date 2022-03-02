@@ -6,7 +6,7 @@
  *
  * */
 
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "BezierCurveSample.h"
 #include "../util/GLUtils.h"
 

@@ -12,9 +12,9 @@
 #include <EGL/eglext.h>
 #include <GLES3/gl3.h>
 #include <array>
-#include "glm.hpp"
-#include "../Transform.h"
-#include "../ObjLoader.h"
+#include <glm/glm.hpp>
+#include "Components/Transform.h"
+#include "Components/ObjLoader.h"
 
 class IRenderer {
 

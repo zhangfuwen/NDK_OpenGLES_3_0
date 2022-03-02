@@ -6,10 +6,21 @@
 #define NDK_OPENGLES_3_0_TEXTUREDMESHRENDERER_H
 
 
-#include "../Transform.h"
+#include "Components/Transform.h"
 #include "IRenderer.h"
 
 class TexturedMeshRenderer : public IRenderer {
+public:
+    struct Vertex {
+        glm::vec3 pos;
+        glm::vec3 normal;
+        glm::vec2 tex_coord;
+    };
+
+    struct Triangle {
+        Vertex v1, v2, v3;
+    };
+
 private:
     GLuint m_ProgramObj;
     GLuint m_VertexShader;
@@ -30,15 +41,6 @@ private:
 
     void printBunnyVars();
 
-    struct Vertex {
-        glm::vec3 pos;
-        glm::vec3 normal;
-        glm::vec2 tex_coord;
-    };
-
-    struct Triangle {
-        Vertex v1, v2, v3;
-    };
 
     std::vector<Triangle> triangles;
 

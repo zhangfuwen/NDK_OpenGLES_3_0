@@ -2,7 +2,7 @@
 // Created by ByteFlow on 2020/2/30.
 //
 
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "RotaryHeadSample.h"
 #include "../util/GLUtils.h"
 #include "CommonDef.h"

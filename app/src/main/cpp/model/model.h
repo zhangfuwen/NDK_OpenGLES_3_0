@@ -1,8 +1,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "../inc/assimp/Importer.hpp"
 #include "../inc/assimp/scene.h"
 #include "../inc/assimp/postprocess.h"

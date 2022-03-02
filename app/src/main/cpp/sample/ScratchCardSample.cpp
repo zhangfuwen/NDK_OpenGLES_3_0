@@ -2,7 +2,7 @@
 // Created by ByteFlow on 2020/5/19.
 //
 
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "ScratchCardSample.h"
 #include "../util/GLUtils.h"
 

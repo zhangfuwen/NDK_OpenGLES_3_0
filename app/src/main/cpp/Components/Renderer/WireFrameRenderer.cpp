@@ -8,12 +8,12 @@
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
 
 #include "handycpp/logging.h"
-#include "../Transform.h"
+#include "Components//Transform.h"
 #include <handycpp/logging.h>
 #include <handycpp/file.h>
 #include <GLUtils.h>
 #include <happly.h>
-#include <ext.hpp>
+#include <glm/ext.hpp>
 #include <handycpp/image.h>
 #include "WireFrameRenderer.h"
 

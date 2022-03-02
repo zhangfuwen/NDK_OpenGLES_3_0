@@ -11,10 +11,10 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES3/gl3.h>
-#include "glm.hpp"
+#include "glm/glm.hpp"
 #include <array>
-#include "../Transform.h"
-#include "../ObjLoader.h"
+#include "Components//Transform.h"
+#include "Components//ObjLoader.h"
 #include "IRenderer.h"
 
 class WireFrameRenderer : public IRenderer {

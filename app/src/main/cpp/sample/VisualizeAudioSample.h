@@ -8,8 +8,8 @@
 #define MAX_AUDIO_LEVEL 2000
 #define RESAMPLE_LEVEL  112
 
-#include <detail/type_mat.hpp>
-#include <detail/type_mat4x4.hpp>
+#include <glm/detail/type_mat.hpp>
+#include <glm/detail/type_mat4x4.hpp>
 #include <mutex>
 #include "GLSampleBase.h"
 

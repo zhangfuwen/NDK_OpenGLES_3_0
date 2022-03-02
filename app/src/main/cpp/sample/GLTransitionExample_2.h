@@ -9,8 +9,8 @@
 #ifndef NDK_OPENGLES_3_0_GLTRANSITIONEXAMPLE_2_H
 #define NDK_OPENGLES_3_0_GLTRANSITIONEXAMPLE_2_H
 
-#include <detail/type_mat.hpp>
-#include <detail/type_mat4x4.hpp>
+#include <glm/detail/type_mat.hpp>
+#include <glm/detail/type_mat4x4.hpp>
 #include "GLSampleBase.h"
 
 #define BF_IMG_NUM    6

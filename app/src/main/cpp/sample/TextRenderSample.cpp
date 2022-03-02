@@ -6,7 +6,7 @@
  *
  * */
 
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "TextRenderSample.h"
 #include "../util/GLUtils.h"
 static const wchar_t BYTE_FLOW[] = L"微信公众号字节流动，欢迎关注交流学习。";

@@ -12,7 +12,6 @@ include_directories(
         util
         render
         sample
-        glm
         inc
         inc/assimp
         inc/freetype_2_9_1
@@ -22,10 +21,8 @@ include_directories(
         looper
 )
 
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds them for you.
-# Gradle automatically packages shared libraries with your APK.
+include_directories(${CMAKE_SOURCE_DIR})
+
 file(GLOB src-files
         ${CMAKE_SOURCE_DIR}/*.cpp
         ${CMAKE_SOURCE_DIR}/render/*.cpp
@@ -34,17 +31,10 @@ file(GLOB src-files
         ${CMAKE_SOURCE_DIR}/egl/*.cpp
         ${CMAKE_SOURCE_DIR}/looper/*.cpp)
 
-add_library( # Sets the name of the library.
-        native-render
-
-        # Sets the library as a shared library.
-        SHARED
-
+add_library(native-render SHARED
         # Provides a relative path to your source file(s).
         ${src-files}
         ${CMAKE_SOURCE_DIR}/Components/Transform.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Renderer/MeshRenderer.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Renderer/ObjMeshRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/WireFrameRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/TexturedMeshRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp

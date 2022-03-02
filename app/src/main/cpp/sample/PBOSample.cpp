@@ -17,14 +17,13 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLUtils.h>
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 #include <happly.h>
 #include "PBOSample.h"
-#include "../Components/Renderer/ObjMeshRenderer.h"
-#include "../Components/Renderer/WireFrameRenderer.h"
-#include "../Components/Renderer/TexturedMeshRenderer.h"
+#include "Components/Renderer/WireFrameRenderer.h"
+#include "Components/Renderer/TexturedMeshRenderer.h"
 
 //#define PBO_UPLOAD
 #define PBO_DOWNLOAD

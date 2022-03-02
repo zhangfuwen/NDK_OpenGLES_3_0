@@ -2,7 +2,7 @@
 // Created by ByteFlow on 2019/7/30.
 //
 
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "MRTSample.h"
 #include "../util/GLUtils.h"
 

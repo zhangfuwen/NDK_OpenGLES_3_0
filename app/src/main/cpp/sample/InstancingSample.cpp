@@ -2,7 +2,7 @@
 // Created by ByteFlow on 2019/7/9.
 //
 
-#include <vec2.hpp>
+#include <glm/vec2.hpp>
 #include "InstancingSample.h"
 #include "../util/GLUtils.h"
 #include "../util/LogUtil.h"

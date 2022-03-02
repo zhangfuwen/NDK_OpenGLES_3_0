@@ -6,8 +6,8 @@
 #define NDK_OPENGLES_3_0_TEXTUREBUFFERSAMPLE_H
 
 
-#include <detail/type_mat.hpp>
-#include <detail/type_mat4x4.hpp>
+#include <glm/detail/type_mat.hpp>
+#include <glm/detail/type_mat4x4.hpp>
 #include <GLES3/gl32.h>
 #include "GLSampleBase.h"
 

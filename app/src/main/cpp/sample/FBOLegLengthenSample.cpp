@@ -3,7 +3,7 @@
 //
 
 #include <GLUtils.h>
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "FBOLegLengthenSample.h"
 
 #define VERTEX_POS_INDX  0
