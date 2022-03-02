@@ -22,7 +22,7 @@
 #include <opencv2/opencv.hpp>
 #include <happly.h>
 #include "PBOSample.h"
-#include "../Components/ObjMeshRenderer.h"
+#include "../Components/Renderer/ObjMeshRenderer.h"
 
 //#define PBO_UPLOAD
 #define PBO_DOWNLOAD

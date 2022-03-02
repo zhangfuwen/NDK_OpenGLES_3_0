@@ -11,9 +11,9 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES3/gl3.h>
-#include "../glm/glm.hpp"
-#include "Transform.h"
-#include "ObjLoader.h"
+#include "glm.hpp"
+#include "../Transform.h"
+#include "../ObjLoader.h"
 
 class ObjMeshRenderer {
 

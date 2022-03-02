@@ -16,9 +16,6 @@
 #include "handycpp/logging.h"
 #include <libgen.h>
 
-//inline std::istringstream& operator>> (std::istringstream&& strm, float& v) {
-//    return strm;
-//}
 inline std::istream &operator>>(std::istream &&strm, glm::vec3 &v) {
     strm >> v[0];
     strm >> v[1];

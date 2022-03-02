@@ -9,8 +9,8 @@
 #include <detail/type_mat.hpp>
 #include "GLSampleBase.h"
 #include "../util/ImageDef.h"
-#include "../Components/MeshRenderer.h"
-#include "../Components/ObjMeshRenderer.h"
+#include "../Components/Renderer/MeshRenderer.h"
+#include "../Components/Renderer/ObjMeshRenderer.h"
 
 class PBOSample : public GLSampleBase
 {

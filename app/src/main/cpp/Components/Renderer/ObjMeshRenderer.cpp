@@ -8,7 +8,7 @@
 
 #include "handycpp/logging.h"
 #include "ObjMeshRenderer.h"
-#include "Transform.h"
+#include "../Transform.h"
 #include <handycpp/logging.h>
 #include <handycpp/file.h>
 #include <GLUtils.h>

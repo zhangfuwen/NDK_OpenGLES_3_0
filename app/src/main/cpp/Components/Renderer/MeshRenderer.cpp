@@ -6,7 +6,7 @@
 
 #define  FUN_PRINT(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 #include "MeshRenderer.h"
-#include "Transform.h"
+#include "../Transform.h"
 #include <handycpp/logging.h>
 #include <GLUtils.h>
 #include <happly.h>
