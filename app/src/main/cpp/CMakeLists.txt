@@ -4,7 +4,7 @@
 # Sets the minimum version of CMake required to build the native library.
 
 cmake_minimum_required(VERSION 3.4.1)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -DANDROID_STL=c++_shared -stdlib=libc++ -Wno-gnu-zero-variadic-macro-arguments")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -DANDROID_STL=c++_shared -stdlib=libc++ -Wno-gnu-zero-variadic-macro-arguments -Werror=return-type")
 set(jnilibs "${CMAKE_SOURCE_DIR}/../jniLibs")
 
 link_directories(${CMAKE_BINARY_DIR}/install/lib)
