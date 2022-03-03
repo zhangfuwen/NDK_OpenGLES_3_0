@@ -29,16 +29,8 @@ public:
 
     void UpdateMVPMatrix(glm::mat4 &mvpMatrix, int angleX, int angleY, float ratio, float transx = 0, float transy = 0, float transz = 0);
 
-	bool CreateFrameBufferObj();
-
-	void UploadPixels();
-
-	void DownloadPixels();
-
 private:
 	GLuint m_ImageTextureId;
-	GLuint m_FboTextureId;
-	GLuint m_FboId;
 	GLuint m_VaoIds[2] = {GL_NONE};
 	GLuint m_VboIds[4] = {GL_NONE};;
 	GLint m_SamplerLoc;
@@ -47,11 +39,6 @@ private:
 	IRenderer * m_renderer = nullptr;
 	Canvas * m_canvas = nullptr;
 
-	GLuint m_FboProgramObj;
-	GLuint m_FboVertexShader;
-	GLuint m_FboFragmentShader;
-
-	GLint m_FboSamplerLoc;
 	GLint m_MVPMatrixLoc;
 
     int m_AngleX;
@@ -60,8 +47,6 @@ private:
     float m_ScaleY;
     glm::mat4 m_MVPMatrix;
 
-    GLuint m_UploadPboIds[2] = {GL_NONE};;
-    GLuint m_DownloadPboIds[2] = {GL_NONE};;
     int m_FrameIndex;
 
 };
