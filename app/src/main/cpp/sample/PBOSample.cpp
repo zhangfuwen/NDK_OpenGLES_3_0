@@ -326,7 +326,7 @@ void PBOSample::Draw(int screenW, int screenH)
 		transform.translation = { 0.0f, -1.0f, 1.0f};
 		m_renderer->Draw(transform);
 	}
-	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
+//	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
 	m_canvas->Unbind();
 
 

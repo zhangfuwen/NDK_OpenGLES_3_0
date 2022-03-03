@@ -20,7 +20,7 @@ public:
 
 class OwnedTexture : public OwnedResource {
 public:
-    OwnedTexture(int width, int height, unsigned  char * data = nullptr);
+    OwnedTexture(int width, int height, unsigned  char * data = nullptr, bool alloc = true);
     ~OwnedTexture();
     GLuint getId() {
         return m_ImageTextureId;

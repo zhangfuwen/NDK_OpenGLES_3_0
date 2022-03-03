@@ -4,14 +4,17 @@
 
 #include "OwnedResources.h"
 
-OwnedTexture::OwnedTexture(int width, int height, unsigned char * data) {
+OwnedTexture::OwnedTexture(int width, int height, unsigned char * data, bool alloc) {
     glGenTextures(1, &m_ImageTextureId);
     glBindTexture(GL_TEXTURE_2D, m_ImageTextureId);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    if(alloc) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+//        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+    }
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
 }
