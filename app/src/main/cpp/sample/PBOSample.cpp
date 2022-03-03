@@ -184,7 +184,8 @@ void PBOSample::Init()
 	delete objLoader;
 
 	auto pboCanvas = new PBOCanvas(m_RenderImage.width, m_RenderImage.height);
-	pboCanvas->InitFromTexture();
+//	pboCanvas->InitFromTexture();
+	pboCanvas->InitFromAhardwareBuffer();
 	m_canvas = pboCanvas;
 
 
@@ -268,21 +269,21 @@ void PBOSample::Init()
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 	GO_CHECK_GL_ERROR();
 
-	//初始化 FBO
-    glGenBuffers(2, m_UploadPboIds);
-    int imgByteSize = m_RenderImage.width * m_RenderImage.height * 4;//RGBA
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_UploadPboIds[0]);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, imgByteSize, 0, GL_STREAM_DRAW);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_UploadPboIds[1]);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, imgByteSize, 0, GL_STREAM_DRAW);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-
-    glGenBuffers(2, m_DownloadPboIds);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[0]);
-    glBufferData(GL_PIXEL_PACK_BUFFER, imgByteSize, 0, GL_STREAM_READ);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[1]);
-    glBufferData(GL_PIXEL_PACK_BUFFER, imgByteSize, 0, GL_STREAM_READ);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+//	//初始化 FBO
+//    glGenBuffers(2, m_UploadPboIds);
+//    int imgByteSize = m_RenderImage.width * m_RenderImage.height * 4;//RGBA
+//    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_UploadPboIds[0]);
+//    glBufferData(GL_PIXEL_UNPACK_BUFFER, imgByteSize, 0, GL_STREAM_DRAW);
+//    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_UploadPboIds[1]);
+//    glBufferData(GL_PIXEL_UNPACK_BUFFER, imgByteSize, 0, GL_STREAM_DRAW);
+//    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+//
+//    glGenBuffers(2, m_DownloadPboIds);
+//    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[0]);
+//    glBufferData(GL_PIXEL_PACK_BUFFER, imgByteSize, 0, GL_STREAM_READ);
+//    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[1]);
+//    glBufferData(GL_PIXEL_PACK_BUFFER, imgByteSize, 0, GL_STREAM_READ);
+//    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 	if (!CreateFrameBufferObj())
 	{
@@ -325,7 +326,7 @@ void PBOSample::Draw(int screenW, int screenH)
 		transform.translation = { 0.0f, -1.0f, 1.0f};
 		m_renderer->Draw(transform);
 	}
-	//m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
+	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
 	m_canvas->Unbind();
 
 
@@ -337,8 +338,8 @@ void PBOSample::Draw(int screenW, int screenH)
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_VaoIds[0]);
 	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, ((PBOCanvas*)(m_canvas))->GetColorAttachmentTextureId());
-	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
+	glBindTexture(GL_TEXTURE_2D, ((PBOCanvas*)(m_canvas))->GetColorAttachmentTextureId());
+//	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
     glUniformMatrix4fv(m_MVPMatrixLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
 	glUniform1i(m_SamplerLoc, 0);
 	GO_CHECK_GL_ERROR();
@@ -420,7 +421,7 @@ AHardwareBuffer *hardwareBuffer;
 
 #include <android/hardware_buffer.h>
 
-AHardwareBuffer *allocAHardwareBuffer(uint32_t w, uint32_t h) {
+AHardwareBuffer *AllocAHardwareBuffer(uint32_t w, uint32_t h) {
 	AHardwareBuffer *hardwareBuffer = nullptr;
 	AHardwareBuffer_Desc desc = {};
 	desc.width = w;
@@ -497,7 +498,7 @@ bool PBOSample::CreateFrameBufferObj()
 	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FboTextureId, 0);
 
-	hardwareBuffer = allocAHardwareBuffer(m_RenderImage.width, m_RenderImage.height);
+	hardwareBuffer = AllocAHardwareBuffer(m_RenderImage.width, m_RenderImage.height);
 	// 3.  associate with texture with ahardwarebuffer
 	EGLClientBuffer native_buffer = nullptr;
 	native_buffer = eglGetNativeClientBufferANDROID(hardwareBuffer);

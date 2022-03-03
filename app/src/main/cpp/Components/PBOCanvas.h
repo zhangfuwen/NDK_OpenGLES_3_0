@@ -21,6 +21,7 @@
 class PBOCanvas : public Canvas {
 public:
     int InitFromTexture() ;
+    int InitFromAhardwareBuffer() ;
     GLuint GetColorAttachmentTextureId();
     int Bind() override;
     int Unbind() override;
@@ -32,6 +33,8 @@ private:
     int m_width;
     int m_height;
     GLuint m_FboId;
+
+    GLuint m_FboTextureId;// hardwarebuffer
 
     std::vector<std::shared_ptr<OwnedResource>> resources;
 
