@@ -208,7 +208,6 @@ int TexturedMeshRenderer::Draw(const Transform &transform) {
     printBunnyVars();
     static float x = 0;
 //	x += 1;
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     transform.GetMVPMatrix(m_MVPMatrix);
     glLineWidth(1.0f);
     glDisable(GL_POLYGON_OFFSET_FILL);

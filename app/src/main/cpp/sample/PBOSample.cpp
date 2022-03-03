@@ -119,12 +119,56 @@ void PBOSample::Init()
 	auto renderer = new TexturedMeshRenderer();
 	renderer->Init();
 	renderer->LoadTexturedMesh(objLoader);
-	m_renderer = renderer;
 	delete objLoader;
 
-	auto pboCanvas = new PBOCanvas(m_RenderImage.width, m_RenderImage.height);
+	auto renderer2 = new WireFrameRenderer();
+	renderer2->Init();
+	renderer2->LoadLines([](LinesType &lines, int & numElements) -> int {
+		happly::PLYData plyIn("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/bun_zipper.ply");
+		std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
+		std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
+		FUN_INFO("fInd.size %d", fInd.size());
+
+		lines.reserve(fInd.size()*3);
+		for(const auto & face : fInd) {
+			auto p0 = vPos[face[0]];
+			auto p1 = vPos[face[1]];
+			auto p2 = vPos[face[2]];
+			lines.push_back({glm::vec3(p0[0], p0[1], p0[2]), glm::vec3(p1[0], p1[1], p1[2])});
+			lines.push_back({glm::vec3(p1[0], p1[1], p1[2]), glm::vec3(p2[0], p2[1], p2[2])});
+			lines.push_back({glm::vec3(p2[0], p2[1], p2[2]), glm::vec3(p0[0], p0[1], p0[2])});
+		}
+		numElements = lines.size() * 2;
+
+		return lines.size();
+	});
+
+	auto pboCanvas = std::make_shared<PBOCanvas>(m_RenderImage.width, m_RenderImage.height);
 	pboCanvas->Init(PBOCanvas::TEXTURE);
-	m_canvas = pboCanvas;
+	auto rootGameObject = std::make_shared<GameObject>();
+	rootGameObject->SetCanvas(pboCanvas);
+	rootGameObject->transform()->translation = { 0.0f, 0.0f, 0.0f};
+	rootGameObject->transform()->rotation = { 0.0f, 0.0f, 0.0f};
+	rootGameObject->transform()->scale = { 1.0f, 1.0f, 1.0f};
+
+	auto rabbitGameObject = std::make_shared<GameObject>();
+	rabbitGameObject->SetRenderer(renderer2);
+	rabbitGameObject->transform()->scale = {8.0f, 8.0f, 8.0f};
+
+	auto pearGameObject = std::make_shared<GameObject>();
+	pearGameObject->SetRenderer(renderer);
+	pearGameObject->transform()->translation = {0.0f, -1.0f, 2.0f};
+	pearGameObject->transform()->scale = {0.2f, 0.2f, 0.2f};
+
+	rootGameObject->AddChild(rabbitGameObject);
+	rootGameObject->AddChild(pearGameObject);
+
+	m_gameObject = rootGameObject;
+
+//	auto translate = glm::vec3{ 0.0f, 0.0f, 0.0f};
+//	auto rotation = glm::vec3{ 0.0f, 0.0f, 0.0f};
+//	auto scale = glm::vec3{ 1.0f, 1.0f, 1.0f};
+//	m_gameObject->AddParentTransform({.translation=translate, .scale=scale, .rotation = rotation});
 
 
 	if (m_ProgramObj == GL_NONE)
@@ -173,26 +217,31 @@ void PBOSample::Init()
 void PBOSample::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX, float scaleY)
 {
 	GLSampleBase::UpdateTransformMatrix(rotateX, rotateY, scaleX, scaleY);
-	m_AngleX = static_cast<int>(rotateX);
-	m_AngleY = static_cast<int>(rotateY);
+	m_AngleX = static_cast<int>(rotateX) / 5;
+	m_AngleY = static_cast<int>(rotateY) / 5;
 	m_ScaleX = scaleX;
 	m_ScaleY = scaleY;
+	auto angleX = m_AngleX % 360;
+	auto angleY = m_AngleY % 360;
+
+	float radiansX = static_cast<float>( angleX);
+	float radiansY = static_cast<float>( angleY);
+	auto translate = glm::vec3{ 0.0f, 0.0f, 0.0f};
+	auto rotation = glm::vec3{ radiansX, radiansY, 0.0f};
+	auto scale = glm::vec3{ m_ScaleX, m_ScaleX, m_ScaleX};
+	m_gameObject->AddParentTransform({.translation=translate, .scale=scale, .rotation = rotation});
+
+	FUN_INFO("angle:(%d, %d), scale:(%f, %f), real:(%f, %f, %f), (%f, %f, %f)",
+		  m_AngleX, m_AngleY, m_ScaleX, m_ScaleY,
+		  rotation.x, rotation.y, rotation.z, scale.x,scale.y, scale.z
+		  );
 }
 
 
 void PBOSample::Draw(int screenW, int screenH)
 {
-	m_canvas->Bind();
-	{
-		Transform transform;
-		transform.scale = { 0.2f*m_ScaleX, 0.2f*m_ScaleY, 0.2f};
-		FUN_INFO("Scale %f %f", m_ScaleX, m_ScaleY);
-		transform.rotation = { (int)(m_AngleX/m_ScaleX) % 360, (int)(m_AngleY/m_ScaleY) % 360, 0.0f};
-		transform.translation = { 0.0f, -1.0f, 1.0f};
-		m_renderer->Draw(transform);
-	}
-	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.png");
-	m_canvas->Unbind();
+
+	m_gameObject->Draw();
 
 
 	// 普通渲染
@@ -203,7 +252,7 @@ void PBOSample::Draw(int screenW, int screenH)
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_VaoIds[0]);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ((PBOCanvas*)(m_canvas))->GetColorAttachmentTextureId());
+	glBindTexture(GL_TEXTURE_2D, m_gameObject->GetCanvasTexture());
 //	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
     glUniformMatrix4fv(m_MVPMatrixLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
 	glUniform1i(m_SamplerLoc, 0);
@@ -240,16 +289,6 @@ void PBOSample::Destroy()
 		glDeleteVertexArrays(2, m_VaoIds);
 	}
 
-    if(m_renderer) {
-    	m_renderer->Finalize();
-    	delete m_renderer;
-		m_renderer = nullptr;
-    }
-
-    if(m_canvas) {
-    	delete m_canvas;
-    	m_canvas = nullptr;
-    }
 }
 
 

@@ -17,6 +17,10 @@
 #include "Components//ObjLoader.h"
 #include "IRenderer.h"
 
+// std::vector<std::array<glm::vec3, 2>> &lines, int &numElements
+using LinesType = std::vector<std::array<glm::vec3, 2>>;
+using LineLoader = std::function<int(std::vector<std::array<glm::vec3, 2>> &, int &)>;
+
 class WireFrameRenderer : public IRenderer {
 private:
     GLuint m_ProgramObj;
@@ -50,6 +54,7 @@ public:
     int Draw(const Transform &transform) override;
 
     int LoadLines(ObjLoader * loader);
+    int LoadLines(LineLoader loader);
 };
 
 #endif //NDK_OPENGLES_3_0_WIREFRAMERENDERER_H

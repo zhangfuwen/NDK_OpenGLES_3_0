@@ -89,12 +89,12 @@ private:
 
 };
 
-int PBOCanvas::Init(BackingStore backingStore) {
-    m_backingStore = backingStore;
-    switch (backingStore) {
-        case BackingStore::TEXTURE:
+int PBOCanvas::Init(BackingStoreType backingStoreType) {
+    m_backingStoreType = backingStoreType;
+    switch (backingStoreType) {
+        case BackingStoreType::TEXTURE:
             return InitFromTexture();
-        case BackingStore::AHARDWARE_BUFFER:
+        case BackingStoreType::AHARDWARE_BUFFER:
             return InitFromAhardwareBuffer();
     }
 }
@@ -187,8 +187,13 @@ int PBOCanvas::Unbind() {
     return 0;
 }
 
+int PBOCanvas::Clear() {
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+    return 0;
+}
+
 int PBOCanvas::DownloadPixels(std::string filePath) {
-    if(m_backingStore == TEXTURE) {
+    if(m_backingStoreType == TEXTURE) {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FboId);
         int dataSize = m_height * m_width * 4;
         GLuint pack_buffer_id;
@@ -207,7 +212,7 @@ int PBOCanvas::DownloadPixels(std::string filePath) {
         }
         glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
         glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
-    } else if(m_backingStore == AHARDWARE_BUFFER) {
+    } else if(m_backingStoreType == AHARDWARE_BUFFER) {
         std::shared_ptr<OwnedAhardwareBuffer> buf = std::dynamic_pointer_cast<OwnedAhardwareBuffer>(resources[1]);
         glFinish();
         auto data = buf->Read();
@@ -222,4 +227,7 @@ PBOCanvas::~PBOCanvas() {
         glDeleteFramebuffers(1, &m_FboId);
         m_FboId = 0;
     }
+}
+uint32_t PBOCanvas::GetBackingStoreTexture() {
+    return m_FboTextureId;
 }

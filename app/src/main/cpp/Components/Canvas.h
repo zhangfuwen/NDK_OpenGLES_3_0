@@ -13,6 +13,8 @@ public:
     virtual int Bind() = 0;
 
     virtual int Unbind() = 0;
+    virtual int Clear() { return 0;};
+    virtual uint32_t GetBackingStoreTexture() {return 0;};
     virtual int DownloadPixels(std::string filePath) { return 0;};
 
     virtual ~Canvas() {};

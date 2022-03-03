@@ -32,20 +32,29 @@ void WireFrameRenderer::printBunnyVars() {
 }
 
 int WireFrameRenderer::LoadLines(ObjLoader * loader) {
+    return LoadLines([loader](decltype(lines) &lines, int &m_NumElements) -> int {
+        for (const auto &face : loader->faces) {
+            auto p0 = loader->vertices[face[0].vertex_index];
+            auto p1 = loader->vertices[face[1].vertex_index];
+            auto p2 = loader->vertices[face[2].vertex_index];
+            auto p3 = loader->vertices[face[3].vertex_index];
+            lines.emplace_back(std::array{p0, p1});
+            lines.emplace_back(std::array{p1, p2});
+            lines.emplace_back(std::array{p2, p3});
+            lines.emplace_back(std::array{p3, p0});
+        }
+
+        return lines.size();
+    });
+}
+
+int WireFrameRenderer::LoadLines(LineLoader loader) {
+    auto ret = loader(lines, m_NumElements);
+    if(ret <= 0) {
+        return ret;
+    }
     glGenBuffers(1, &m_VBOPosition);
     glGenVertexArrays(1, &m_VAO);
-
-    for (const auto &face : loader->faces) {
-        auto p0 = loader->vertices[face[0].vertex_index];
-        auto p1 = loader->vertices[face[1].vertex_index];
-        auto p2 = loader->vertices[face[2].vertex_index];
-        auto p3 = loader->vertices[face[3].vertex_index];
-        lines.emplace_back(std::array{p0, p1});
-        lines.emplace_back(std::array{p1, p2});
-        lines.emplace_back(std::array{p2, p3});
-        lines.emplace_back(std::array{p3, p0});
-    }
-    m_NumElements = lines.size() * 2 * 3; // 2 points, each 3 floats
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VBOPosition);
     glBufferData(GL_ARRAY_BUFFER, lines.size() * 2 * 3 * sizeof(float), &lines[0][0][0], GL_STATIC_DRAW);
@@ -138,7 +147,6 @@ int WireFrameRenderer::Draw(const Transform &transform) {
     WireFrameRenderer::printBunnyVars();
     static float x = 0;
 //	x += 1;
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     transform.GetMVPMatrix(WireFrameRenderer::m_MVPMatrix);
     glLineWidth(1.0f);
     glDisable(GL_POLYGON_OFFSET_FILL);
@@ -158,3 +166,4 @@ int WireFrameRenderer::Draw(const Transform &transform) {
 #endif
     return 0;
 }
+

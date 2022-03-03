@@ -20,16 +20,18 @@
 
 class PBOCanvas : public Canvas {
 public:
-    enum BackingStore {
+    enum BackingStoreType {
         TEXTURE,
         AHARDWARE_BUFFER
     };
 
 public:
-    int Init(BackingStore backingStore);
+    int Init(BackingStoreType backingStoreType);
     GLuint GetColorAttachmentTextureId();
     int Bind() override;
     int Unbind() override;
+    int Clear() override;
+    uint32_t GetBackingStoreTexture() override;
     int DownloadPixels(std::string filePath) override;
     PBOCanvas(int width, int height);
     ~PBOCanvas() override;
@@ -42,7 +44,7 @@ private:
     int m_width;
     int m_height;
     GLuint m_FboId;
-    BackingStore m_backingStore;
+    BackingStoreType m_backingStoreType;
 
     GLuint m_FboTextureId;
 

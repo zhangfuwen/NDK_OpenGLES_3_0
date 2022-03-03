@@ -8,6 +8,7 @@
 
 #include <glm/detail/type_mat.hpp>
 #include <Components/Canvas.h>
+#include <Entity/GameObject.h>
 #include "GLSampleBase.h"
 #include "../util/ImageDef.h"
 #include "../Components/Renderer/IRenderer.h"
@@ -36,8 +37,7 @@ private:
 	GLint m_SamplerLoc;
 	NativeImage m_RenderImage;
 
-	IRenderer * m_renderer = nullptr;
-	Canvas * m_canvas = nullptr;
+	std::shared_ptr<GameObject> m_gameObject = nullptr;
 
 	GLint m_MVPMatrixLoc;
 
