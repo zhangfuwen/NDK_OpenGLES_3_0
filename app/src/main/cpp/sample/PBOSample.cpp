@@ -185,7 +185,8 @@ void PBOSample::Init()
 
 	auto pboCanvas = new PBOCanvas(m_RenderImage.width, m_RenderImage.height);
 //	pboCanvas->InitFromTexture();
-	pboCanvas->InitFromAhardwareBuffer();
+//	pboCanvas->InitFromAhardwareBuffer();
+	pboCanvas->Init(PBOCanvas::TEXTURE);
 	m_canvas = pboCanvas;
 
 
@@ -269,21 +270,21 @@ void PBOSample::Init()
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 	GO_CHECK_GL_ERROR();
 
-//	//初始化 FBO
-//    glGenBuffers(2, m_UploadPboIds);
-//    int imgByteSize = m_RenderImage.width * m_RenderImage.height * 4;//RGBA
-//    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_UploadPboIds[0]);
-//    glBufferData(GL_PIXEL_UNPACK_BUFFER, imgByteSize, 0, GL_STREAM_DRAW);
-//    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_UploadPboIds[1]);
-//    glBufferData(GL_PIXEL_UNPACK_BUFFER, imgByteSize, 0, GL_STREAM_DRAW);
-//    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-//
-//    glGenBuffers(2, m_DownloadPboIds);
-//    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[0]);
-//    glBufferData(GL_PIXEL_PACK_BUFFER, imgByteSize, 0, GL_STREAM_READ);
-//    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[1]);
-//    glBufferData(GL_PIXEL_PACK_BUFFER, imgByteSize, 0, GL_STREAM_READ);
-//    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+	//初始化 FBO
+    glGenBuffers(2, m_UploadPboIds);
+    int imgByteSize = m_RenderImage.width * m_RenderImage.height * 4;//RGBA
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_UploadPboIds[0]);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, imgByteSize, 0, GL_STREAM_DRAW);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, m_UploadPboIds[1]);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, imgByteSize, 0, GL_STREAM_DRAW);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
+    glGenBuffers(2, m_DownloadPboIds);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[0]);
+    glBufferData(GL_PIXEL_PACK_BUFFER, imgByteSize, 0, GL_STREAM_READ);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, m_DownloadPboIds[1]);
+    glBufferData(GL_PIXEL_PACK_BUFFER, imgByteSize, 0, GL_STREAM_READ);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 	if (!CreateFrameBufferObj())
 	{
@@ -306,6 +307,7 @@ void PBOSample::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX
 void PBOSample::Draw(int screenW, int screenH)
 {
 	glViewport(0, 0, m_RenderImage.width, m_RenderImage.height);
+    UploadPixels();
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
 	{
 		Transform transform;
@@ -314,6 +316,7 @@ void PBOSample::Draw(int screenW, int screenH)
 		transform.rotation = { (int)(m_AngleX/m_ScaleX) % 360, (int)(m_AngleY/m_ScaleY) % 360, 0.0f};
 		transform.translation = { 0.0f, -1.0f, 1.0f};
 		m_renderer->Draw(transform);
+		DownloadPixels();
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -326,7 +329,7 @@ void PBOSample::Draw(int screenW, int screenH)
 		transform.translation = { 0.0f, -1.0f, 1.0f};
 		m_renderer->Draw(transform);
 	}
-//	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
+	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
 	m_canvas->Unbind();
 
 
@@ -338,8 +341,8 @@ void PBOSample::Draw(int screenW, int screenH)
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_VaoIds[0]);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ((PBOCanvas*)(m_canvas))->GetColorAttachmentTextureId());
-//	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
+//	glBindTexture(GL_TEXTURE_2D, ((PBOCanvas*)(m_canvas))->GetColorAttachmentTextureId());
+	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
     glUniformMatrix4fv(m_MVPMatrixLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
 	glUniform1i(m_SamplerLoc, 0);
 	GO_CHECK_GL_ERROR();
@@ -631,7 +634,12 @@ void PBOSample::DownloadPixels() {
 	nativeImage.ppPlane[0] = pBuffer;
 	BEGIN_TIME("DownloadPixels glReadPixels without PBO")
 		glReadPixels(0, 0, nativeImage.width, nativeImage.height, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
-	NativeImageUtil::DumpNativeImage(&nativeImage, "/sdcard/DCIM", "Normal");
+	static int count = 0;
+	count++;
+	if(count ==10) {
+		NativeImageUtil::DumpNativeImage(&nativeImage, "/sdcard/DCIM", "Normal");
+		handycpp::image::writeBmp("/data/data/com.byteflow.app/files/2.bmp", pBuffer, nativeImage.width, nativeImage.height, 4);
+	}
 	END_TIME("DownloadPixels glReadPixels without PBO")
     delete []pBuffer;
 
@@ -651,12 +659,12 @@ void PBOSample::DownloadPixels() {
 
     if (bufPtr) {
         nativeImage.ppPlane[0] = bufPtr;
-#if 0
+#if 1
         handycpp::image::writeBmp("/data/data/com.byteflow.app/files/1.bmp", bufPtr, nativeImage.width, nativeImage.height, 4);
 #endif
 
-//        NativeImageUtil::DumpNativeImage(&nativeImage, "/data/data/com.byteflow.app/files/", "PBO");
-
+        NativeImageUtil::DumpNativeImage(&nativeImage, "/data/data/com.byteflow.app/files/", "PBO");
+//
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
     }
     END_TIME("DownloadPixels PBO glMapBufferRange")

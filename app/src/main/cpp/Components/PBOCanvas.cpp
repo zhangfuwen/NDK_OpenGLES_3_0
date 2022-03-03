@@ -88,6 +88,16 @@ private:
 
 };
 
+int PBOCanvas::Init(BackingStore backingStore) {
+    m_backingStore = backingStore;
+    switch (backingStore) {
+        case BackingStore::TEXTURE:
+            return InitFromTexture();
+        case BackingStore::AHARDWARE_BUFFER:
+            return InitFromAhardwareBuffer();
+    }
+}
+
 
 int PBOCanvas::InitFromAhardwareBuffer() {
     // 创建并初始化 FBO 纹理
@@ -178,18 +188,27 @@ int PBOCanvas::Unbind() {
 
 int PBOCanvas::DownloadPixels(std::string filePath) {
     int dataSize = m_height * m_width * 4;
-    GLuint pack_buffer_id;
-    glGenBuffers(1, &pack_buffer_id);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, pack_buffer_id);
-    glBufferData(GL_PIXEL_PACK_BUFFER, dataSize, nullptr, GL_STREAM_READ);
-    glReadPixels(0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    if(m_backingStore == TEXTURE) {
+        GLuint pack_buffer_id;
+        glGenBuffers(1, &pack_buffer_id);
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, pack_buffer_id);
+        glBufferData(GL_PIXEL_PACK_BUFFER, dataSize, nullptr, GL_STREAM_READ);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glReadPixels(0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-    auto *bufPtr = static_cast<GLubyte *>(glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0,
-                                                              dataSize,
-                                                              GL_MAP_READ_BIT));
-    if (bufPtr) {
-        handycpp::image::writeBmp(filePath, bufPtr, m_width, m_height, 4);
-        glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+        auto *bufPtr = static_cast<GLubyte *>(glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0,
+                                                               dataSize,
+                                                               GL_MAP_READ_BIT));
+        if (bufPtr) {
+            handycpp::image::writeBmp(filePath, bufPtr, m_width, m_height, 4);
+            glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+        }
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
+    } else if(m_backingStore == AHARDWARE_BUFFER) {
+        std::shared_ptr<OwnedAhardwareBuffer> buf = std::dynamic_pointer_cast<OwnedAhardwareBuffer>(resources[1]);
+        auto data = buf->Read();
+        FUN_INFO("zhangfuwen stride:%d", buf->GetDesc().stride);
+        handycpp::image::writeBmp(filePath, (unsigned char *)data.get(), buf->GetDesc().stride, m_height, 4);
     }
     return 0;
 }
