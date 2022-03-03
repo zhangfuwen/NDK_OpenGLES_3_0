@@ -7,6 +7,7 @@
 
 
 #include <glm/detail/type_mat.hpp>
+#include <Components/Canvas.h>
 #include "GLSampleBase.h"
 #include "../util/ImageDef.h"
 #include "../Components/Renderer/IRenderer.h"
@@ -44,6 +45,7 @@ private:
 	NativeImage m_RenderImage;
 
 	IRenderer * m_renderer = nullptr;
+	Canvas * m_canvas = nullptr;
 
 	GLuint m_FboProgramObj;
 	GLuint m_FboVertexShader;

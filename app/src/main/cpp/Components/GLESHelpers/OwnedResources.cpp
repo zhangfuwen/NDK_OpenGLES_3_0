@@ -23,3 +23,17 @@ OwnedTexture::~OwnedTexture() {
     }
 
 }
+
+OwnedRenderbuffer::OwnedRenderbuffer(int width, int height, GLenum internalFormat) {
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    m_renderBufferId = rbo;
+}
+
+OwnedRenderbuffer::~OwnedRenderbuffer() {
+    glDeleteFramebuffers(1, &m_renderBufferId);
+    m_renderBufferId = 0;
+}

@@ -5,12 +5,15 @@
 #ifndef NDK_OPENGLES_3_0_CANVAS_H
 #define NDK_OPENGLES_3_0_CANVAS_H
 
+#include <string>
+
 class Canvas {
 public:
 
-    virtual int Bind() { return 0; };
+    virtual int Bind() = 0;
 
-    virtual int Unbind() { return 0;};
+    virtual int Unbind() = 0;
+    virtual int DownloadPixels(std::string filePath) { return 0;};
 
     virtual ~Canvas() {};
 };

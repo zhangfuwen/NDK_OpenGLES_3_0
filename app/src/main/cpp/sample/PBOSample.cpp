@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <opencv2/opencv.hpp>
 #include <happly.h>
+#include <Components/PBOCanvas.h>
 #include "PBOSample.h"
 #include "Components/Renderer/WireFrameRenderer.h"
 #include "Components/Renderer/TexturedMeshRenderer.h"
@@ -182,6 +183,11 @@ void PBOSample::Init()
 	m_renderer = renderer;
 	delete objLoader;
 
+	auto pboCanvas = new PBOCanvas(m_RenderImage.width, m_RenderImage.height);
+	pboCanvas->InitFromTexture();
+	m_canvas = pboCanvas;
+
+
 
 
 	if (m_ProgramObj == GL_NONE || m_FboProgramObj == GL_NONE)
@@ -303,8 +309,8 @@ void PBOSample::Draw(int screenW, int screenH)
 	glViewport(0, 0, m_RenderImage.width, m_RenderImage.height);
 
 	//Upload
-	UploadPixels();
-    GO_CHECK_GL_ERROR();
+//	UploadPixels();
+//    GO_CHECK_GL_ERROR();
 
 	// Do FBO off screen rendering
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
@@ -319,9 +325,16 @@ void PBOSample::Draw(int screenW, int screenH)
 //	m_meshRenderer->Draw(transform);
 	m_renderer->Draw(transform);
 	//Download
-	DownloadPixels();
-
+//	DownloadPixels();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	m_canvas->Bind();
+	glClearColor(0.5f, 0.5f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	m_renderer->Draw(transform);
+	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
+	m_canvas->Unbind();
+
 
 	// 普通渲染
 	// Do normal rendering
@@ -331,6 +344,7 @@ void PBOSample::Draw(int screenW, int screenH)
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_VaoIds[0]);
 	glActiveTexture(GL_TEXTURE0);
+//	glBindTexture(GL_TEXTURE_2D, ((PBOCanvas*)(m_canvas))->GetColorAttachmentTextureId());
 	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
     glUniformMatrix4fv(m_MVPMatrixLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
 	glUniform1i(m_SamplerLoc, 0);
@@ -395,6 +409,11 @@ void PBOSample::Destroy()
     	m_renderer->Finalize();
     	delete m_renderer;
 		m_renderer = nullptr;
+    }
+
+    if(m_canvas) {
+    	delete m_canvas;
+    	m_canvas = nullptr;
     }
 
 
@@ -480,6 +499,7 @@ bool PBOSample::CreateFrameBufferObj()
 
 	// 创建并初始化 FBO
 	glGenFramebuffers(1, &m_FboId);
+	FUN_INFO("fbo %d", m_FboId);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
 	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FboTextureId, 0);

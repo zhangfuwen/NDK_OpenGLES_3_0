@@ -21,8 +21,10 @@
 class PBOCanvas : public Canvas {
 public:
     int InitFromTexture() ;
+    GLuint GetColorAttachmentTextureId();
     int Bind() override;
     int Unbind() override;
+    int DownloadPixels(std::string filePath) override;
     PBOCanvas(int width, int height);
     ~PBOCanvas() override;
 

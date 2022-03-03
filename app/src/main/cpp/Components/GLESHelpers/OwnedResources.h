@@ -31,5 +31,16 @@ private:
 
 };
 
+class OwnedRenderbuffer : public OwnedResource {
+public:
+    OwnedRenderbuffer(int width, int height, GLenum internalFormat = GL_DEPTH24_STENCIL8);
+    ~OwnedRenderbuffer();
+    GLuint getId() {
+        return m_renderBufferId;
+    }
+private:
+    GLuint m_renderBufferId = 0;
+};
+
 
 #endif //NDK_OPENGLES_3_0_OWNEDRESOURCES_H
