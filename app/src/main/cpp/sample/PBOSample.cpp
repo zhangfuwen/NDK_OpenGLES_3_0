@@ -304,35 +304,28 @@ void PBOSample::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX
 
 void PBOSample::Draw(int screenW, int screenH)
 {
-	// 离屏渲染
-	//glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 	glViewport(0, 0, m_RenderImage.width, m_RenderImage.height);
-
-	//Upload
-//	UploadPixels();
-//    GO_CHECK_GL_ERROR();
-
-	// Do FBO off screen rendering
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
-
-	Transform transform;
-//	m_AngleX %= 360;
-//	m_AngleY %= 360;
-	transform.scale = { 0.2f*m_ScaleX, 0.2f*m_ScaleY, 0.2f};
-	FUN_INFO("Scale %f %f", m_ScaleX, m_ScaleY);
-	transform.rotation = { (int)(m_AngleX/m_ScaleX) % 360, (int)(m_AngleY/m_ScaleY) % 360, 0.0f};
-	transform.translation = { 0.0f, -1.0f, 1.0f};
-//	m_meshRenderer->Draw(transform);
-	m_renderer->Draw(transform);
-	//Download
-//	DownloadPixels();
+	{
+		Transform transform;
+		transform.scale = { 0.2f*m_ScaleX, 0.2f*m_ScaleY, 0.2f};
+		FUN_INFO("Scale %f %f", m_ScaleX, m_ScaleY);
+		transform.rotation = { (int)(m_AngleX/m_ScaleX) % 360, (int)(m_AngleY/m_ScaleY) % 360, 0.0f};
+		transform.translation = { 0.0f, -1.0f, 1.0f};
+		m_renderer->Draw(transform);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	m_canvas->Bind();
-	glClearColor(0.5f, 0.5f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	m_renderer->Draw(transform);
-	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
+	{
+		Transform transform;
+		transform.scale = { 0.2f*m_ScaleX, 0.2f*m_ScaleY, 0.2f};
+		FUN_INFO("Scale %f %f", m_ScaleX, m_ScaleY);
+		transform.rotation = { (int)(m_AngleX/m_ScaleX) % 360, (int)(m_AngleY/m_ScaleY) % 360, 0.0f};
+		transform.translation = { 0.0f, -1.0f, 1.0f};
+		m_renderer->Draw(transform);
+	}
+	//m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
 	m_canvas->Unbind();
 
 
