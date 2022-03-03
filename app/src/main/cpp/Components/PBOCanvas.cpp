@@ -80,6 +80,7 @@ public:
         if(hardwareBuffer) {
             AHardwareBuffer_release(hardwareBuffer);
         }
+
     }
 
 private:
@@ -187,8 +188,8 @@ int PBOCanvas::Unbind() {
 }
 
 int PBOCanvas::DownloadPixels(std::string filePath) {
-    int dataSize = m_height * m_width * 4;
     if(m_backingStore == TEXTURE) {
+        int dataSize = m_height * m_width * 4;
         GLuint pack_buffer_id;
         glGenBuffers(1, &pack_buffer_id);
         glBindBuffer(GL_PIXEL_PACK_BUFFER, pack_buffer_id);
@@ -200,15 +201,16 @@ int PBOCanvas::DownloadPixels(std::string filePath) {
                                                                dataSize,
                                                                GL_MAP_READ_BIT));
         if (bufPtr) {
-            handycpp::image::writeBmp(filePath, bufPtr, m_width, m_height, 4);
+            handycpp::image::saveRgbaToPng(filePath, bufPtr, m_width, m_height);
             glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         }
         glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
     } else if(m_backingStore == AHARDWARE_BUFFER) {
         std::shared_ptr<OwnedAhardwareBuffer> buf = std::dynamic_pointer_cast<OwnedAhardwareBuffer>(resources[1]);
+        glFinish();
         auto data = buf->Read();
         FUN_INFO("zhangfuwen stride:%d", buf->GetDesc().stride);
-        handycpp::image::writeBmp(filePath, (unsigned char *)data.get(), buf->GetDesc().stride, m_height, 4);
+        handycpp::image::saveRgbaToPng(filePath, (unsigned char *)data.get(), buf->GetDesc().stride, m_height);
     }
     return 0;
 }

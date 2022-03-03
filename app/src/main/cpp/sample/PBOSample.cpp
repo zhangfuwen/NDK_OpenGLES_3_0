@@ -186,7 +186,7 @@ void PBOSample::Init()
 	auto pboCanvas = new PBOCanvas(m_RenderImage.width, m_RenderImage.height);
 //	pboCanvas->InitFromTexture();
 //	pboCanvas->InitFromAhardwareBuffer();
-	pboCanvas->Init(PBOCanvas::TEXTURE);
+	pboCanvas->Init(PBOCanvas::AHARDWARE_BUFFER);
 	m_canvas = pboCanvas;
 
 
@@ -329,7 +329,7 @@ void PBOSample::Draw(int screenW, int screenH)
 		transform.translation = { 0.0f, -1.0f, 1.0f};
 		m_renderer->Draw(transform);
 	}
-	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.bmp");
+	m_canvas->DownloadPixels("/data/data/com.byteflow.app/files/4.png");
 	m_canvas->Unbind();
 
 
@@ -341,8 +341,8 @@ void PBOSample::Draw(int screenW, int screenH)
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_VaoIds[0]);
 	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, ((PBOCanvas*)(m_canvas))->GetColorAttachmentTextureId());
-	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
+	glBindTexture(GL_TEXTURE_2D, ((PBOCanvas*)(m_canvas))->GetColorAttachmentTextureId());
+//	glBindTexture(GL_TEXTURE_2D, m_FboTextureId);
     glUniformMatrix4fv(m_MVPMatrixLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
 	glUniform1i(m_SamplerLoc, 0);
 	GO_CHECK_GL_ERROR();
