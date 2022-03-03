@@ -189,6 +189,7 @@ int PBOCanvas::Unbind() {
 
 int PBOCanvas::DownloadPixels(std::string filePath) {
     if(m_backingStore == TEXTURE) {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FboId);
         int dataSize = m_height * m_width * 4;
         GLuint pack_buffer_id;
         glGenBuffers(1, &pack_buffer_id);
@@ -205,6 +206,7 @@ int PBOCanvas::DownloadPixels(std::string filePath) {
             glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
         }
         glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
     } else if(m_backingStore == AHARDWARE_BUFFER) {
         std::shared_ptr<OwnedAhardwareBuffer> buf = std::dynamic_pointer_cast<OwnedAhardwareBuffer>(resources[1]);
         glFinish();

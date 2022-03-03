@@ -186,7 +186,7 @@ void PBOSample::Init()
 	auto pboCanvas = new PBOCanvas(m_RenderImage.width, m_RenderImage.height);
 //	pboCanvas->InitFromTexture();
 //	pboCanvas->InitFromAhardwareBuffer();
-	pboCanvas->Init(PBOCanvas::AHARDWARE_BUFFER);
+	pboCanvas->Init(PBOCanvas::TEXTURE);
 	m_canvas = pboCanvas;
 
 
@@ -307,7 +307,7 @@ void PBOSample::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX
 void PBOSample::Draw(int screenW, int screenH)
 {
 	glViewport(0, 0, m_RenderImage.width, m_RenderImage.height);
-    UploadPixels();
+//    UploadPixels();
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboId);
 	{
 		Transform transform;
@@ -636,10 +636,10 @@ void PBOSample::DownloadPixels() {
 		glReadPixels(0, 0, nativeImage.width, nativeImage.height, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer);
 	static int count = 0;
 	count++;
-	if(count ==10) {
-		NativeImageUtil::DumpNativeImage(&nativeImage, "/sdcard/DCIM", "Normal");
-		handycpp::image::writeBmp("/data/data/com.byteflow.app/files/2.bmp", pBuffer, nativeImage.width, nativeImage.height, 4);
-	}
+//	if(count ==10) {
+//		NativeImageUtil::DumpNativeImage(&nativeImage, "/sdcard/DCIM", "Normal");
+		handycpp::image::saveRgbaToPng("/data/data/com.byteflow.app/files/2.png", pBuffer, nativeImage.width, nativeImage.height);
+//	}
 	END_TIME("DownloadPixels glReadPixels without PBO")
     delete []pBuffer;
 
@@ -660,11 +660,11 @@ void PBOSample::DownloadPixels() {
     if (bufPtr) {
         nativeImage.ppPlane[0] = bufPtr;
 #if 1
-        handycpp::image::writeBmp("/data/data/com.byteflow.app/files/1.bmp", bufPtr, nativeImage.width, nativeImage.height, 4);
+        handycpp::image::saveRgbaToPng("/data/data/com.byteflow.app/files/1.png", bufPtr, nativeImage.width, nativeImage.height);
 #endif
 
-        NativeImageUtil::DumpNativeImage(&nativeImage, "/data/data/com.byteflow.app/files/", "PBO");
-//
+//        NativeImageUtil::DumpNativeImage(&nativeImage, "/data/data/com.byteflow.app/files/", "PBO");
+
         glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
     }
     END_TIME("DownloadPixels PBO glMapBufferRange")
