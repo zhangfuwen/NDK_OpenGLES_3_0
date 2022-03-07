@@ -51,7 +51,7 @@ public:
     /**
      * @return 0 on success, negative numbers on error
      */
-    int Draw(const Transform &transform) override;
+    int Draw(const Transform &transform, const Camera & camera, const std::vector<Light> &lights) override;
 
     int LoadLines(ObjLoader * loader);
     int LoadLines(LineLoader loader);

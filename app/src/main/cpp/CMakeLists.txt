@@ -35,8 +35,11 @@ add_library(native-render SHARED
         # Provides a relative path to your source file(s).
         ${src-files}
         ${CMAKE_SOURCE_DIR}/Components/Transform.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Camera.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Light.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/WireFrameRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/TexturedMeshRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Renderer/LightedMeshRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp
         ${CMAKE_SOURCE_DIR}/Components/PBOCanvas.cpp
         ${CMAKE_SOURCE_DIR}/Entity/GameObject.cpp

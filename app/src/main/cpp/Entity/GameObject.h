@@ -25,17 +25,17 @@ public:
         }
         return 0;
     }
-    int Draw() {
+    int Draw(const Camera&camera, const std::vector<Light> & lights) {
         if(m_canvas) {
             m_canvas->Bind();
             m_canvas->Clear();
         }
         if(m_renderer) {
-            m_renderer->Draw(m_RealtimeTransform);
+            m_renderer->Draw(m_RealtimeTransform, camera, lights);
         }
         for(auto child : m_children) {
 
-            child->Draw();
+            child->Draw(camera, lights);
         }
         if(m_canvas) {
             m_canvas->Unbind();

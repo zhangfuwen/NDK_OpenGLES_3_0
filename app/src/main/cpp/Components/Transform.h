@@ -6,6 +6,7 @@
 #define NDK_OPENGLES_3_0_TRANSFORM_H
 
 
+#include <model.h>
 #include "../glm/glm.hpp"
 class Transform {
 public:
@@ -13,8 +14,8 @@ public:
     glm::vec3 scale = { 1.0f, 1.0f, 1.0f};
     glm::vec3 rotation = {0.0f, 0.0f, 0.0f}; // by degrees
 
+    glm::mat4 GetModel() const;
 
-    void GetMVPMatrix(glm::mat4 &mvpMatrix) const;
 };
 
 

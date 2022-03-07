@@ -131,7 +131,7 @@ int WireFrameRenderer::Finalize() {
     return 0;
 }
 
-int WireFrameRenderer::Draw(const Transform &transform) {
+int WireFrameRenderer::Draw(const Transform &transform, const Camera & camera, const std::vector<Light> & lights) {
 #if 0
     glUseProgram(m_FboProgramObj);
     glBindVertexArray(m_VaoIds[1]);
@@ -147,7 +147,7 @@ int WireFrameRenderer::Draw(const Transform &transform) {
     WireFrameRenderer::printBunnyVars();
     static float x = 0;
 //	x += 1;
-    transform.GetMVPMatrix(WireFrameRenderer::m_MVPMatrix);
+    m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
     glLineWidth(1.0f);
     glDisable(GL_POLYGON_OFFSET_FILL);
     glEnable(GL_DEPTH_TEST);

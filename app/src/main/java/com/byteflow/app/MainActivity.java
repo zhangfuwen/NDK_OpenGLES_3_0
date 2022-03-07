@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements AudioCollector.Ca
         CommonUtils.copyAssetsDirToSDCard(MainActivity.this, "poly", fileDir + "/model");
         CommonUtils.copyAssetsDirToSDCard(MainActivity.this, "fonts", fileDir);
         CommonUtils.copyAssetsDirToSDCard(MainActivity.this, "yuv", fileDir);
+        CommonUtils.copyAssetsDirToSDCard(MainActivity.this, "shader_source", fileDir);
     }
 
     @Override

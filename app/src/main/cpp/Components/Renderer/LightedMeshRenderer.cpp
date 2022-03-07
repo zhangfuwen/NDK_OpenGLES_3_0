@@ -2,14 +2,14 @@
 // Created by zhangfuwen on 2022/3/2.
 //
 
-#include "TexturedMeshRenderer.h"
+#include "LightedMeshRenderer.h"
 #include <android/log.h>
 
 #define LOG_TAG "ByteFlow"
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
 
 #include "handycpp/logging.h"
-#include "TexturedMeshRenderer.h"
+#include "LightedMeshRenderer.h"
 #include "Components/Transform.h"
 #include <handycpp/logging.h>
 #include <handycpp/file.h>
@@ -18,25 +18,27 @@
 #include <glm/ext.hpp>
 #include <handycpp/image.h>
 
+#define UNIFORM(uniform_name) FUN_INFO(#uniform_name": %d", m_program->uniformLocation(#uniform_name))
 
-void TexturedMeshRenderer::printBunnyVars() {
-    FUN_INFO("program:%u", m_ProgramObj);
-    FUN_INFO("vertexshader:%d", m_VertexShader);
-    FUN_INFO("fragment:%d", m_FragmentShader);
+void LightedMeshRenderer::printBunnyVars() {
+    FUN_INFO("program:%u", m_program->ID);
     FUN_INFO("Position:%d", m_VertexAttribPosition);
     FUN_INFO("Normal:%d", m_VertexAttribNormal);
     FUN_INFO("TexCoord:%d", m_VertexAttribTexCoord);
-    FUN_INFO("ColorSampler:%d", m_colorSampler);
+    UNIFORM(u_color_sampler);
     FUN_INFO("VBO:%d, VAO:%d", m_VBOPosition, m_VAO);
     FUN_INFO("numElements:%u", m_NumElements);
-    FUN_INFO("mvpLoc:%u", m_MVPUniformLoc);
+    UNIFORM(u_model);
+    UNIFORM(u_view);
+    UNIFORM(u_projection);
+    UNIFORM(u_light_pos);
     auto s = glm::to_string(m_MVPMatrix);
     FUN_INFO("mvp: %s", s.c_str());
     printf("adf");
 }
 
 
-int TexturedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
+int LightedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
 
     loader->LoadObjFile();
     loader->Dump();
@@ -99,8 +101,8 @@ int TexturedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
         auto data = handycpp::image::readPngAsRgba(textureFileName);
         FUN_INFO("map_Ka: %d, %d", data.width, data.height);
         glActiveTexture(GL_TEXTURE0);
-        glGenTextures(1, &m_colorTexutre);
-        glBindTexture(GL_TEXTURE_2D, m_colorTexutre);
+        glGenTextures(1, &m_colorTexuture);
+        glBindTexture(GL_TEXTURE_2D, m_colorTexuture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA,
                      GL_UNSIGNED_BYTE, &data.rgba_image[0]);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -110,77 +112,59 @@ int TexturedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glActiveTexture(GL_TEXTURE0);
 
-        glUniform1ui(m_colorSampler, 0);
+        m_program->setInt("u_color_sampler", 0);
         glBindTexture(GL_TEXTURE_2D, 0);
+        m_material.setKa(loader->materials[0].m_Ka);
+        m_material.setKa(loader->materials[0].m_Kd);
+        m_material.setKa(loader->materials[0].m_Ks);
+        m_material.setKa(loader->materials[0].m_Ke);
+        m_material.setMShininess(0.3f);
     } else {
         FUN_INFO("no texture file found");
     }
+
     return 0;
 }
 
-int TexturedMeshRenderer::Init() {
-    const char VertexShaderSrc[] =
-            "#version 300 es                            \n"
-            "layout(location = 0) in vec3 a_Position;\n"
-            "layout(location = 1) in vec3 a_Normal;\n"
-            "layout(location = 2) in vec2 a_TexCoord;\n"
-            "uniform mat4 u_MVPMatrix;                  \n"
-            "out highp float zDepth; \n"
-            "out mediump vec2 texCoord; \n"
-            "void main() {\n"
-            "	gl_Position=u_MVPMatrix * vec4(a_Position, 1.0f);\n"
-            "	zDepth = gl_Position.z/gl_Position.w;\n"
-            "   texCoord = vec2(a_TexCoord.x, 1.0f - a_TexCoord.y); \n"
-            "}\n";
+int LightedMeshRenderer::Init() {
+    std::string baseDir = "/sdcard/Android/data/com.byteflow.app/files/Download/";
+    auto vertexShaderFilePath = baseDir + "/shader_source/material_lighting.vs";
+    auto fragmentShaderFilePath = baseDir + "/shader_source/material_lighting.fs";
 
-    const char FragmentShaderSrc[] =
-            "#version 300 es                            \n"
-            "precision mediump float;\n"
-            " layout(location = 0) uniform sampler2D color_sampler; \n "
-            "in highp float zDepth; \n"
-            "in mediump vec2 texCoord; \n"
-            "layout(location = 0) out vec4 outColor;\n"
-            "void main(){\n"
-            "	vec4 color = texture(color_sampler, texCoord);\n"
-            "   outColor = vec4(vec3(color), 1.0f); \n"
-            "}\n";
+    m_program = std::make_unique<RenderProgram>();
 
-    // 编译链接用于渲染兔子的着色器程序
-    m_ProgramObj = GLUtils::CreateProgram(VertexShaderSrc, FragmentShaderSrc,
-                                          m_VertexShader, m_FragmentShader);
-    m_VertexAttribPosition = glGetAttribLocation(m_ProgramObj, "a_Position");
-    m_VertexAttribNormal = glGetAttribLocation(m_ProgramObj, "a_Normal");
-    m_VertexAttribTexCoord = glGetAttribLocation(m_ProgramObj, "a_TexCoord");
-    m_VertexAttribNormal = 1;
-    m_VertexAttribTexCoord = 2;
-    m_MVPUniformLoc = glGetUniformLocation(m_ProgramObj, "u_MVPMatrix");
-    m_colorSampler = glGetUniformLocation(m_ProgramObj, "color_sampler");
+//    auto vertexShaderSrc = handycpp::file::readFile(vertexShaderFilePath);
+//    FUN_INFO("compile %d,%s", vertexShaderSrc.size, vertexShaderSrc.addr);
+//    auto fragmentShaderSrc = handycpp::file::readFile(fragmentShaderFilePath);
+//    if(vertexShaderSrc.size == 0 || fragmentShaderSrc.size == 0) {
+//        FUN_ERROR("zhangfuwen: failed to read file %d, %d", vertexShaderSrc.size, fragmentShaderSrc.size);
+//        return -1;
+//    }
+//    int ret = m_program->InitWithSource((const char *)vertexShaderSrc.addr, (const char *)fragmentShaderSrc.addr);
+//    if(ret < 0) {
+//        FUN_ERROR("zhangfuwen: failed to init program");
+//        return -1;
+//    }
 
-    if (m_colorSampler != 0) {
-        FUN_ERROR("color_sampler:%d", m_colorSampler);
-        m_colorSampler = 0;
+    int ret = m_program->InitWithPath(vertexShaderFilePath.c_str(), fragmentShaderFilePath.c_str());
+    if(ret < 0) {
+        FUN_ERROR("compile: failed to init program");
+        return -1;
     }
+
+
+    m_VertexAttribPosition = glGetAttribLocation(m_program->ID, "a_position");
+    m_VertexAttribTexCoord = glGetAttribLocation(m_program->ID, "a_tex_coord");
+    m_VertexAttribNormal = glGetAttribLocation(m_program->ID, "a_normal");
+
     glGenBuffers(1, &m_VBOPosition);
     glGenVertexArrays(1, &m_VAO);
 
-
     return 0;
 
 }
 
-int TexturedMeshRenderer::Finalize() {
-    if (m_ProgramObj) {
-        glDeleteProgram(m_ProgramObj);
-        m_ProgramObj = 0;
-    }
-    if (m_VertexShader) {
-        glDeleteShader(m_VertexShader);
-        m_VertexShader = 0;
-    }
-    if (m_FragmentShader) {
-        glDeleteShader(m_FragmentShader);
-        m_FragmentShader = 0;
-    }
+int LightedMeshRenderer::Finalize() {
     if (m_VAO) {
         glDeleteVertexArrays(1, &m_VAO);
         m_VAO = 0;
@@ -192,7 +176,7 @@ int TexturedMeshRenderer::Finalize() {
     return 0;
 }
 
-int TexturedMeshRenderer::Draw(const Transform &transform, const Camera&camera, const std::vector<Light> & lights) {
+int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, const std::vector<Light> &lights) {
 #if 0
     glUseProgram(m_FboProgramObj);
     glBindVertexArray(m_VaoIds[1]);
@@ -207,7 +191,7 @@ int TexturedMeshRenderer::Draw(const Transform &transform, const Camera&camera, 
 #else
     printBunnyVars();
     static float x = 0;
-    m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
+//	x += 1;
     glLineWidth(1.0f);
     glDisable(GL_POLYGON_OFFSET_FILL);
     glEnable(GL_DEPTH_TEST);
@@ -215,12 +199,26 @@ int TexturedMeshRenderer::Draw(const Transform &transform, const Camera&camera, 
     glCullFace(GL_BACK);
 
 
-    if (m_colorTexutre != 0) {
+    if (m_colorTexuture != 0) {
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_colorTexutre);
+        glBindTexture(GL_TEXTURE_2D, m_colorTexuture);
     }
-    glUseProgram(m_ProgramObj);
-    glUniformMatrix4fv(m_MVPUniformLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
+    m_program->use();
+    m_program->setMat4("m_model", transform.GetModel());
+    m_program->setMat4("m_view", camera.GetView());
+    m_program->setMat4("m_projection", camera.GetProjection());
+    m_program->setVec3("u_light_pos",glm::vec3(0.0f, 1.0f, 0.0f ));
+    m_program->setVec3("u_view_pos", camera.GetViewPos());
+    m_program->setInt("u_color_sampler", 0);
+    m_program->setVec3("u_light.ambient_color", lights[0].getAmbientColor());
+    m_program->setVec3("u_light.diffuse_color", lights[0].getDiffuseColor());
+    m_program->setVec3("u_light.specular_color", lights[0].getSpecularColor());
+    m_program->setVec3("u_material.ambient_ratio", m_material.getKa());
+    m_program->setVec3("u_material.diffuse_ratio", m_material.getKd());
+    m_program->setVec3("u_material.specular_ratio", m_material.getKs());
+    m_program->setFloat("u_material.shininess", m_material.getShininess());
+
+
     glBindVertexArray(m_VAO);
     glDrawArrays(GL_TRIANGLES, 0, m_NumElements);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

@@ -15,6 +15,8 @@
 #include <glm/glm.hpp>
 #include "Components/Transform.h"
 #include "Components/ObjLoader.h"
+#include "Components/Camera.h"
+#include "Components/Light.h"
 
 class IRenderer {
 
@@ -30,7 +32,7 @@ public:
     /**
      * @return 0 on success, negative numbers on error
      */
-    virtual int Draw(const Transform &transform) = 0;
+    virtual int Draw(const Transform &transform, const Camera & camera, const std::vector<Light> & lights) = 0;
 
     /**
      * @param ret , returned negative number from Init/Finalize/Draw

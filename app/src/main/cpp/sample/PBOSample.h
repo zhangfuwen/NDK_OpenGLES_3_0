@@ -38,6 +38,8 @@ private:
 	NativeImage m_RenderImage;
 
 	std::shared_ptr<GameObject> m_gameObject = nullptr;
+	std::vector<Light> m_lights;
+	std::vector<Camera> m_camera;
 
 	GLint m_MVPMatrixLoc;
 

@@ -20,6 +20,9 @@ public class CommonUtils {
                 int bt = 0;
                 File file = new File(sdCardPath + File.separator
                         + assetsDirName.substring(assetsDirName.lastIndexOf('/')));
+                if(file.exists()) {
+                    file.delete();
+                }
                 if (!file.exists()) {
                     file.createNewFile();
                 } else {

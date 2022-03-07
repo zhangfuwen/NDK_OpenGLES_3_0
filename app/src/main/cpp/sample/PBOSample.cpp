@@ -22,6 +22,8 @@
 #include <opencv2/opencv.hpp>
 #include <happly.h>
 #include <Components/PBOCanvas.h>
+#include <Components/Renderer/LightedMeshRenderer.h>
+#include <Components/Renderer/TexturedMeshRenderer.h>
 #include "PBOSample.h"
 #include "Components/Renderer/WireFrameRenderer.h"
 #include "Components/Renderer/TexturedMeshRenderer.h"
@@ -119,6 +121,9 @@ void PBOSample::Init()
 	auto renderer = new TexturedMeshRenderer();
 	renderer->Init();
 	renderer->LoadTexturedMesh(objLoader);
+	auto lightRenderer = new LightedMeshRenderer();
+	lightRenderer->Init();
+	lightRenderer->LoadTexturedMesh(objLoader);
 	delete objLoader;
 
 	auto renderer2 = new WireFrameRenderer();
@@ -160,10 +165,23 @@ void PBOSample::Init()
 	pearGameObject->transform()->translation = {0.0f, -1.0f, 2.0f};
 	pearGameObject->transform()->scale = {0.2f, 0.2f, 0.2f};
 
-	rootGameObject->AddChild(rabbitGameObject);
-	rootGameObject->AddChild(pearGameObject);
+	auto pear2GameObject = std::make_shared<GameObject>();
+	pear2GameObject->SetRenderer(lightRenderer);
+	pear2GameObject->transform()->translation = {0.3f, -1.0f, 2.0f};
+	pear2GameObject->transform()->scale = {0.3f, 0.3f, 0.3f};
+
+//	rootGameObject->AddChild(rabbitGameObject);
+//	rootGameObject->AddChild(pearGameObject);
+	rootGameObject->AddChild(pear2GameObject);
 
 	m_gameObject = rootGameObject;
+
+	m_lights.emplace_back(glm::vec3{ 0.0f, 0.4f, 0.4f},
+						  glm::vec3{0.0f, 0.4f, 0.4f},
+			 glm::vec3{ 0.0f, 0.4f, 0.4f},
+			glm::vec3 { 0.0f, 0.4f, 0.4f}
+	);
+	m_camera.emplace_back();
 
 //	auto translate = glm::vec3{ 0.0f, 0.0f, 0.0f};
 //	auto rotation = glm::vec3{ 0.0f, 0.0f, 0.0f};
@@ -241,7 +259,9 @@ void PBOSample::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX
 void PBOSample::Draw(int screenW, int screenH)
 {
 
-	m_gameObject->Draw();
+	for(const auto & cam : m_camera) {
+		m_gameObject->Draw(cam, m_lights);
+	}
 
 
 	// 普通渲染
