@@ -234,7 +234,7 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
     m_program->setMat4("u_model", transform.GetModel());
     m_program->setMat4("u_view", camera.GetView());
     m_program->setMat4("u_projection", camera.GetProjection());
-//    m_program->setVec3("u_light_pos",glm::vec3(0.0f, 1.0f, 0.0f ));
+    m_program->setVec3("u_light_pos",glm::vec3(0.0f, 1.0f, 0.0f ));
 //    m_program->setVec3("u_view_pos", camera.GetViewPos());
 //    m_program->setInt("u_color_sampler", 0);
 //    m_program->setVec3("u_light.ambient_color", lights[0].getAmbientColor());
