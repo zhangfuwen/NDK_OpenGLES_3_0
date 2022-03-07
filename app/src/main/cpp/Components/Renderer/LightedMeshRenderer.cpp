@@ -231,9 +231,9 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
         glBindTexture(GL_TEXTURE_2D, m_colorTexuture);
     }
     m_program->use();
-//    m_program->setMat4("m_model", transform.GetModel());
-//    m_program->setMat4("m_view", camera.GetView());
-//    m_program->setMat4("m_projection", camera.GetProjection());
+    m_program->setMat4("u_model", transform.GetModel());
+    m_program->setMat4("u_view", camera.GetView());
+    m_program->setMat4("u_projection", camera.GetProjection());
 //    m_program->setVec3("u_light_pos",glm::vec3(0.0f, 1.0f, 0.0f ));
 //    m_program->setVec3("u_view_pos", camera.GetViewPos());
 //    m_program->setInt("u_color_sampler", 0);
@@ -244,8 +244,8 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
 //    m_program->setVec3("u_material.diffuse_ratio", m_material.getKd());
 //    m_program->setVec3("u_material.specular_ratio", m_material.getKs());
 //    m_program->setFloat("u_material.shininess", m_material.getShininess());
-    m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
-    glUniformMatrix4fv(glGetUniformLocation(m_program->ID,  "u_MVPMatrix"), 1, GL_FALSE, &m_MVPMatrix[0][0]);
+//    m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
+//    glUniformMatrix4fv(glGetUniformLocation(m_program->ID,  "u_MVPMatrix"), 1, GL_FALSE, &m_MVPMatrix[0][0]);
 
 
     glBindVertexArray(m_VAO);
