@@ -116,9 +116,9 @@ int LightedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
         m_program->setInt("color_sampler", 0);
         glBindTexture(GL_TEXTURE_2D, 0);
         m_material.setKa(loader->materials[0].m_Ka);
-        m_material.setKa(loader->materials[0].m_Kd);
-        m_material.setKa(loader->materials[0].m_Ks);
-        m_material.setKa(loader->materials[0].m_Ke);
+        m_material.setKd(loader->materials[0].m_Kd);
+        m_material.setKs(loader->materials[0].m_Ks);
+        m_material.setKe(loader->materials[0].m_Ke);
         m_material.setMShininess(0.3f);
     } else {
         FUN_INFO("no texture file found");
@@ -234,7 +234,7 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
     m_program->setMat4("u_model", transform.GetModel());
     m_program->setMat4("u_view", camera.GetView());
     m_program->setMat4("u_projection", camera.GetProjection());
-    m_program->setVec3("u_light_pos",glm::vec3(0.0f, 1.0f, 0.0f ));
+    m_program->setVec3("u_light_pos",lights[0].getLightPos());
     m_program->setVec3("u_view_pos", camera.GetViewPos());
 //    m_program->setInt("u_color_sampler", 0);
     m_program->setVec3("u_light.ambient_color", lights[0].getAmbientColor());
@@ -246,6 +246,12 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
     m_program->setFloat("u_material.shininess", m_material.getShininess());
 //    m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
 //    glUniformMatrix4fv(glGetUniformLocation(m_program->ID,  "u_MVPMatrix"), 1, GL_FALSE, &m_MVPMatrix[0][0]);
+
+#define DUMP_VEC3(title, vec3) FUN_INFO(#title ": %f, %f, %f", vec3.r, vec3.g, vec3.b)
+    DUMP_VEC3("ka:", m_material.getKa());
+    DUMP_VEC3("kd:", m_material.getKa());
+    DUMP_VEC3("ks:", m_material.getKa());
+    FUN_INFO("shininess:%f", m_material.getShininess());
 
 
     glBindVertexArray(m_VAO);

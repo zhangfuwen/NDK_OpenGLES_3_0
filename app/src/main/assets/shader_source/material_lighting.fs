@@ -28,7 +28,8 @@ in vec2 v_tex_coord;
 in vec3 v_normal;
 in vec3 v_frag_pos;
 void main(){
-    vec3 ambient = u_light.ambient_color * u_material.ambient_ratio;
+    vec4 ambient_color = texture(color_sampler, v_tex_coord);
+    vec3 ambient = u_light.ambient_color * u_material.ambient_ratio * vec3(ambient_color);
 
     // diffuse
     vec3 norm = normalize(v_normal);
@@ -43,6 +44,9 @@ void main(){
     vec3 specular = u_light.specular_color * (spec * u_material.specular_ratio);
 
     vec3 result = ambient + diffuse + specular;
+//    vec3 result = ambient;// + diffuse + specular;
+//    vec3 result = diffuse;// + specular;
+//    vec3 result = ambient + diffuse + specular;
 
     ///vec4 color = texture(color_sampler, v_tex_coord);
 //    vec4 color = texture(color_sampler, texCoord);

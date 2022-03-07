@@ -116,6 +116,13 @@ void PBOSample::Init()
 	// 编译链接用于普通渲染的着色器程序
 	m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr, m_VertexShader, m_FragmentShader);
 
+	m_lights.emplace_back(glm::vec3{ 0.0f, 0.8f, 0.8f},
+						  glm::vec3{0.9f, 0.9f, 0.9f},
+						  glm::vec3{ 0.9f, 0.9f, 0.9f},
+						  glm::vec3 { 0.9f, 0.9f, 0.9f}
+	);
+	m_camera.emplace_back();
+
 	ObjLoader *objLoader = new ObjLoader();
 	objLoader->LoadObjFile();
 	auto renderer = new TexturedMeshRenderer();
@@ -148,6 +155,15 @@ void PBOSample::Init()
 		return lines.size();
 	});
 
+	auto lightSourceRenderer = new WireFrameRenderer();
+	lightSourceRenderer->Init();
+	lightSourceRenderer->LoadLines([&](LinesType &lines, int & numElements) -> int {
+		lines.push_back({m_lights[0].getLightPos(), m_lights[0].getLightPos()});
+		numElements = lines.size() *2;
+		return lines.size();
+	});
+
+
 	auto pboCanvas = std::make_shared<PBOCanvas>(m_RenderImage.width, m_RenderImage.height);
 	pboCanvas->Init(PBOCanvas::TEXTURE);
 	auto rootGameObject = std::make_shared<GameObject>();
@@ -176,12 +192,6 @@ void PBOSample::Init()
 
 	m_gameObject = rootGameObject;
 
-	m_lights.emplace_back(glm::vec3{ 0.0f, 0.4f, 0.4f},
-						  glm::vec3{0.0f, 0.4f, 0.4f},
-			 glm::vec3{ 0.0f, 0.4f, 0.4f},
-			glm::vec3 { 0.0f, 0.4f, 0.4f}
-	);
-	m_camera.emplace_back();
 
 //	auto translate = glm::vec3{ 0.0f, 0.0f, 0.0f};
 //	auto rotation = glm::vec3{ 0.0f, 0.0f, 0.0f};

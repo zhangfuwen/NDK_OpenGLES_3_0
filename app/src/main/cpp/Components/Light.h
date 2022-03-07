@@ -29,6 +29,7 @@ public:
     glm::vec3 getSpecularColor() const {
         return m_specularColor;
     }
+
 private:
     glm::vec3 m_lightPos;
     glm::vec3 m_ambientColor;

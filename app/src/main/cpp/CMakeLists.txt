@@ -38,6 +38,7 @@ add_library(native-render SHARED
         ${CMAKE_SOURCE_DIR}/Components/Camera.cpp
         ${CMAKE_SOURCE_DIR}/Components/Light.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/WireFrameRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Renderer/PointRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/TexturedMeshRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/LightedMeshRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp
