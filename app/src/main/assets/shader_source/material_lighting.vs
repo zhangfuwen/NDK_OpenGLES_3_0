@@ -13,7 +13,7 @@ out vec3 v_frag_pos;
 out highp float zDepth;
 out mediump vec2 texCoord;
 void main() {
-	v_tex_coord = a_TexCoord;
+	v_tex_coord = vec2(a_TexCoord.x, 1.0f - a_TexCoord.y);
 	v_normal = a_Normal;
 	v_frag_pos = vec3(u_model * vec4(a_Position, 1.0f));
 //	gl_Position=u_projection * u_view * vec4( v_frag_pos, 1.0f);
