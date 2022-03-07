@@ -170,7 +170,7 @@ void PBOSample::Init()
 	pear2GameObject->transform()->translation = {0.0f, -1.0f, 2.0f};
 	pear2GameObject->transform()->scale = {0.2f, 0.2f, 0.2f};
 
-//	rootGameObject->AddChild(rabbitGameObject);
+	rootGameObject->AddChild(rabbitGameObject);
 //	rootGameObject->AddChild(pearGameObject);
 	rootGameObject->AddChild(pear2GameObject);
 

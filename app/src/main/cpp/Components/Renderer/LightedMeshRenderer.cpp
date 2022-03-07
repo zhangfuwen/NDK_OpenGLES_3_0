@@ -25,9 +25,10 @@ void LightedMeshRenderer::printBunnyVars() {
     FUN_INFO("Position:%d", m_VertexAttribPosition);
     FUN_INFO("Normal:%d", m_VertexAttribNormal);
     FUN_INFO("TexCoord:%d", m_VertexAttribTexCoord);
-    UNIFORM(u_color_sampler);
+    UNIFORM(color_sampler);
     FUN_INFO("VBO:%d, VAO:%d", m_VBOPosition, m_VAO);
     FUN_INFO("numElements:%u", m_NumElements);
+    FUN_INFO("m_colorTexture:%u", m_colorTexuture);
     UNIFORM(u_model);
     UNIFORM(u_view);
     UNIFORM(u_projection);
@@ -112,7 +113,7 @@ int LightedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glActiveTexture(GL_TEXTURE0);
 
-        m_program->setInt("u_color_sampler", 0);
+        m_program->setInt("color_sampler", 0);
         glBindTexture(GL_TEXTURE_2D, 0);
         m_material.setKa(loader->materials[0].m_Ka);
         m_material.setKa(loader->materials[0].m_Kd);
@@ -168,15 +169,15 @@ int LightedMeshRenderer::Init() {
     GO_CHECK_GL_ERROR();
 
 
-    m_VertexAttribPosition = glGetAttribLocation(m_program->ID, "a_position");
+    m_VertexAttribPosition = glGetAttribLocation(m_program->ID, "a_Position");
     FUN_ERROR("zhangfuwen pos:%d", m_VertexAttribPosition);
     GO_CHECK_GL_ERROR();
-    m_VertexAttribTexCoord = glGetAttribLocation(m_program->ID, "a_tex_coord");
+    m_VertexAttribTexCoord = glGetAttribLocation(m_program->ID, "a_TexCoord");
     FUN_ERROR("zhangfuwen tex:%d", m_VertexAttribTexCoord);
     GO_CHECK_GL_ERROR();
-    auto x = glGetAttribLocation(m_program->ID, "a_normal");
+    auto x = glGetAttribLocation(m_program->ID, "a_Normal");
     FUN_ERROR("zhangfuwen normal:%d", x);
-    m_VertexAttribNormal = 1;
+    m_VertexAttribNormal = x;
     GO_CHECK_GL_ERROR();
 
 //    m_VertexAttribPosition = 0;
@@ -230,19 +231,21 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
         glBindTexture(GL_TEXTURE_2D, m_colorTexuture);
     }
     m_program->use();
-    m_program->setMat4("m_model", transform.GetModel());
-    m_program->setMat4("m_view", camera.GetView());
-    m_program->setMat4("m_projection", camera.GetProjection());
-    m_program->setVec3("u_light_pos",glm::vec3(0.0f, 1.0f, 0.0f ));
-    m_program->setVec3("u_view_pos", camera.GetViewPos());
-    m_program->setInt("u_color_sampler", 0);
-    m_program->setVec3("u_light.ambient_color", lights[0].getAmbientColor());
-    m_program->setVec3("u_light.diffuse_color", lights[0].getDiffuseColor());
-    m_program->setVec3("u_light.specular_color", lights[0].getSpecularColor());
-    m_program->setVec3("u_material.ambient_ratio", m_material.getKa());
-    m_program->setVec3("u_material.diffuse_ratio", m_material.getKd());
-    m_program->setVec3("u_material.specular_ratio", m_material.getKs());
-    m_program->setFloat("u_material.shininess", m_material.getShininess());
+//    m_program->setMat4("m_model", transform.GetModel());
+//    m_program->setMat4("m_view", camera.GetView());
+//    m_program->setMat4("m_projection", camera.GetProjection());
+//    m_program->setVec3("u_light_pos",glm::vec3(0.0f, 1.0f, 0.0f ));
+//    m_program->setVec3("u_view_pos", camera.GetViewPos());
+//    m_program->setInt("u_color_sampler", 0);
+//    m_program->setVec3("u_light.ambient_color", lights[0].getAmbientColor());
+//    m_program->setVec3("u_light.diffuse_color", lights[0].getDiffuseColor());
+//    m_program->setVec3("u_light.specular_color", lights[0].getSpecularColor());
+//    m_program->setVec3("u_material.ambient_ratio", m_material.getKa());
+//    m_program->setVec3("u_material.diffuse_ratio", m_material.getKd());
+//    m_program->setVec3("u_material.specular_ratio", m_material.getKs());
+//    m_program->setFloat("u_material.shininess", m_material.getShininess());
+    m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
+    glUniformMatrix4fv(glGetUniformLocation(m_program->ID,  "u_MVPMatrix"), 1, GL_FALSE, &m_MVPMatrix[0][0]);
 
 
     glBindVertexArray(m_VAO);

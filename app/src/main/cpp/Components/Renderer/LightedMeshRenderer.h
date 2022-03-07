@@ -27,7 +27,6 @@ public:
 
 private:
     std::unique_ptr<RenderProgram> m_program;
-    std::unique_ptr<Camera> m_camera;
 
     Material m_material;
 
