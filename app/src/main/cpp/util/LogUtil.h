@@ -43,8 +43,12 @@ static long long GetSysCurrentTime()
 	return curTime;
 }
 
-#define GO_CHECK_GL_ERROR(...)   LOGCATE("CHECK_GL_ERROR %s glGetError = %d, line = %d, ",  __FUNCTION__, glGetError(), __LINE__)
-
+#define GO_CHECK_GL_ERROR(...)    { \
+        auto ret = glGetError();        \
+        if(ret != 0) {                  \
+            LOGCATE("CHECK_GL_ERROR %s glGetError = %d, line = %d, ",  __FUNCTION__, glGetError(), __LINE__); \
+        }                               \
+    }
 #define DEBUG_LOGCATE(...) LOGCATE("DEBUG_LOGCATE %s line = %d",  __FUNCTION__, __LINE__)
 
 #endif //BYTEFLOW_LOGUTIL_H

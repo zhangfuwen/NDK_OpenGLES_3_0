@@ -167,8 +167,8 @@ void PBOSample::Init()
 
 	auto pear2GameObject = std::make_shared<GameObject>();
 	pear2GameObject->SetRenderer(lightRenderer);
-	pear2GameObject->transform()->translation = {0.3f, -1.0f, 2.0f};
-	pear2GameObject->transform()->scale = {0.3f, 0.3f, 0.3f};
+	pear2GameObject->transform()->translation = {0.0f, -1.0f, 2.0f};
+	pear2GameObject->transform()->scale = {0.2f, 0.2f, 0.2f};
 
 //	rootGameObject->AddChild(rabbitGameObject);
 //	rootGameObject->AddChild(pearGameObject);
@@ -260,7 +260,9 @@ void PBOSample::Draw(int screenW, int screenH)
 {
 
 	for(const auto & cam : m_camera) {
+		GO_CHECK_GL_ERROR();
 		m_gameObject->Draw(cam, m_lights);
+		GO_CHECK_GL_ERROR();
 	}
 
 

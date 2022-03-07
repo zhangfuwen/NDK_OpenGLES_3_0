@@ -51,12 +51,14 @@ public:
         }
         catch (std::ifstream::failure &e) {
             FUN_ERROR("failed to read shader source %s", e.what());
+            return -1;
         }
         return InitWithSource(vertexCode, fragmentCode);
     }
 
     int InitWithSource(std::string vertexCode, std::string fragmentCode) {
         const char* vShaderCode = vertexCode.c_str();
+        FUN_ERROR("compile vertex source:%s", vertexCode.c_str());
         const char * fShaderCode = fragmentCode.c_str();
         // 2. compile shaders
         unsigned int vertex, fragment;
@@ -64,14 +66,18 @@ public:
         vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vShaderCode, NULL);
         glCompileShader(vertex);
+        GO_CHECK_GL_ERROR();
         if(checkCompileErrors(vertex, "VERTEX") < 0) {
+            FUN_ERROR("failed to compile vertex shader");
             return -1;
         }
         // fragment RenderProgram
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fShaderCode, NULL);
         glCompileShader(fragment);
+        GO_CHECK_GL_ERROR();
         if(checkCompileErrors(fragment, "FRAGMENT") < 0) {
+            FUN_ERROR("failed to compile fragment shader");
             return -1;
         }
         // if geometry shader is given, compile geometry shader
@@ -81,12 +87,17 @@ public:
         glAttachShader(ID, vertex);
         glAttachShader(ID, fragment);
         glLinkProgram(ID);
+        GO_CHECK_GL_ERROR();
         if(checkCompileErrors(ID, "PROGRAM") < 0) {
+            FUN_ERROR("failed to link program");
             return -1;
         }
+        GO_CHECK_GL_ERROR();
         // delete the shaders as they're linked into our program now and no longer necessery
         glDeleteShader(vertex);
+        GO_CHECK_GL_ERROR();
         glDeleteShader(fragment);
+        GO_CHECK_GL_ERROR();
         return 0;
     }
     ~RenderProgram() {

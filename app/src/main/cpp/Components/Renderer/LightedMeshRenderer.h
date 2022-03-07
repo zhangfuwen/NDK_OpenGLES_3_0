@@ -31,9 +31,9 @@ private:
 
     Material m_material;
 
-    GLuint m_VertexAttribPosition;
-    GLuint m_VertexAttribNormal;
-    GLuint m_VertexAttribTexCoord;
+    GLint m_VertexAttribPosition;
+    GLint m_VertexAttribNormal;
+    GLint m_VertexAttribTexCoord;
 
     GLuint m_colorTexuture;
 

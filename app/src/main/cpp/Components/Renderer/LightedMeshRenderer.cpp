@@ -146,16 +146,42 @@ int LightedMeshRenderer::Init() {
 //        return -1;
 //    }
 
-    int ret = m_program->InitWithPath(vertexShaderFilePath.c_str(), fragmentShaderFilePath.c_str());
+    std::string source1, source2;
+    handycpp::file::for_each_line(vertexShaderFilePath, [&](int n_lines, std::string line) {
+        FUN_ERROR("compiles %d: %s", n_lines, line.c_str());
+        source1 = source1 + line + "\n";
+
+    });
+
+    handycpp::file::for_each_line(fragmentShaderFilePath, [&](int n_lines, std::string line) {
+        FUN_ERROR("compiles %d: %s", n_lines, line.c_str());
+        source2 = source2 + line + "\n";
+
+    });
+    GO_CHECK_GL_ERROR();
+
+    int ret = m_program->InitWithSource(source1.c_str(), source2.c_str());
     if(ret < 0) {
         FUN_ERROR("compile: failed to init program");
         return -1;
     }
+    GO_CHECK_GL_ERROR();
 
 
     m_VertexAttribPosition = glGetAttribLocation(m_program->ID, "a_position");
+    FUN_ERROR("zhangfuwen pos:%d", m_VertexAttribPosition);
+    GO_CHECK_GL_ERROR();
     m_VertexAttribTexCoord = glGetAttribLocation(m_program->ID, "a_tex_coord");
-    m_VertexAttribNormal = glGetAttribLocation(m_program->ID, "a_normal");
+    FUN_ERROR("zhangfuwen tex:%d", m_VertexAttribTexCoord);
+    GO_CHECK_GL_ERROR();
+    auto x = glGetAttribLocation(m_program->ID, "a_normal");
+    FUN_ERROR("zhangfuwen normal:%d", x);
+    m_VertexAttribNormal = 1;
+    GO_CHECK_GL_ERROR();
+
+//    m_VertexAttribPosition = 0;
+//    m_VertexAttribTexCoord = 1;
+//    m_VertexAttribNormal = 2;
 
     glGenBuffers(1, &m_VBOPosition);
     glGenVertexArrays(1, &m_VAO);
