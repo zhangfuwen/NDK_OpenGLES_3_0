@@ -41,6 +41,7 @@ add_library(native-render SHARED
         ${CMAKE_SOURCE_DIR}/Components/Renderer/PointRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/TexturedMeshRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/Renderer/LightedMeshRenderer.cpp
+        ${CMAKE_SOURCE_DIR}/Components/Renderer/UIRectRenderer.cpp
         ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp
         ${CMAKE_SOURCE_DIR}/Components/PBOCanvas.cpp
         ${CMAKE_SOURCE_DIR}/Entity/GameObject.cpp

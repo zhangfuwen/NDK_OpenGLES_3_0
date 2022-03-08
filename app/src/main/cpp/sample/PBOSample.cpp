@@ -28,6 +28,7 @@
 #include "PBOSample.h"
 #include "Components/Renderer/WireFrameRenderer.h"
 #include "Components/Renderer/TexturedMeshRenderer.h"
+#include "Components/Renderer/UIRectRenderer.h"
 
 //#define PBO_UPLOAD
 #define PBO_DOWNLOAD
@@ -170,7 +171,10 @@ void PBOSample::Init()
 		for(const auto & light : m_lights) {
 			points.push_back(Point{light.getLightPos(), glm::vec4(light.getAmbientColor(), 1.0f), 30.0f});
 		}
-	    numElements = points.size();
+		points.push_back(Point{glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 30.0f});
+		points.push_back(Point{glm::vec3{1.0f, 1.0f, 0.0f}, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 30.0f});
+		points.push_back(Point{glm::vec3{-1.0f, -1.0f, 0.0f}, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 30.0f});
+		numElements = points.size();
 		return points.size();
 	});
 
@@ -203,6 +207,16 @@ void PBOSample::Init()
 	lightGameObject->transform()->scale = {0.6f, 0.6f, 0.6f};
 //	lightGameObject->transform()->translation = {0.0f, -1.0f, 2.0f};
 //	lightGameObject->transform()->scale = {0.2f, 0.2f, 0.2f};
+
+	auto uiGameObject = std::make_shared<GameObject>();
+	auto uiRenderer = new UIRectRenderer();
+	if(uiRenderer->Init() < 0) {
+		FUN_ERROR("failed to initialize uiRenderer");
+		return;
+	}
+	uiGameObject->SetRenderer(uiRenderer);
+
+	rootGameObject->AddChild(uiGameObject);
 
 	rootGameObject->AddChild(lightGameObject);
 
@@ -299,7 +313,7 @@ void PBOSample::Draw(int screenW, int screenH)
 	// 普通渲染
 	// Do normal rendering
 	glViewport(0, 0, screenW, screenH);
-    UpdateMVPMatrix(m_MVPMatrix, 180.0, 0.0, (float)screenW / screenH);
+//    UpdateMVPMatrix(m_MVPMatrix, 180.0, 0.0, (float)1.0f);
     glUseProgram(m_ProgramObj);
 	GO_CHECK_GL_ERROR();
 	glBindVertexArray(m_VaoIds[0]);

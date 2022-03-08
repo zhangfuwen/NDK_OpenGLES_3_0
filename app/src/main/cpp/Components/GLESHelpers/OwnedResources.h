@@ -16,13 +16,14 @@
 class OwnedResource {
 public:
     virtual ~OwnedResource() {};
+    virtual GLuint getId() = 0;
 };
 
 class OwnedTexture : public OwnedResource {
 public:
     OwnedTexture(int width, int height, unsigned  char * data = nullptr, bool alloc = true);
     ~OwnedTexture();
-    GLuint getId() {
+    GLuint getId() override {
         return m_ImageTextureId;
     }
 
@@ -35,7 +36,7 @@ class OwnedRenderbuffer : public OwnedResource {
 public:
     OwnedRenderbuffer(int width, int height, GLenum internalFormat = GL_DEPTH24_STENCIL8);
     ~OwnedRenderbuffer();
-    GLuint getId() {
+    GLuint getId() override {
         return m_renderBufferId;
     }
 private:

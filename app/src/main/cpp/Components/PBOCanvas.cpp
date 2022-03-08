@@ -83,6 +83,10 @@ public:
 
     }
 
+    GLuint getId() override{
+        return 0;
+    }
+
 private:
     AHardwareBuffer_Desc desc = {};
     AHardwareBuffer * hardwareBuffer = nullptr;
