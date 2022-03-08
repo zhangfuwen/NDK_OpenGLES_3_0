@@ -118,7 +118,7 @@ void PBOSample::Init()
 	m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr, m_VertexShader, m_FragmentShader);
 
 	m_lights.emplace_back(glm::vec3{ 0.0f, 0.5f, 0.5f},
-						  glm::vec3{0.9f, 0.9f, 0.9f},
+						  glm::vec3{0.9f, 0.9f, 0.0f},
 						  glm::vec3{ 0.9f, 0.9f, 0.9f},
 						  glm::vec3 { 0.9f, 0.9f, 0.9f}
 	);
@@ -166,12 +166,10 @@ void PBOSample::Init()
 
 	auto pointRenderer = new PointRenderer();
 	pointRenderer->Init();
-	pointRenderer->LoadPoints([&](std::vector<glm::vec3> &points, int & numElements) -> int {
+	pointRenderer->LoadPoints([&](std::vector<Point> &points, int & numElements) -> int {
 		for(const auto & light : m_lights) {
-			points.push_back(light.getLightPos());
+			points.push_back(Point{light.getLightPos(), glm::vec4(light.getAmbientColor(), 1.0f), 30.0f});
 		}
-		points.push_back(glm::vec3(0.0f, 0.3f, 0.8f));
-		points.push_back(glm::vec3(0.0f, 0.3f, 0.4f));
 	    numElements = points.size();
 		return points.size();
 	});

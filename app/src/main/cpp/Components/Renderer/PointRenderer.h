@@ -18,12 +18,21 @@
 #include "Components/Renderer/RenderProgram.h"
 #include "IRenderer.h"
 
-using PointLoader = std::function<int(std::vector<glm::vec3> &, int &)>;
+__attribute__ ((packed)) struct Point {
+    glm::vec3 pos;
+    glm::vec4 color;
+    float size;
+};
+
+static_assert(sizeof(Point)==32);
+using PointLoader = std::function<int(std::vector<Point> &, int &)>;
 
 class PointRenderer : public IRenderer {
 private:
     std::unique_ptr<RenderProgram> m_renderProgram;
     GLint m_VertexAttribPosition;
+    GLint m_attribLoc_Color;
+    GLint m_attribLoc_PointSize;
 
     GLuint m_VBOPosition;
 
@@ -34,7 +43,7 @@ private:
 
     void printBunnyVars();
 
-    std::vector<glm::vec3> points;
+    std::vector<Point> points;
 
 public:
     /**
