@@ -15,13 +15,14 @@
 #include <array>
 #include "Components//Transform.h"
 #include "Components//ObjLoader.h"
+#include "Components/Renderer/RenderProgram.h"
 #include "IRenderer.h"
 
 using PointLoader = std::function<int(std::vector<glm::vec3> &, int &)>;
 
 class PointRenderer : public IRenderer {
 private:
-    RenderProgram
+    std::unique_ptr<RenderProgram> m_renderProgram;
     GLint m_VertexAttribPosition;
 
     GLuint m_VBOPosition;

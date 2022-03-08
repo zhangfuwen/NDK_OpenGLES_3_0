@@ -19,9 +19,7 @@
 
 
 void PointRenderer::printBunnyVars() {
-    FUN_INFO("program:%u", m_ProgramObj);
-    FUN_INFO("vertexshader:%d", m_VertexShader);
-    FUN_INFO("fragment:%d", m_FragmentShader);
+    FUN_INFO("program:%u", m_renderProgram->ID);
     FUN_INFO("Position:%d", m_VertexAttribPosition);
     FUN_INFO("VBO:%d, VAO:%d", m_VBOPosition, m_VAO);
     FUN_INFO("numElements:%u", m_NumElements);
@@ -59,12 +57,13 @@ int PointRenderer::Init() {
     const char VertexShaderSrc[] =
             "#version 300 es                            \n"
             "layout(location = 0) in vec3 a_Position;\n"
-            "layout(location = 1) in float a_PointSize; \n"
+            "uniform float a_PointSize; \n"
             "uniform mat4 u_MVPMatrix;                  \n"
             "void main() {\n"
             "   gl_PointSize = a_PointSize;\n"
-            "	gl_Position=u_MVPMatrix * vec4(a_Position, 1.0f);\n"
+            "	gl_Position= vec4(a_Position, 1.0f);\n"
             "}\n";
+    //"	gl_Position=u_MVPMatrix * vec4(a_Position, 1.0f);\n"
     /*
      * fragment shader built-in variables
      *   in vec4 gl_FragCoord;
@@ -77,36 +76,25 @@ int PointRenderer::Init() {
             "layout(location = 0) out vec4 outColor;\n"
             "in float depth;\n"
             "void main(){\n"
-            "   outColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1.0f); \n"
+            "   outColor = vec4( 0.8f, 0.1f, 0.2f, 1.0f); \n"
             "}\n";
 
     // 编译链接用于渲染兔子的着色器程序
-    PointRenderer::m_ProgramObj = GLUtils::CreateProgram(VertexShaderSrc, FragmentShaderSrc,
-                                                             PointRenderer::m_VertexShader, PointRenderer::m_FragmentShader);
-    PointRenderer::m_VertexAttribPosition = glGetAttribLocation(PointRenderer::m_ProgramObj, "a_Position");
-    m_Po
-//    if(m_VertexAttribPosition <0) {
-//        m_VertexAttribPosition = 0;
-//    }
-    PointRenderer::m_MVPUniformLoc = glGetUniformLocation(PointRenderer::m_ProgramObj, "u_MVPMatrix");
+    m_renderProgram = std::make_unique<RenderProgram>();
+    auto ret = m_renderProgram->InitWithSource(VertexShaderSrc, FragmentShaderSrc);
+    if(ret < 0) {
+        FUN_ERROR("failed to initialize program");
+        return -1;
+    }
+
+    m_VertexAttribPosition = glGetAttribLocation(m_renderProgram->ID, "a_Position");
+    m_MVPUniformLoc = glGetUniformLocation(m_renderProgram->ID, "u_MVPMatrix");
 
     return 0;
 
 }
 
 int PointRenderer::Finalize() {
-    if (PointRenderer::m_ProgramObj) {
-        glDeleteProgram(PointRenderer::m_ProgramObj);
-        PointRenderer::m_ProgramObj = 0;
-    }
-    if (PointRenderer::m_VertexShader) {
-        glDeleteShader(PointRenderer::m_VertexShader);
-        PointRenderer::m_VertexShader = 0;
-    }
-    if (PointRenderer::m_FragmentShader) {
-        glDeleteShader(PointRenderer::m_FragmentShader);
-        PointRenderer::m_FragmentShader = 0;
-    }
     if (PointRenderer::m_VAO) {
         glDeleteVertexArrays(1, (const GLuint *)&m_VAO);
         PointRenderer::m_VAO = 0;
@@ -141,10 +129,12 @@ int PointRenderer::Draw(const Transform &transform, const Camera & camera, const
     glCullFace(GL_BACK);
 
 
-    glUseProgram(PointRenderer::m_ProgramObj);
-    glUniformMatrix4fv(PointRenderer::m_MVPUniformLoc, 1, GL_FALSE, &PointRenderer::m_MVPMatrix[0][0]);
-    glBindVertexArray(PointRenderer::m_VAO);
-    glDrawArrays(GL_LINES, 0, PointRenderer::m_NumElements);
+    m_renderProgram->use();
+    m_renderProgram->setFloat("a_PointSize", 60.5f);
+    glUniformMatrix4fv(m_MVPUniformLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
+    glBindVertexArray(m_VAO);
+    glDrawArrays(GL_POINTS, 0, m_NumElements);
+//    glDrawArrays(GL_TRIANGLES, 0, m_NumElements);
     glBindVertexArray(0);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_DEPTH_TEST);

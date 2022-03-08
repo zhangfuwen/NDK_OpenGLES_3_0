@@ -24,6 +24,7 @@
 #include <Components/PBOCanvas.h>
 #include <Components/Renderer/LightedMeshRenderer.h>
 #include <Components/Renderer/TexturedMeshRenderer.h>
+#include <Components/Renderer/PointRenderer.h>
 #include "PBOSample.h"
 #include "Components/Renderer/WireFrameRenderer.h"
 #include "Components/Renderer/TexturedMeshRenderer.h"
@@ -116,7 +117,7 @@ void PBOSample::Init()
 	// 编译链接用于普通渲染的着色器程序
 	m_ProgramObj = GLUtils::CreateProgram(vShaderStr, fShaderStr, m_VertexShader, m_FragmentShader);
 
-	m_lights.emplace_back(glm::vec3{ 0.0f, 0.8f, 0.8f},
+	m_lights.emplace_back(glm::vec3{ 0.0f, 0.5f, 0.5f},
 						  glm::vec3{0.9f, 0.9f, 0.9f},
 						  glm::vec3{ 0.9f, 0.9f, 0.9f},
 						  glm::vec3 { 0.9f, 0.9f, 0.9f}
@@ -163,6 +164,18 @@ void PBOSample::Init()
 		return lines.size();
 	});
 
+	auto pointRenderer = new PointRenderer();
+	pointRenderer->Init();
+	pointRenderer->LoadPoints([&](std::vector<glm::vec3> &points, int & numElements) -> int {
+		for(const auto & light : m_lights) {
+			points.push_back(light.getLightPos());
+		}
+		points.push_back(glm::vec3(0.0f, 0.3f, 0.8f));
+		points.push_back(glm::vec3(0.0f, 0.3f, 0.4f));
+	    numElements = points.size();
+		return points.size();
+	});
+
 
 	auto pboCanvas = std::make_shared<PBOCanvas>(m_RenderImage.width, m_RenderImage.height);
 	pboCanvas->Init(PBOCanvas::TEXTURE);
@@ -185,6 +198,15 @@ void PBOSample::Init()
 	pear2GameObject->SetRenderer(lightRenderer);
 	pear2GameObject->transform()->translation = {0.0f, -1.0f, 2.0f};
 	pear2GameObject->transform()->scale = {0.2f, 0.2f, 0.2f};
+
+	auto lightGameObject = std::make_shared<GameObject>();
+	lightGameObject->SetRenderer(pointRenderer);
+	lightGameObject->transform()->translation = {0.0f, -1.0f, 2.0f};
+	lightGameObject->transform()->scale = {0.6f, 0.6f, 0.6f};
+//	lightGameObject->transform()->translation = {0.0f, -1.0f, 2.0f};
+//	lightGameObject->transform()->scale = {0.2f, 0.2f, 0.2f};
+
+	rootGameObject->AddChild(lightGameObject);
 
 	rootGameObject->AddChild(rabbitGameObject);
 //	rootGameObject->AddChild(pearGameObject);
