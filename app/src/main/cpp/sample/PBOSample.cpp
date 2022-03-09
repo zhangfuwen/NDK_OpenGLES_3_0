@@ -29,12 +29,79 @@
 #include "Components/Renderer/WireFrameRenderer.h"
 #include "Components/Renderer/TexturedMeshRenderer.h"
 #include "Components/Renderer/UIRectRenderer.h"
+#include <handycpp/file.h>
 
 //#define PBO_UPLOAD
 #define PBO_DOWNLOAD
 
 #define VERTEX_POS_INDX  0
 #define TEXTURE_POS_INDX 1
+
+// for string delimiter
+std::vector<std::string> split (std::string s, std::string delimiter) {
+	size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+	std::string token;
+	std::vector<std::string> res;
+
+	while ((pos_end = s.find (delimiter, pos_start)) != std::string::npos) {
+		token = s.substr (pos_start, pos_end - pos_start);
+		pos_start = pos_end + delim_len;
+		res.push_back (token);
+	}
+
+	res.push_back (s.substr (pos_start));
+	return res;
+}
+
+#include <handycpp/dyntype.h>
+using namespace handycpp::dyntype::arithmetic;
+
+std::vector<UIRectRenderer::Rect> loadChart() {
+	std::vector<UIRectRenderer::Rect> rects;
+    std::string baseDir = "/sdcard/Android/data/com.byteflow.app/files/Download/";
+    auto csvPath = baseDir + "/other/1.csv";
+
+    // load records
+    struct record {
+    	int context_id;
+    	int start_tick;
+    	int end_tick;
+    };
+    std::vector<record> records;
+    int max_tick = 0 , min_tick = INT_MAX;
+	handycpp::file::for_each_line(csvPath, [&](int n, std::string line) {
+        auto tokens = split(line, ",");
+        int context_id = 0 + tokens[0];
+		if( context_id != 3) {
+			return;
+		}
+		int start_tick = 0 + tokens[1];
+		int end_tick = 0 + tokens[2];
+
+		max_tick = std::max(max_tick, start_tick);
+		max_tick = std::max(max_tick, end_tick);
+		min_tick = std::min(min_tick, start_tick);
+		min_tick = std::min(min_tick, end_tick);
+		records.push_back({context_id, start_tick, end_tick});
+	});
+
+
+	// normalize to -1, 1
+	int distance = max_tick - min_tick;
+	float y_start = 0.0f;
+	float y_end = 0.3f;
+
+	for(const auto & record : records) {
+		float start = (float)(record.start_tick - min_tick)/distance;
+		start = start * 2 - 1.0f;
+		float end = (float)(record.end_tick - min_tick)/distance;
+		end = end * 2 - 1.0f;
+		//make rects
+		rects.push_back(UIRectRenderer::Rect::MakeRectNoColor({{start, y_start}, {end, y_end}}));
+	}
+
+	return rects;
+}
 
 PBOSample::PBOSample()
 {
@@ -210,10 +277,14 @@ void PBOSample::Init()
 
 	auto uiGameObject = std::make_shared<GameObject>();
 	auto uiRenderer = new UIRectRenderer();
-	uiRenderer->AddRect(UIRectRenderer::Rect::MakeRectNoColor(UIRectRenderer::RectGeo{
-		.start = {-1.0f, -1.0f},
-		.end = {1.0f, 1.0f},
-	}));
+	auto rects = loadChart();
+	for(auto rect : rects) {
+		uiRenderer->AddRect(rect);
+	}
+//	uiRenderer->AddRect(UIRectRenderer::Rect::MakeRectNoColor(UIRectRenderer::RectGeo{
+//		.start = {-1.0f, -1.0f},
+//		.end = {1.0f, 1.0f},
+//	}));
 	if(uiRenderer->Init() < 0) {
 		FUN_ERROR("failed to initialize uiRenderer");
 		return;
