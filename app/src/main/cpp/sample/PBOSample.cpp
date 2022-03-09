@@ -97,7 +97,7 @@ std::vector<UIRectRenderer::Rect> loadChart() {
 		float end = (float)(record.end_tick - min_tick)/distance;
 		end = end * 2 - 1.0f;
 		//make rects
-		rects.push_back(UIRectRenderer::Rect::MakeRectNoColor({{start, y_start}, {end, y_end}}));
+		rects.push_back(UIRectRenderer::Rect::MakeRect({{start, y_start}, {end, y_end}}));
 	}
 
 	return rects;
