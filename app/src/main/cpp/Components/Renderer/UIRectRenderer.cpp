@@ -19,10 +19,11 @@ const char VertexShaderSrc[] =
         "layout(location = 0) in vec3 a_Position;\n"
         "layout(location = 1) in vec4 a_Color;\n"
         "uniform float u_XScale; \n"
+        "uniform float u_XTranslate; \n"
         "out vec4 v_PointColor; \n"
         "void main() {\n"
         "   v_PointColor = a_Color;\n"
-        "	gl_Position= vec4(a_Position * vec3(u_XScale, 1.0f, 1.0f) , 1.0f);\n"
+        "	gl_Position= vec4(a_Position * vec3(u_XScale, 1.0f, 1.0f) + vec3(u_XTranslate, 0.0f, 0.0f), 1.0f);\n"
         "}\n";
 
 const char FragmentShaderSrc[] =
@@ -39,10 +40,11 @@ const char TexVertexShaderSrc[] =
         "layout(location = 0) in vec3 a_Position;\n"
         "layout(location = 1) in vec2 a_TexCoord;\n"
         "uniform float u_XScale; \n"
+        "uniform float u_XTranslate; \n"
         "out vec2 v_TexCoord; \n"
         "void main() {\n"
         "   v_TexCoord = a_TexCoord;\n"
-        "	gl_Position= vec4(a_Position * vec3(u_XScale, 1.0f, 1.0f) , 1.0f);\n"
+        "	gl_Position= vec4(a_Position * vec3(u_XScale, 1.0f, 1.0f) + vec3(u_XTranslate, 0.0f, 0.0f), 1.0f);\n"
         "}\n";
 
 const char TexFragmentShaderSrc[] =
@@ -155,6 +157,7 @@ int UIRectRenderer::Draw(const Transform &transform, const Camera &camera,
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, &texCoords_rects[0][0][0]);
     }
     m_program->setFloat("u_XScale", transform.scale.x);
+    m_program->setFloat("u_XTranslate", transform.rotation.y / 180);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);

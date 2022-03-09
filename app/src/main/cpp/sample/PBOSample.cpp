@@ -67,14 +67,12 @@ std::vector<UIRectRenderer::Rect> loadChart() {
     	int start_tick;
     	int end_tick;
     };
-    std::vector<record> records;
+    std::map<int, std::vector<record>> record_map;
     int max_tick = 0 , min_tick = INT_MAX;
 	handycpp::file::for_each_line(csvPath, [&](int n, std::string line) {
         auto tokens = split(line, ",");
         int context_id = 0 + tokens[0];
-		if( context_id != 3) {
-			return;
-		}
+        auto & records = record_map[context_id];
 		int start_tick = 0 + tokens[1];
 		int end_tick = 0 + tokens[2];
 
@@ -88,16 +86,24 @@ std::vector<UIRectRenderer::Rect> loadChart() {
 
 	// normalize to -1, 1
 	int distance = max_tick - min_tick;
-	float y_start = 0.0f;
-	float y_end = 0.3f;
+	float y_start = -1.0f;
 
-	for(const auto & record : records) {
-		float start = (float)(record.start_tick - min_tick)/distance;
-		start = start * 2 - 1.0f;
-		float end = (float)(record.end_tick - min_tick)/distance;
-		end = end * 2 - 1.0f;
-		//make rects
-		rects.push_back(UIRectRenderer::Rect::MakeRect({{start, y_start}, {end, y_end}}));
+	int i = 0;
+	for(auto & [context_id, records] : record_map) {
+		i++;
+		if(!(i ==1 || i== 5)){
+			continue;
+		}
+	    y_start += 0.13;
+		float y_end = 0.1f + y_start;
+		for(const auto & record : records) {
+			float start = (float)(record.start_tick - min_tick)/distance;
+			start = start * 2 - 1.0f;
+			float end = (float)(record.end_tick - min_tick)/distance;
+			end = end * 2 - 1.0f;
+			//make rects
+			rects.push_back(UIRectRenderer::Rect::MakeRect({{start, y_start}, {end, y_end}}));
+		}
 	}
 
 	return rects;
