@@ -14,7 +14,9 @@
 
 class UIRectRenderer : public IRenderer {
 public:
-    struct Rect {
+
+
+    struct RectGeo {
         glm::vec2 start;
         glm::vec2 end;
     };
@@ -23,6 +25,35 @@ public:
         glm::vec4 topRight;
         glm::vec4 bottomRight;
         glm::vec4 bottomLeft;
+        static RectColors MakeRectColors(glm::vec4 color) {
+            RectColors colors;
+            colors.topLeft = color;
+            colors.topRight = color;
+            colors.bottomLeft = color;
+            colors.bottomRight = color;
+            return colors;
+        }
+    };
+
+    struct Rect {
+        RectGeo m_geo;
+        bool hasColor = true;
+        RectColors m_colors = RectColors::MakeRectColors({0.5f, 0.5f, 0.5f, 1.0f});
+        float m_layer = -1.0f; // NDC Coord [-1, +1]
+        RectGeo m_texCoord = {glm::vec2{0, 0}, glm::vec2{1, 1}};
+        static Rect MakeRectNoColor(RectGeo geo) {
+            Rect rect;
+            rect.m_geo = geo;
+            rect.hasColor = false;
+            return rect;
+        }
+        static Rect MakeRect(RectGeo geo, glm::vec4 color  = {0.5f, 0.5f, 0.5f, 1.0f}) {
+            Rect rect;
+            rect.m_geo = geo;
+            rect.m_colors = RectColors::MakeRectColors(color);
+            return rect;
+        }
+
     };
     virtual int Init();
 
@@ -33,18 +64,16 @@ public:
 
     void SetProgram(std::shared_ptr<RenderProgram> shared_program) { m_program = shared_program; }
     void SetTexture(std::shared_ptr<OwnedResource> tex) { m_texture = tex; }
-    void SetRect(Rect rect) { m_rect = rect;}
-    void SetTexCoord(Rect texCoord) { m_texCoord = texCoord; }
+    void AddRect(Rect rect) { m_rects.push_back(rect);}
 
 private:
     float m_layer = -0.1f;
     std::shared_ptr<OwnedResource> m_texture = nullptr;
-    Rect m_rect = { glm::vec2{-1.0f,-1.0f}, glm::vec2{1.0f, 1.0f}};
     RectColors m_rectColors { glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
                               glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
                               glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
                               glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}};
-    Rect m_texCoord = {glm::vec2{0, 0}, glm::vec2{1, 1}};
+    std::vector<Rect> m_rects;
 
 
     std::shared_ptr<RenderProgram> m_program;

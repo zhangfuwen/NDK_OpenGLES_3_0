@@ -210,10 +210,15 @@ void PBOSample::Init()
 
 	auto uiGameObject = std::make_shared<GameObject>();
 	auto uiRenderer = new UIRectRenderer();
+	uiRenderer->AddRect(UIRectRenderer::Rect::MakeRectNoColor(UIRectRenderer::RectGeo{
+		.start = {-1.0f, -1.0f},
+		.end = {1.0f, 1.0f},
+	}));
 	if(uiRenderer->Init() < 0) {
 		FUN_ERROR("failed to initialize uiRenderer");
 		return;
 	}
+
 	uiGameObject->SetRenderer(uiRenderer);
 
 	rootGameObject->AddChild(uiGameObject);

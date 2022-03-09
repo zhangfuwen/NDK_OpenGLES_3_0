@@ -8,6 +8,9 @@
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
 
 #include "handycpp/logging.h"
+#include "handycpp/dyntype.h"
+
+using namespace handycpp::dyntype;
 
 #include "UIRectRenderer.h"
 
@@ -83,48 +86,78 @@ int UIRectRenderer::Draw(const Transform &transform, const Camera &camera,
     m_program->use();
     glBindVertexArray(0);
 
-    std::array<glm::vec3, 6> vertexPositions = {
-            glm::vec3{m_rect.start.x, m_rect.start.y, m_layer},
-            glm::vec3{m_rect.end.x, m_rect.start.y, m_layer},
-            glm::vec3{m_rect.end.x, m_rect.end.y, m_layer},
+    std::vector<std::array<glm::vec3, 6>> geo_rects;
+    std::vector<std::array<glm::vec2, 6>> texCoords_rects;
+    std::vector<std::array<glm::vec4, 6>> color_rects;
+    for(const auto & rect : m_rects) {
+        std::array<glm::vec3, 6> vertexPositions = {
+                glm::vec3{rect.m_geo.start.x, rect.m_geo.start.y, rect.m_layer},
+                glm::vec3{rect.m_geo.end.x, rect.m_geo.start.y, rect.m_layer},
+                glm::vec3{rect.m_geo.end.x, rect.m_geo.end.y, rect.m_layer},
 
-            glm::vec3{m_rect.start.x, m_rect.start.y, m_layer},
-            glm::vec3{m_rect.end.x, m_rect.end.y, m_layer},
-            glm::vec3{m_rect.start.x, m_rect.end.y, m_layer},
-    };
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 0, &vertexPositions[0][0]);
-
-
-    if (m_texture != nullptr) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_texture->getId());
-        m_program->setInt("u_Sampler", 0);
-        std::array<glm::vec2, 6> values {
-                 glm::vec2{m_texCoord.start.x, m_texCoord.start.y},
-                 glm::vec2{m_texCoord.end.x, m_texCoord.start.y},
-                 glm::vec2{m_texCoord.end.x, m_texCoord.end.y},
-                 glm::vec2{m_texCoord.start.x, m_texCoord.start.y},
-                 glm::vec2{m_texCoord.end.x, m_texCoord.end.y},
-                glm::vec2{m_texCoord.start.x, m_texCoord.end.y}
+                glm::vec3{rect.m_geo.start.x, rect.m_geo.start.y, rect.m_layer},
+                glm::vec3{rect.m_geo.end.x, rect.m_geo.end.y, rect.m_layer},
+                glm::vec3{rect.m_geo.start.x, rect.m_geo.end.y, rect.m_layer},
         };
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, &values[0][0]);
+        geo_rects.push_back(vertexPositions);
 
-    } else {
-        std::array<glm::vec4, 6> values {
-                m_rectColors.topLeft,
-                m_rectColors.topRight,
-                m_rectColors.bottomRight,
-                m_rectColors.topLeft,
-                m_rectColors.bottomRight,
-                m_rectColors.bottomLeft
-        };
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, 0, &values[0][0]);
+        if (m_texture != nullptr) {
+            std::array<glm::vec2, 6> values {
+                    glm::vec2{rect.m_texCoord.start.x, rect.m_texCoord.start.y},
+                    glm::vec2{rect.m_texCoord.end.x, rect.m_texCoord.start.y},
+                    glm::vec2{rect.m_texCoord.end.x, rect.m_texCoord.end.y},
+                    glm::vec2{rect.m_texCoord.start.x, rect.m_texCoord.start.y},
+                    glm::vec2{rect.m_texCoord.end.x, rect.m_texCoord.end.y},
+                    glm::vec2{rect.m_texCoord.start.x, rect.m_texCoord.end.y}
+            };
+            texCoords_rects.push_back(values);
+
+        } else {
+            std::array<glm::vec4, 6> values;
+            if(!rect.hasColor) {
+                values = {
+                    m_rectColors.topLeft,
+                            m_rectColors.topRight,
+                            m_rectColors.bottomRight,
+                            m_rectColors.topLeft,
+                            m_rectColors.bottomRight,
+                            m_rectColors.bottomLeft
+                };
+            } else {
+                values = {
+                        rect.m_colors.topLeft,
+                        rect.m_colors.topRight,
+                        rect.m_colors.bottomRight,
+                        rect.m_colors.topLeft,
+                        rect.m_colors.bottomRight,
+                        rect.m_colors.bottomLeft
+
+                };
+            }
+            color_rects.push_back(values);
+        }
+    }
+
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 0, &geo_rects[0][0][0]);
+    if(!color_rects.empty()) {
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, 0, &color_rects[0][0][0]);
+    }
+    if(!texCoords_rects.empty()) {
+        if(m_texture) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, m_texture->getId());
+            m_program->setInt("u_Sampler", 0);
+        }
+
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, &texCoords_rects[0][0][0]);
     }
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLES, 0, m_rects.size() * 6);
+//    glDrawArrays(GL_TRIANGLES, 0, 6);
     GO_CHECK_GL_ERROR("glDrawArrays");
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
