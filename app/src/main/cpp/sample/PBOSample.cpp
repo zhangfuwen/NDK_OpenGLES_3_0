@@ -77,19 +77,19 @@ void PBOSample::Init()
 	GLfloat vVertices[] = {
 			-1.0f, -1.0f, 0.0f,
 			 1.0f, -1.0f, 0.0f,
+			1.0f,  1.0f, 0.0f,
 			-1.0f,  1.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f,
 	};
 
-	//正常纹理坐标
+	//纹理坐标
 	GLfloat vTexCoors[] = {
-            0.0f, 1.0f,
-            1.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-    };
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+	};
 
-	GLushort indices[] = { 0, 1, 2, 1, 3, 2 };
+	GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
 
 	char vShaderStr[] =
 			"#version 300 es                            \n"
