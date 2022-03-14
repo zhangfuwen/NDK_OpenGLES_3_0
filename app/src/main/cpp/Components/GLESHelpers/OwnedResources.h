@@ -6,11 +6,11 @@
 #define NDK_OPENGLES_3_0_OWNEDRESOURCES_H
 
 
-#include <EGL/egl.h>
+//#include <EGL/egl.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+//#include <EGL/egl.h>
+//#include <EGL/eglext.h>
 #include <GLES3/gl3.h>
 
 class OwnedResource {

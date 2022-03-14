@@ -9,8 +9,9 @@
 #ifndef BYTEFLOW_LOGUTIL_H
 #define BYTEFLOW_LOGUTIL_H
 
-#include<android/log.h>
 #include <sys/time.h>
+#ifdef ANDROID
+#include<android/log.h>
 
 #define  LOG_TAG "ByteFlow"
 
@@ -18,6 +19,13 @@
 #define  LOGCATV(...)  __android_log_print(ANDROID_LOG_VERBOSE,LOG_TAG,__VA_ARGS__)
 #define  LOGCATD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 #define  LOGCATI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#else
+#include "handycpp/logging.h"
+#define  LOGCATE(...)  FUN_ERROR(__VA_ARGS__)
+#define  LOGCATV(...)  FUN_DEBUG(__VA_ARGS__)
+#define  LOGCATD(...)  FUN_DEBUG(__VA_ARGS__)
+#define  LOGCATI(...)  FUN_INFO(__VA_ARGS__)
+#endif
 
 #define FUN_BEGIN_TIME(FUN) {\
     LOGCATE("%s:%s func start", __FILE__, FUN); \

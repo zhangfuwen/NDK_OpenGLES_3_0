@@ -7,11 +7,13 @@
 #include "ObjLoader.h"
 #include "handycpp/file.h"
 #include "handycpp/string.h"
-#include <android/log.h>
 #include <libgen.h>
 
+#ifdef ANDROID
+#include <android/log.h>
 #define LOG_TAG "ByteFlow"
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
+#endif
 
 #include "handycpp/logging.h"
 #include <libgen.h>
@@ -52,7 +54,7 @@ int ObjLoader::LoadMtlLib(std::string path) {
                     handycpp::string::starts_with(line, "bump")) {
                 auto spacePos = line.find(' ');
                 material->m_textureFiles[line.substr(0, spacePos)] =
-                        std::string(dirname(path.c_str())) + "/" + line.substr(spacePos + 1);
+                        std::string(dirname((char *)path.c_str())) + "/" + line.substr(spacePos + 1);
             }
 
         }
@@ -101,7 +103,7 @@ int ObjLoader::LoadObjFile(std::string filePath) {
     });
 
     if (!mtllib.empty()) {
-        std::string path = dirname(filePath.c_str());
+        std::string path = dirname((char*)filePath.c_str());
         int ret = LoadMtlLib(path + "/" + mtllib);
         if (ret < 0) {
             return ret;

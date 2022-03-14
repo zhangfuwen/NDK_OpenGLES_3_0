@@ -172,6 +172,7 @@ void EglCore::releaseSurface(EGLSurface eglSurface) {
     eglDestroySurface(mEGLDisplay, eglSurface);
 }
 
+#ifdef ANDROID
 /**
  * 创建EGLSurface
  * @param surface
@@ -196,6 +197,7 @@ EGLSurface EglCore::createWindowSurface(ANativeWindow *surface) {
     }
     return eglSurface;
 }
+#endif
 
 /**
  * 创建离屏渲染的EGLSurface

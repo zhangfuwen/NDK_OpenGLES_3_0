@@ -6,7 +6,7 @@
 #define NDK_OPENGLES_3_0_TRANSFORM_H
 
 
-#include <model.h>
+#include "model/model.h"
 #include "../glm/glm.hpp"
 class Transform {
 public:

@@ -5,7 +5,9 @@
 #ifndef EGL_HELPER_EGLCORE_H
 #define EGL_HELPER_EGLCORE_H
 
+#if ANDROID
 #include <android/native_window.h>
+#endif
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
@@ -54,7 +56,9 @@ public:
     // 销毁Surface
     void releaseSurface(EGLSurface eglSurface);
     //  创建EGLSurface
+#ifdef ANDROID
     EGLSurface createWindowSurface(ANativeWindow *surface);
+#endif
     // 创建离屏EGLSurface
     EGLSurface createOffscreenSurface(int width, int height);
     // 切换到当前上下文

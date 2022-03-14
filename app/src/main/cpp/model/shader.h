@@ -6,8 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <GLUtils.h>
-#include <LogUtil.h>
+#include <util/GLUtils.h>
+#include <util/LogUtil.h>
 
 class Shader
 {

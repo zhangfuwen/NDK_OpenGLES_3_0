@@ -6,6 +6,7 @@
 #include <LogUtil.h>
 #include "WindowSurface.h"
 
+#ifdef ANDROID
 WindowSurface::WindowSurface(EglCore *eglCore, ANativeWindow *window, bool releaseSurface)
         : EglSurfaceBase(eglCore) {
     mSurface = window;
@@ -37,3 +38,4 @@ void WindowSurface::recreate(EglCore *eglCore) {
     mEglCore = eglCore;
     createWindowSurface(mSurface);
 }
+#endif

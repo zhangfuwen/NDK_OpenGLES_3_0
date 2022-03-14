@@ -12,6 +12,7 @@ EglSurfaceBase::EglSurfaceBase(EglCore *eglCore) : mEglCore(eglCore) {
     mEglSurface = EGL_NO_SURFACE;
 }
 
+#ifdef ANDROID
 /**
  * 创建显示的Surface
  * @param nativeWindow
@@ -24,6 +25,7 @@ void EglSurfaceBase::createWindowSurface(ANativeWindow *nativeWindow) {
     }
     mEglSurface = mEglCore->createWindowSurface(nativeWindow);
 }
+#endif
 
 /**
  * 创建离屏surface

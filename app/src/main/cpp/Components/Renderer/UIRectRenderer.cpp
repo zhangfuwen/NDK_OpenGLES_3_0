@@ -2,10 +2,12 @@
 // Created by zhangfuwen on 2022/3/8.
 //
 
+#ifdef ANDROID
 #include <android/log.h>
 
 #define LOG_TAG "ByteFlow"
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
+#endif
 
 #include "handycpp/logging.h"
 #include "handycpp/dyntype.h"

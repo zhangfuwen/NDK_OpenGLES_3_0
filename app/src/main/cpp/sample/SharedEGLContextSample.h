@@ -13,6 +13,7 @@
 #include "../util/ImageDef.h"
 #include <thread>
 #include <GLRenderLooper.h>
+#include <condition_variable>
 
 using namespace std;
 

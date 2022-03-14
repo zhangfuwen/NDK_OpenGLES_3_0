@@ -4,10 +4,12 @@
 
 #ifndef NDK_OPENGLES_3_0_RENDERPROGRAM_H
 #define NDK_OPENGLES_3_0_RENDERPROGRAM_H
+#ifdef ANDROID
 #include <android/log.h>
 
 #define LOG_TAG "ByteFlow"
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
+#endif
 #include <glm/glm.hpp>
 #include <handycpp/logging.h>
 

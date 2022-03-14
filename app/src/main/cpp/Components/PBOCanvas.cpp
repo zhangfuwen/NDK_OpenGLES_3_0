@@ -3,11 +3,13 @@
 //
 #define EGL_EGLEXT_PROTOTYPES 1
 #define GL_GLEXT_PROTOTYPES 1
+#ifdef ANDROID
 #define __ANDROID_API__ 29
 #undef EGL_ANDROID_get_native_client_buffer
 #define LOG_TAG "ByteFlow"
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
 #include <android/log.h>
+#endif
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -15,7 +17,9 @@
 #include <EGL/eglext.h>
 #include <GLUtils.h>
 
+#ifdef ANDROID
 #include <android/hardware_buffer.h>
+#endif
 
 #include <handycpp/logging.h>
 #include <handycpp/image.h>
@@ -29,7 +33,7 @@ GLuint PBOCanvas::GetColorAttachmentTextureId() {
     return m_FboTextureId;
 }
 
-
+#ifdef ANDROID
 class OwnedAhardwareBuffer : public OwnedResource {
 public:
     OwnedAhardwareBuffer(int width, int height) {
@@ -92,18 +96,23 @@ private:
     AHardwareBuffer * hardwareBuffer = nullptr;
 
 };
+#endif
 
 int PBOCanvas::Init(BackingStoreType backingStoreType) {
     m_backingStoreType = backingStoreType;
     switch (backingStoreType) {
         case BackingStoreType::TEXTURE:
             return InitFromTexture();
+#ifdef ANDROID
         case BackingStoreType::AHARDWARE_BUFFER:
             return InitFromAhardwareBuffer();
+#endif
     }
+    return 0;
 }
 
 
+#ifdef ANDROID
 int PBOCanvas::InitFromAhardwareBuffer() {
     // 创建并初始化 FBO 纹理
     auto tex = std::make_shared<OwnedTexture>(m_width, m_height, nullptr, false);
@@ -147,7 +156,7 @@ int PBOCanvas::InitFromAhardwareBuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
     return 0;
 }
-
+#endif
 int PBOCanvas::InitFromTexture() {
     auto tex = std::make_shared<OwnedTexture>(m_width, m_height);
     if(tex == nullptr) {
@@ -217,11 +226,13 @@ int PBOCanvas::DownloadPixels(std::string filePath) {
         glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
         glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
     } else if(m_backingStoreType == AHARDWARE_BUFFER) {
+#ifdef ANDROID
         std::shared_ptr<OwnedAhardwareBuffer> buf = std::dynamic_pointer_cast<OwnedAhardwareBuffer>(resources[1]);
         glFinish();
         auto data = buf->Read();
         FUN_INFO("zhangfuwen stride:%d", buf->GetDesc().stride);
         handycpp::image::saveRgbaToPng(filePath, (unsigned char *)data.get(), buf->GetDesc().stride, m_height);
+#endif
     }
     return 0;
 }

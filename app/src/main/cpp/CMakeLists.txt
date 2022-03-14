@@ -4,8 +4,13 @@
 # Sets the minimum version of CMake required to build the native library.
 
 cmake_minimum_required(VERSION 3.4.1)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -DANDROID_STL=c++_shared -stdlib=libc++ -Wno-gnu-zero-variadic-macro-arguments -Werror=return-type")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=return-type -fPIC")
 set(jnilibs "${CMAKE_SOURCE_DIR}/../jniLibs")
+
+if(ANDROID)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -DANDROID_STL=c++_shared -stdlib=libc++ -Wno-gnu-zero-variadic-macro-arguments -Werror=return-type")
+endif()
+
 
 link_directories(${CMAKE_BINARY_DIR}/install/lib)
 include_directories(
@@ -16,36 +21,101 @@ include_directories(
         inc/assimp
         inc/freetype_2_9_1
         model
-        opencv_3_0_0
         egl
         looper
 )
+if(ANDROID)
+    include_directories(
+            opencv_3_0_0
+    )
+else()
+endif()
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 
+if(ANDROID)
 file(GLOB src-files
-        ${CMAKE_SOURCE_DIR}/*.cpp
-        ${CMAKE_SOURCE_DIR}/render/*.cpp
-        ${CMAKE_SOURCE_DIR}/util/*.cpp
-        ${CMAKE_SOURCE_DIR}/sample/*.cpp
-        ${CMAKE_SOURCE_DIR}/egl/*.cpp
-        ${CMAKE_SOURCE_DIR}/looper/*.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/render/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/util/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/egl/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/looper/*.cpp)
+else()
+    file(GLOB src-files
+            ${CMAKE_CURRENT_SOURCE_DIR}/render/*.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/util/*.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/PBOSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/AvatarSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/BasicLightingSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/BeatingHeartSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/BezierCurveSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/BigEyesSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/BigHeadSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/BlendingSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/CloudSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/ConveyorBeltExample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/CoordSystemSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/DepthTestingSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/FaceSlenderSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/FBOBlitSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/FBOLegLengthenSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/FBOSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/GLTransitionExample_2.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/GLTransitionExample_3.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/GLTransitionExample_4.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/GLTransitionExample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/Instancing3DSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/InstancingSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/Model3DSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/MRTSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/MultiLightsSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/Noise3DSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/NV21TextureMapSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/ParticlesSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/PBOSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/PortraitStayColorExample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/RGB2I420Sample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/RGB2NV21Sample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/RGB2YUYVSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/RotaryHeadSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/ScratchCardSample.cpp
+#            ${CMAKE_CURRENT_SOURCE_DIR}/sample/SharedEGLContextSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/ShockWaveSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/SkyBoxSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/StencilTestingSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/TextRenderSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/TextureBuffferSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/TextureMapSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/TimeTunnelSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/TransformFeedbackSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/TriangleSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/UniformBufferSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/VaoSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/VisualizeAudioSample.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/sample/YUVP010Example.cpp
+
+            ${CMAKE_CURRENT_SOURCE_DIR}/egl/*.cpp
+            )
+endif()
+
 
 add_library(native-render SHARED
         # Provides a relative path to your source file(s).
         ${src-files}
-        ${CMAKE_SOURCE_DIR}/Components/Transform.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Camera.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Light.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Renderer/WireFrameRenderer.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Renderer/PointRenderer.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Renderer/TexturedMeshRenderer.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Renderer/LightedMeshRenderer.cpp
-        ${CMAKE_SOURCE_DIR}/Components/Renderer/UIRectRenderer.cpp
-        ${CMAKE_SOURCE_DIR}/Components/ObjLoader.cpp
-        ${CMAKE_SOURCE_DIR}/Components/PBOCanvas.cpp
-        ${CMAKE_SOURCE_DIR}/Entity/GameObject.cpp
-        ${CMAKE_SOURCE_DIR}/Components/GLESHelpers/OwnedResources.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/Transform.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/Camera.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/Light.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/Renderer/WireFrameRenderer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/Renderer/PointRenderer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/Renderer/TexturedMeshRenderer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/Renderer/LightedMeshRenderer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/Renderer/UIRectRenderer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/ObjLoader.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/PBOCanvas.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Entity/GameObject.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Components/GLESHelpers/OwnedResources.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -54,12 +124,14 @@ add_library(native-render SHARED
 # you want to add. CMake verifies that the library exists before
 # completing its build.
 
+if(ANDROID)
 find_library( # Sets the name of the path variable.
         log-lib
 
         # Specifies the name of the NDK library that
         # you want CMake to locate.
         log)
+endif()
 
 add_library(assimp SHARED IMPORTED)
 set_target_properties(assimp PROPERTIES IMPORTED_LOCATION ${jnilibs}/${ANDROID_ABI}/libassimp.so)
@@ -84,18 +156,36 @@ set(third-party-libs
         assimp
         opencv_java3)
 
-target_link_libraries( # Specifies the target library.
-        native-render
+if(ANDROID)
+    target_link_libraries( # Specifies the target library.
+            native-render
+            EGL
+            log-lib
+            android
+            ${third-party-libs}
+            GLESv2
+            GLESv3
+            )
+else()
+    find_package(OpenGL REQUIRED)
+    find_package( OpenCV REQUIRED )
+    find_package(Freetype REQUIRED)
+    include_directories( ${OpenCV_INCLUDE_DIRS} )
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(assimp REQUIRED IMPORTED_TARGET assimp)
 
-        # Links the target library to the log library
-        # included in the NDK.
-        ${log-lib}
-        ${third-party-libs}
-        EGL
-        GLESv2
-        GLESv3
-        android
-        )
+    target_link_libraries( # Specifies the target library.
+            native-render
+            PUBLIC
+            # Links the target library to the log library
+            ${OPENGL_gl_LIBRARY}            # included in the NDK.
+            ${OPENGL_egl_LIBRARY}            # included in the NDK.
+            ${OpenCV_LIBRARIES}
+            ${FREETYPE_LIBRARIES}
+            PkgConfig::assimp
+            )
+endif()
+
 
 set(MyAndroidProject_DEFAULT_ARGS
         -DANDROID_ABI:STRING=${ANDROID_ABI}
@@ -147,5 +237,5 @@ target_include_directories(native-render PRIVATE ${CMAKE_BINARY_DIR}/happly/src)
 
 message("CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}")
 
-target_link_libraries(native-render handycpp.a)
+target_link_libraries(native-render PUBLIC handycpp.a)
 #target_link_libraries(native-render ${CMAKE_BINARY_DIR}/handycpp/build/libhandycpp.a)

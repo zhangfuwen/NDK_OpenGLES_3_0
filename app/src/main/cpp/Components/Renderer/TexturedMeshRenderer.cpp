@@ -3,10 +3,12 @@
 //
 
 #include "TexturedMeshRenderer.h"
+#ifdef ANDROID
 #include <android/log.h>
 
 #define LOG_TAG "ByteFlow"
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
+#endif
 
 #include "handycpp/logging.h"
 #include "TexturedMeshRenderer.h"
@@ -120,7 +122,7 @@ int TexturedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
 
 int TexturedMeshRenderer::Init() {
     const char VertexShaderSrc[] =
-            "#version 300 es                            \n"
+            "#version 310 es                            \n"
             "layout(location = 0) in vec3 a_Position;\n"
             "layout(location = 1) in vec3 a_Normal;\n"
             "layout(location = 2) in vec2 a_TexCoord;\n"
@@ -134,7 +136,7 @@ int TexturedMeshRenderer::Init() {
             "}\n";
 
     const char FragmentShaderSrc[] =
-            "#version 300 es                            \n"
+            "#version 310 es                            \n"
             "precision mediump float;\n"
             " layout(location = 0) uniform sampler2D color_sampler; \n "
             "in highp float zDepth; \n"

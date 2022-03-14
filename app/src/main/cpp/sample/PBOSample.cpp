@@ -6,20 +6,22 @@
 #define GL_GLEXT_PROTOTYPES 1
 #define __ANDROID_API__ 29
 #undef EGL_ANDROID_get_native_client_buffer
-#include <EGL/egl.h>
 
+#ifdef ANDROID
+#include <EGL/egl.h>
 #define LOG_TAG "ByteFlow"
 #define FUN_PRINT(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, ##__VA_ARGS__)
+#endif
 #include "handycpp/logging.h"
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+//#include <EGL/egl.h>
+//#include <EGL/eglext.h>
 #include <GLUtils.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <cstdlib>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include <happly.h>
 #include <Components/PBOCanvas.h>
 #include <Components/Renderer/LightedMeshRenderer.h>

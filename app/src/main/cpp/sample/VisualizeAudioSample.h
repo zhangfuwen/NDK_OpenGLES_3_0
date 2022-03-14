@@ -11,6 +11,7 @@
 #include <glm/detail/type_mat.hpp>
 #include <glm/detail/type_mat4x4.hpp>
 #include <mutex>
+#include <condition_variable>
 #include "GLSampleBase.h"
 
 using namespace glm;

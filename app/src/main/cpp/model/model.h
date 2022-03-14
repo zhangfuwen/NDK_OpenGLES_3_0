@@ -1,21 +1,21 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include <opencv2/opencv.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "../inc/assimp/Importer.hpp"
 #include "../inc/assimp/scene.h"
 #include "../inc/assimp/postprocess.h"
-#include <shader.h>
+#include <model/shader.h>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <map>
 #include <vector>
-#include <opencv2/opencv.hpp>
 #include "mesh.h"
-#include "LogUtil.h"
+#include "util/LogUtil.h"
 
 using namespace std;
 
@@ -263,7 +263,7 @@ private:
         {
             hasTexture = true;
             // opencv reads textures in BGR format, change to RGB for GL
-            cv::cvtColor(textureImage, textureImage, CV_BGR2RGB);
+            cv::cvtColor(textureImage, textureImage, 4);
             // opencv reads image from top-left, while GL expects it from bottom-left
             // vertically flip the image
             //cv::flip(textureImage, textureImage, 0);

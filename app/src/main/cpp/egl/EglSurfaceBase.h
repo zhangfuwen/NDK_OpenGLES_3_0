@@ -12,7 +12,9 @@ class EglSurfaceBase {
 public:
     EglSurfaceBase(EglCore *eglCore);
     // 创建窗口Surface
+#ifdef ANDROID
     void createWindowSurface(ANativeWindow *nativeWindow);
+#endif
     // 创建离屏Surface
     void createOffscreenSurface(int width, int height);
     // 获取宽度
