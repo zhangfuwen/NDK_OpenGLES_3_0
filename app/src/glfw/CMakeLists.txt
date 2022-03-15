@@ -3,7 +3,7 @@ project(FunRenderer)
 
 set(CMAKE_CXX_STANDARD 17) # no explicit compiler flags if possible
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -DGLFW_USE_EGL=ON ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -DGLFW_USE_EGL=ON -DWORLD_SIZE=2000 ")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -DANDROID_STL=c++_shared -Wno-gnu-zero-variadic-macro-arguments -Werror=return-type")
 
 add_subdirectory(../main/cpp ${CMAKE_BINARY_DIR}/renderer)
@@ -34,3 +34,4 @@ target_include_directories(LearnRenderer PRIVATE
         ../main/cpp/opencv_3_0_0
         ${CMAKE_BINARY_DIR}/handycpp/src/include
         )
+target_compile_definitions(LearnRenderer PRIVATE -DWORLD_SIZE=2000)
