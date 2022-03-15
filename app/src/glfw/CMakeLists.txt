@@ -22,7 +22,7 @@ find_package(glfw3 REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 link_directories(${CMAKE_BINARY_DIR}/install/lib)
-add_executable(LearnRenderer triangle.cpp)
+add_executable(LearnRenderer main.cpp)
 target_link_libraries(LearnRenderer
         ${OPENGL_gl_LIBRARY}
         ${OPENGL_egl_LIBRARY}

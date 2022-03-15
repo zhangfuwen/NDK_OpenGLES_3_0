@@ -61,6 +61,7 @@ int main()
     objLoader->LoadObjFile("/home/zhangfuwen/Code/NDK_OpenGLES_3_0/app/src/main/assets/poly/Apricot_02_hi_poly.obj");
     auto renderer = new TexturedMeshRenderer();
     renderer->Init();
+    renderer->LoadTexturedMesh(objLoader);
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -71,7 +72,7 @@ int main()
         // ------
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
         auto transform = new Transform();
         auto camera = new Camera();
         std::vector<Light> lights;

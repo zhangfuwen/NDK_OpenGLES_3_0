@@ -25,7 +25,7 @@ void PointRenderer::printBunnyVars() {
     FUN_INFO("PositionLoc:%d", m_VertexAttribPosition);
     FUN_INFO("ColorLoc:%d", m_attribLoc_Color);
     FUN_INFO("SizeLoc:%d", m_attribLoc_PointSize);
-    FUN_INFO("VBO:%d, VAO:%d", m_VBOPosition, m_VAO);
+    FUN_INFO("VBO:%d, VAO:%d", m_VBOArrayOfStruct, m_VAO);
     FUN_INFO("numElements:%u", m_NumElements);
     FUN_INFO("mvpLoc:%u", m_MVPUniformLoc);
     auto s = glm::to_string(m_MVPMatrix);
@@ -38,15 +38,15 @@ int PointRenderer::LoadPoints(PointLoader loader) {
     if(ret <= 0) {
         return ret;
     }
-    glGenBuffers(1, &m_VBOPosition);
+    glGenBuffers(1, &m_VBOArrayOfStruct);
     glGenVertexArrays(1, &m_VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBOPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBOArrayOfStruct);
     glBufferData(GL_ARRAY_BUFFER, points.size() * 8 * sizeof(float), &points[0].pos[0], GL_STATIC_DRAW);
 
     glBindVertexArray(m_VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBOPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBOArrayOfStruct);
     glVertexAttribPointer(m_VertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                           (void *) 0);
     glVertexAttribPointer(m_attribLoc_Color, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
@@ -113,44 +113,47 @@ int PointRenderer::Finalize() {
         glDeleteVertexArrays(1, (const GLuint *)&m_VAO);
         PointRenderer::m_VAO = 0;
     }
-    if (PointRenderer::m_VBOPosition) {
-        glDeleteBuffers(1, &m_VBOPosition);
-        PointRenderer::m_VBOPosition = 0;
+    if (PointRenderer::m_VBOArrayOfStruct) {
+        glDeleteBuffers(1, &m_VBOArrayOfStruct);
+        PointRenderer::m_VBOArrayOfStruct = 0;
     }
     return 0;
 }
 
 int PointRenderer::Draw(const Transform &transform, const Camera & camera, const std::vector<Light> & lights) {
 #if 0
-    glUseProgram(m_FboProgramObj);
-    glBindVertexArray(m_VaoIds[1]);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_ImageTextureId);
-    glUniform1i(m_FboSamplerLoc, 0);
-    GO_CHECK_GL_ERROR();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void *)0);
-    GO_CHECK_GL_ERROR();
+    LoadPoints([&](std::vector<Point> &points, int & numElements) -> int {
+        points.push_back(Point{glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 30.0f});
+        points.push_back(Point{glm::vec3{1.0f, 1.0f, 0.0f}, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 30.0f});
+        points.push_back(Point{glm::vec3{-1.0f, -1.0f, 0.0f}, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 30.0f});
+        numElements = points.size();
+        return points.size();
+    });
+    m_renderProgram->use();
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBOArrayOfStruct);
+//    glBufferSubData(GL_ARRAY_BUFFER, 0, )
+    glDrawArrays(GL_POINTS, 0, m_NumElements);
     glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+//    glEnable(GL_POLYGON_OFFSET_FILL);
+//    glDisable(GL_DEPTH_TEST);
+//    glDisable(GL_CULL_FACE);
 #else
-    static float x = 0;
 //	x += 1;
-    m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
     glDisable(GL_POLYGON_OFFSET_FILL);
-    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
 
     m_renderProgram->use();
 
-    glUniformMatrix4fv(m_MVPUniformLoc, 1, GL_FALSE, &m_MVPMatrix[0][0]);
     glBindVertexArray(m_VAO);
     glDrawArrays(GL_POINTS, 0, m_NumElements);
     glBindVertexArray(0);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
+//    glEnable(GL_POLYGON_OFFSET_FILL);
+//    glDisable(GL_DEPTH_TEST);
+//    glDisable(GL_CULL_FACE);
 #endif
     return 0;
 }

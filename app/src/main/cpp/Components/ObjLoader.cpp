@@ -102,6 +102,7 @@ int ObjLoader::LoadObjFile(std::string filePath) {
         }
     });
 
+    FUN_INFO("numVertices:%d, numFaces:%d", vertices.size(), faces.size());
     if (!mtllib.empty()) {
         std::string path = dirname((char*)filePath.c_str());
         int ret = LoadMtlLib(path + "/" + mtllib);

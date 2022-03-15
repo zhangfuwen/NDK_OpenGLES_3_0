@@ -34,7 +34,7 @@ private:
     GLint m_attribLoc_Color;
     GLint m_attribLoc_PointSize;
 
-    GLuint m_VBOPosition;
+    GLuint m_VBOArrayOfStruct;
 
     GLuint m_VAO;
     glm::mat4 m_MVPMatrix{1.0f};
