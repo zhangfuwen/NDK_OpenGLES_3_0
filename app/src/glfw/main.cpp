@@ -27,7 +27,8 @@ static float rotYY = 0.0f;
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     FUN_INFO("scroll %f, %f", xoffset, yoffset );
-    z -= yoffset*0.005;
+    z = yoffset*0.005;
+    FUN_INFO("z is %f", z);
     scene->CameraMove((x +dragX)* 0.05 *z, (y+dragY) * 0.05 *z, z);
 }
 void mouse_cursor_callback( GLFWwindow * window, double xpos, double ypos)
@@ -47,21 +48,23 @@ void mouse_cursor_callback( GLFWwindow * window, double xpos, double ypos)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+     z= 0;
+     z = 0;
     if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        z -= 0.1;
+        z = 0.1;
 
     }
     if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        z += 0.1;
+        z = -0.1;
 
     }
     if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        x -= 0.1;
+        x = 0.1;
     }
     if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        x += 0.1;
+        x = -0.1;
     }
-    scene->CameraMove((x +dragX)* 0.05 *z, (y+dragY) * 0.05 *z, z);
+    scene->CameraMove((x +dragX)* 0.05 , (y+dragY) * 0.05, z);
 }
 
 static void mouse_callback(GLFWwindow* window, int button, int action, int mods)

@@ -33,10 +33,11 @@ public:
     }
     void TryMove(float right, float up, float  forward) {
         FUN_INFO("%f %f %f", right, up, forward);
-        auto trans = m_self_transform;
-        trans.translation += glm::vec3(m_self_transform.GetModel() *glm::vec4 (Transform::right * right, 1.0));
-        trans.translation += glm::vec3 (m_self_transform.GetModel() * glm::vec4 (Transform::front * forward, 1.0));
-        trans.translation += glm::vec3 (m_self_transform.GetModel() *glm::vec4 (Transform::up * up , 1.0));
+        auto  & trans = m_self_transform;
+        trans.translation += glm::vec3(right, up, forward);
+//        trans.translation += glm::vec3(m_self_transform.GetModel() *glm::vec4 (Transform::right * right, 1.0));
+//        trans.translation += glm::vec3 (m_self_transform.GetModel() * glm::vec4 (Transform::front * forward, 1.0));
+//        trans.translation += glm::vec3 (m_self_transform.GetModel() *glm::vec4 (Transform::up * up , 1.0));
 //        View = glm::lookAt(
 //                glm::vec3(0.0f, 0.2f, 0.0f),
 //                glm::vec3(trans.GetModel() * glm::vec4(Transform::front, 1.0f)),
@@ -56,7 +57,7 @@ public:
     }
 
     void Rotate(float x, float y, float z) {
-        auto trans = m_self_transform;
+        auto  trans = m_self_transform;
         trans.rotation += glm::vec3{x, y, z};
         View = glm::lookAt(
                 trans.translation,
