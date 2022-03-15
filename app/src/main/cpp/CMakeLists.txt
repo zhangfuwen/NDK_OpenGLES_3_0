@@ -215,6 +215,7 @@ ExternalProject_Add(handycpp1
         INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
         #        INSTALL_COMMAND ""
         TEST_COMMAND ""
+        UPDATE_COMMAND ""
         )
 
 ExternalProject_add(happly
@@ -226,6 +227,7 @@ ExternalProject_add(happly
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
         TEST_COMMAND ""
+        UPDATE_COMMAND ""
         )
 
 add_dependencies(native-render handycpp1)
