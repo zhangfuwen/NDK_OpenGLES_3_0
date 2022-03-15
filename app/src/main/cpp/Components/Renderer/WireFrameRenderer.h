@@ -53,6 +53,8 @@ public:
      */
     int Draw(const Transform &transform, const Camera & camera, const std::vector<Light> &lights) override;
 
+    void Dump() override { printBunnyVars(); };
+
     int LoadLines(ObjLoader * loader);
     int LoadLines(LineLoader loader);
 };

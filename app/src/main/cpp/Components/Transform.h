@@ -16,6 +16,10 @@ public:
 
     glm::mat4 GetModel() const;
 
+    inline static glm::vec3 front{ 0.0f, 0.0f, 1.0f };
+    static inline glm::vec3 right{ 1.0f, 0.0f, 0.0f };
+    static inline glm::vec3 up{ 0.0f, 1.0f, 0.0f };
+
 };
 
 

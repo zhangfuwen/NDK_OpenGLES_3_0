@@ -65,6 +65,7 @@ public:
     void SetProgram(std::shared_ptr<RenderProgram> shared_program) { m_program = shared_program; }
     void SetTexture(std::shared_ptr<OwnedResource> tex) { m_texture = tex; }
     void AddRect(Rect rect) { m_rects.push_back(rect);}
+    void Dump() override { };
 
 private:
     float m_layer = -0.1f;

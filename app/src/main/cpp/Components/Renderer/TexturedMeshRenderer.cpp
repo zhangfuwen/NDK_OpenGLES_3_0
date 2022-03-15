@@ -40,7 +40,7 @@ void TexturedMeshRenderer::printBunnyVars() {
 
 int TexturedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
 
-    loader->LoadObjFile();
+//    loader->LoadObjFile();
     loader->Dump();
 
     triangles.reserve(loader->faces.size() * 2); // every face is translated into two triangles
@@ -207,7 +207,6 @@ int TexturedMeshRenderer::Draw(const Transform &transform, const Camera&camera, 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 #else
-    printBunnyVars();
     static float x = 0;
     m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
     glLineWidth(1.0f);

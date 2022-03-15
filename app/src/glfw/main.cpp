@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Components/Renderer/PointRenderer.h"
 #include "Components/Renderer/TexturedMeshRenderer.h"
+#include "System/Scene.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -11,6 +12,70 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+float x = 0, y = 0, z = 0.8;
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    FUN_INFO("scroll %f, %f", xoffset, yoffset );
+    z -= yoffset*0.005;
+}
+double oldX, oldY;
+double dragX = 0, dragY = 0;
+bool lbutton_down = false;
+bool rbutton_down = false;
+
+void mouse_cursor_callback( GLFWwindow * window, double xpos, double ypos)
+{
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+    {
+        return;
+    }
+    if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        dragX = xpos - oldX;
+        dragY = ypos - oldY;
+        FUN_INFO("drag %f %f", dragX, dragY);
+    }
+
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+        z -= 0.001;
+
+    }
+    if (key == GLFW_KEY_S& action == GLFW_PRESS) {
+        z += 0.001;
+
+    }
+    if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+
+    }
+    if (key == GLFW_KEY_D && action == GLFW_PRESS) {
+
+    }
+}
+
+static void mouse_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if(GLFW_PRESS == action) {
+            lbutton_down = true;
+            glfwGetCursorPos(window, &oldX, &oldY);
+            FUN_INFO("lbutton_down, %f, %f", oldX, oldY);
+        }
+        else if(GLFW_RELEASE == action) {
+            oldX = 0.0f;
+            oldY = 0.0f;
+            FUN_INFO("lbutton_up, %f, %f", oldX, oldY);
+            lbutton_down = false;
+            x += dragX;
+            y +=  dragY;
+
+        }
+    }
+}
 
 int main()
 {
@@ -37,6 +102,9 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetCursorPosCallback(window, mouse_cursor_callback);
+    glfwSetMouseButtonCallback(window, mouse_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -48,20 +116,8 @@ int main()
 
     // render loop
     // -----------
-    auto pointRenderer = new PointRenderer();
-    pointRenderer->Init();
-    pointRenderer->LoadPoints([&](std::vector<Point> &points, int & numElements) -> int {
-        points.push_back(Point{glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 30.0f});
-        points.push_back(Point{glm::vec3{1.0f, 1.0f, 0.0f}, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 30.0f});
-        points.push_back(Point{glm::vec3{-1.0f, -1.0f, 0.0f}, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 30.0f});
-        numElements = points.size();
-        return points.size();
-    });
-    ObjLoader *objLoader = new ObjLoader();
-    objLoader->LoadObjFile("/home/zhangfuwen/Code/NDK_OpenGLES_3_0/app/src/main/assets/poly/Apricot_02_hi_poly.obj");
-    auto renderer = new TexturedMeshRenderer();
-    renderer->Init();
-    renderer->LoadTexturedMesh(objLoader);
+    auto scene = std::make_unique<Scene>();
+    scene->Init();
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -73,11 +129,16 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
-        auto transform = new Transform();
-        auto camera = new Camera();
-        std::vector<Light> lights;
-        pointRenderer->Draw(*transform, *camera, lights);
-        renderer->Draw(*transform, *camera, lights);
+        static float rotX = 0.0f;
+        rotX += 10;
+//        if(lbutton_down) {
+//            scene->CameraMove((x +dragX)* 0.005 *z, (y+dragY) * 0.005 *z, z);
+//        } else {
+//            scene->CameraMove(x*0.005 * z,y * 0.005 *z,z);
+//        }
+//        scene->CameraRotate(0, rotX, 0);
+        scene->UpdateTransformMatrix(0.0f, 0.0f, 0.2f, 0.2f);
+        scene->Draw();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

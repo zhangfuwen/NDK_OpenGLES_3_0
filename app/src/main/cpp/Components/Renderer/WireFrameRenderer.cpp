@@ -146,7 +146,6 @@ int WireFrameRenderer::Draw(const Transform &transform, const Camera & camera, c
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 #else
-    WireFrameRenderer::printBunnyVars();
     static float x = 0;
 //	x += 1;
     m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();

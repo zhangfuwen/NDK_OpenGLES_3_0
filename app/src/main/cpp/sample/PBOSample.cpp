@@ -58,7 +58,7 @@ std::vector<std::string> split (std::string s, std::string delimiter) {
 #include <handycpp/dyntype.h>
 using namespace handycpp::dyntype::arithmetic;
 
-std::vector<UIRectRenderer::Rect> loadChart() {
+static std::vector<UIRectRenderer::Rect> loadChart() {
 	std::vector<UIRectRenderer::Rect> rects;
     std::string baseDir = "/sdcard/Android/data/com.byteflow.app/files/Download/";
     auto csvPath = baseDir + "/other/1.csv";

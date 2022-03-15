@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
-project(LearnRenderer)
+project(FunRenderer)
 
 set(CMAKE_CXX_STANDARD 17) # no explicit compiler flags if possible
 

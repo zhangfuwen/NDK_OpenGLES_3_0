@@ -130,7 +130,11 @@ int LightedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
 }
 
 int LightedMeshRenderer::Init() {
+#ifdef ANDROID
     std::string baseDir = "/sdcard/Android/data/com.byteflow.app/files/Download/";
+#else
+    std::string baseDir = RENDERER_SOURCE "/../assets/";
+#endif
     auto vertexShaderFilePath = baseDir + "/shader_source/material_lighting.vs";
     auto fragmentShaderFilePath = baseDir + "/shader_source/material_lighting.fs";
 
@@ -218,7 +222,6 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 #else
-    printBunnyVars();
     static float x = 0;
 //	x += 1;
     glLineWidth(1.0f);
@@ -249,11 +252,11 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
 //    m_MVPMatrix = camera.GetProjection() * camera.GetView() * transform.GetModel();
 //    glUniformMatrix4fv(glGetUniformLocation(m_program->ID,  "u_MVPMatrix"), 1, GL_FALSE, &m_MVPMatrix[0][0]);
 
-#define DUMP_VEC3(title, vec3) FUN_INFO(#title ": %f, %f, %f", vec3.r, vec3.g, vec3.b)
-    DUMP_VEC3("ka:", m_material.getKa());
-    DUMP_VEC3("kd:", m_material.getKa());
-    DUMP_VEC3("ks:", m_material.getKa());
-    FUN_INFO("shininess:%f", m_material.getShininess());
+//#define DUMP_VEC3(title, vec3) FUN_INFO(#title ": %f, %f, %f", vec3.r, vec3.g, vec3.b)
+//    DUMP_VEC3("ka:", m_material.getKa());
+//    DUMP_VEC3("kd:", m_material.getKa());
+//    DUMP_VEC3("ks:", m_material.getKa());
+//    FUN_INFO("shininess:%f", m_material.getShininess());
 
 
     glBindVertexArray(m_VAO);

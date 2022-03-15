@@ -64,6 +64,7 @@ public:
      * @return 0 on success, negative numbers on error
      */
     int Draw(const Transform &transform, const Camera & camera, const std::vector<Light> &lights) override;
+    void Dump() override { printBunnyVars();}
 
 
 };

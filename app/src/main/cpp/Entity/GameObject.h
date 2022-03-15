@@ -20,6 +20,7 @@ public:
         return &m_self_transform;
     }
     int Update() {
+        m_renderer->Update();
         for(auto child : m_children) {
             child->Update();
         }
@@ -74,6 +75,12 @@ public:
             m_renderer = nullptr;
         }
     };
+
+    void Move(float right, float forward, float  up) {
+        m_self_transform.translation += Transform::right * right;
+        m_self_transform.translation += Transform::front * forward;
+        m_self_transform.translation += Transform::up * up;
+    }
 
 private:
     std::vector<std::shared_ptr<GameObject>> m_children;

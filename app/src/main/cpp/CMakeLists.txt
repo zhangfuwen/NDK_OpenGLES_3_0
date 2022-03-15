@@ -115,6 +115,7 @@ add_library(native-render SHARED
         ${CMAKE_CURRENT_SOURCE_DIR}/Components/ObjLoader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Components/PBOCanvas.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Entity/GameObject.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/System/Scene.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Components/GLESHelpers/OwnedResources.cpp
         )
 
@@ -240,4 +241,5 @@ target_include_directories(native-render PRIVATE ${CMAKE_BINARY_DIR}/happly/src)
 message("CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}")
 
 target_link_libraries(native-render PUBLIC handycpp.a)
+target_compile_definitions(native-render PRIVATE "-DRENDERER_SOURCE=\"${CMAKE_CURRENT_SOURCE_DIR}\" ")
 #target_link_libraries(native-render ${CMAKE_BINARY_DIR}/handycpp/build/libhandycpp.a)

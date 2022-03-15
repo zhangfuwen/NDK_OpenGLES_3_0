@@ -38,6 +38,10 @@ public:
      */
     virtual std::string errorStr(int ret) { return "error"; };
 
+//    virtual void Update() { Dump();};
+    virtual void Update() { };
+    virtual void Dump() {};
+
     virtual ~IRenderer() {};
 };
 
