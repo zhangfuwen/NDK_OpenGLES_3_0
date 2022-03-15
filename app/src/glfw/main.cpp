@@ -13,17 +13,23 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+auto scene = std::make_unique<Scene>();
 float x = 0, y = 0, z = 0.8;
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    FUN_INFO("scroll %f, %f", xoffset, yoffset );
-    z -= yoffset*0.005;
-}
 double oldX, oldY;
 double dragX = 0, dragY = 0;
 bool lbutton_down = false;
 bool rbutton_down = false;
 
+static float rotX = 0.0f;
+static float rotY = 0.0f;
+static float rotXX = 0.0f;
+static float rotYY = 0.0f;
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    FUN_INFO("scroll %f, %f", xoffset, yoffset );
+    z -= yoffset*0.005;
+    scene->CameraMove((x +dragX)* 0.05 *z, (y+dragY) * 0.05 *z, z);
+}
 void mouse_cursor_callback( GLFWwindow * window, double xpos, double ypos)
 {
 
@@ -32,8 +38,8 @@ void mouse_cursor_callback( GLFWwindow * window, double xpos, double ypos)
         return;
     }
     if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-        dragX = xpos - oldX;
-        dragY = ypos - oldY;
+        rotX = xpos - oldX;
+        rotY = ypos - oldY;
         FUN_INFO("drag %f %f", dragX, dragY);
     }
 
@@ -41,20 +47,21 @@ void mouse_cursor_callback( GLFWwindow * window, double xpos, double ypos)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_W && action == GLFW_PRESS) {
-        z -= 0.001;
+    if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        z -= 0.1;
 
     }
-    if (key == GLFW_KEY_S& action == GLFW_PRESS) {
-        z += 0.001;
+    if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        z += 0.1;
 
     }
-    if (key == GLFW_KEY_A && action == GLFW_PRESS) {
-
+    if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        x -= 0.1;
     }
-    if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-
+    if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        x += 0.1;
     }
+    scene->CameraMove((x +dragX)* 0.05 *z, (y+dragY) * 0.05 *z, z);
 }
 
 static void mouse_callback(GLFWwindow* window, int button, int action, int mods)
@@ -70,8 +77,10 @@ static void mouse_callback(GLFWwindow* window, int button, int action, int mods)
             oldY = 0.0f;
             FUN_INFO("lbutton_up, %f, %f", oldX, oldY);
             lbutton_down = false;
-            x += dragX;
-            y +=  dragY;
+            rotXX += rotX;
+            rotYY +=  rotY;
+            rotX = 0;
+            rotY = 0;
 
         }
     }
@@ -105,6 +114,7 @@ int main()
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetCursorPosCallback(window, mouse_cursor_callback);
     glfwSetMouseButtonCallback(window, mouse_callback);
+    glfwSetKeyCallback(window, key_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -116,7 +126,6 @@ int main()
 
     // render loop
     // -----------
-    auto scene = std::make_unique<Scene>();
     scene->Init();
     while (!glfwWindowShouldClose(window))
     {
@@ -129,14 +138,17 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
-        static float rotX = 0.0f;
-        rotX += 10;
+//        rotX += 0.1;
 //        if(lbutton_down) {
-//            scene->CameraMove((x +dragX)* 0.005 *z, (y+dragY) * 0.005 *z, z);
 //        } else {
 //            scene->CameraMove(x*0.005 * z,y * 0.005 *z,z);
 //        }
-//        scene->CameraRotate(0, rotX, 0);
+        if(lbutton_down) {
+            scene->CameraRotate(0, (rotXX + rotX)*0.01, 0);
+        } else {
+            scene->CameraRotate(0, (rotXX)*0.01, 0);
+
+        }
         scene->UpdateTransformMatrix(0.0f, 0.0f, 0.2f, 0.2f);
         scene->Draw();
 

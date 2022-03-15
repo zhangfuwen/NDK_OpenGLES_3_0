@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <Components/Transform.h>
+#include <handycpp/dyntype.h>
 
 class Camera {
 public:
@@ -18,22 +19,54 @@ public:
     }
 
     void Move(float right, float forward, float  up) {
-        m_self_transform.translation += Transform::right * right;
-        m_self_transform.translation += Transform::front * forward;
-        m_self_transform.translation += Transform::up * up;
+        auto & trans = m_self_transform.translation;
+        trans += Transform::right * right;
+        trans += Transform::front * forward;
+        trans += Transform::up * up;
         View = glm::lookAt(
-                m_self_transform.translation,
+                trans,
                 glm::vec3(m_self_transform.GetModel() * glm::vec4(Transform::front, 1.0f)),
                 glm::vec3(m_self_transform.GetModel() * glm::vec4(Transform::up, 1.0f))  // Head is up (set to 0,-1,0 to look upside-down)
         );
+        FUN_INFO("camera transform: %s", glm::to_string(m_self_transform.translation).c_str());
+
+    }
+    void TryMove(float right, float up, float  forward) {
+        FUN_INFO("%f %f %f", right, up, forward);
+        auto trans = m_self_transform;
+        trans.translation += glm::vec3(m_self_transform.GetModel() *glm::vec4 (Transform::right * right, 1.0));
+        trans.translation += glm::vec3 (m_self_transform.GetModel() * glm::vec4 (Transform::front * forward, 1.0));
+        trans.translation += glm::vec3 (m_self_transform.GetModel() *glm::vec4 (Transform::up * up , 1.0));
+//        View = glm::lookAt(
+//                glm::vec3(0.0f, 0.2f, 0.0f),
+//                glm::vec3(trans.GetModel() * glm::vec4(Transform::front, 1.0f)),
+//                glm::vec3(trans.GetModel() * glm::vec4(Transform::up, 1.0f))  // Head is up (set to 0,-1,0 to look upside-down)
+//        );
+//        View = glm::lookAt(
+//                glm::vec3(0.0f, 0.2f, 0.0f),
+//                glm::vec3(0.0f, 0.0f, 0.0f),
+//                glm::vec3(0.0f, 1.0f, 0.0f)  // Head is up (set to 0,-1,0 to look upside-down)
+//        );
+        View = glm::lookAt(
+                trans.translation,
+                {0.0f, 0.0f, 0.0f},
+                Transform::up // Head is up (set to 0,-1,0 to look upside-down)
+        );
+        FUN_INFO("camera transform: %s", glm::to_string(trans.translation).c_str());
     }
 
     void Rotate(float x, float y, float z) {
-        m_self_transform.rotation += glm::vec3{x, y, z};
+        auto trans = m_self_transform;
+        trans.rotation += glm::vec3{x, y, z};
+        View = glm::lookAt(
+                trans.translation,
+                glm::vec3(trans.GetModel() * glm::vec4(Transform::front, 1.0f)),
+                glm::vec3(trans.GetModel() * glm::vec4(Transform::up, 1.0f))  // Head is up (set to 0,-1,0 to look upside-down)
+        );
     }
 
 
-    Camera(bool ortho = true, float fov = 90) {
+    Camera(bool ortho = false, float fov = 90) {
         m_self_transform.rotation = {0.0f, 180.0f, 0.0f};
         m_self_transform.translation = {0.0f, 0.0f, 0.8f};
         if(ortho) {
@@ -52,7 +85,7 @@ public:
 //                glm::vec3(m_self_transform.GetModel() * glm::vec4(Transform::up, 1.0f))  // Head is up (set to 0,-1,0 to look upside-down)
 //        );
         View = glm::lookAt(
-                glm::vec3 { 0.0f, 0.0f, 0.8f},
+                glm::vec3 { 0.0f, 0.0f, 0.2f},
                 {0.0f, 0.0f, 0.0f},
                 Transform::up // Head is up (set to 0,-1,0 to look upside-down)
         );
@@ -61,7 +94,6 @@ public:
 
 private:
     Transform m_self_transform;
-    glm::vec3 m_viewTarget = glm::vec3(0, 0, 0);
     // Projection matrix
     glm::mat4 Projection;
     //glm::mat4 Projection = glm::frustum(-ratio, ratio, -1.0f, 1.0f, 1.0f, 100);

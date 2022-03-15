@@ -253,7 +253,7 @@ void Scene::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX, fl
 //    );
 }
 void Scene::CameraMove(float x, float y, float z) {
-    m_camera[0].Move(x,y,z);
+    m_camera[0].TryMove(x,y,z);
 }
 
 void Scene::CameraRotate(float x, float y, float z) {
