@@ -161,7 +161,7 @@ int LightedMeshRenderer::Init() {
     });
 
     handycpp::file::for_each_line(fragmentShaderFilePath, [&](int n_lines, std::string line) {
-        FUN_ERROR("compiles %d: %s", n_lines, line.c_str());
+        FUN_DEBUG("compiles %d: %s", n_lines, line.c_str());
         source2 = source2 + line + "\n";
 
     });

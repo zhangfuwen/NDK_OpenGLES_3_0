@@ -26,8 +26,15 @@ inline int templateLineLoader(std::vector<std::array<glm::vec3, 2>> & lines) {
     return lines.size(); // return non-positive number of error
 }
 
+inline int templateLineLoader2(std::vector<std::array<glm::vec3, 2>> & lines, std::vector<std::array<glm::vec4, 2>> & colors) {
+    // lines.push_back or emplace back
+    // colors.push_back or emplace back
+    return lines.size(); // return non-positive number of error
+}
+
 // return number of lines loaded
 using LineLoader = std::function<decltype(templateLineLoader)>;
+using LineLoader2 = std::function<decltype(templateLineLoader2)>;
 
 class LineRenderer : public IRenderer {
 private:
@@ -67,6 +74,9 @@ public:
 
     int LoadLines(ObjLoader * loader);
     int LoadLines(LineLoader loader);
+    int LoadLines(LineLoader2 loader2);
+
+    void PrepareBuffers();
 };
 
 #endif //NDK_OPENGLES_3_0_WIREFRAMERENDERER_H

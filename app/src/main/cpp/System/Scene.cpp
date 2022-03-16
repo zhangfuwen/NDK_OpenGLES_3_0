@@ -95,7 +95,6 @@ void Scene::Init() {
     delete objLoader;
 
     auto bunnyWireframeRenderer = new LineRenderer();
-    bunnyWireframeRenderer->Init();
     bunnyWireframeRenderer->LoadLines([](LinesType &lines) -> int {
 #ifdef ANDROID
         happly::PLYData plyIn(DEFAULT_OGL_ASSETS_DIR "/model/poly/bun_zipper.ply");
@@ -118,13 +117,14 @@ void Scene::Init() {
 
         return lines.size();
     });
+    bunnyWireframeRenderer->Init();
 
     auto lightSourceRenderer = new LineRenderer();
-    lightSourceRenderer->Init();
     lightSourceRenderer->LoadLines([&](LinesType &lines) -> int {
         lines.push_back({m_lights[0].getLightPos(), m_lights[0].getLightPos()});
         return lines.size();
     });
+    lightSourceRenderer->Init();
 
     auto pointRenderer = new PointRenderer();
     pointRenderer->Init();
@@ -198,15 +198,23 @@ void Scene::Init() {
     m_gameObject = rootGameObject;
 
     auto coordRenderer = std::make_shared<LineRenderer>();
-    coordRenderer->Init();
     using LineLoader = std::function<int(std::vector<std::array<glm::vec3, 2>> &, int &)>;
-    coordRenderer->LoadLines([](std::vector<std::array<glm::vec3, 2>> & lines) -> int {
+    coordRenderer->LoadLines([](std::vector<std::array<glm::vec3, 2>> & lines,
+            std::vector<std::array<glm::vec4, 2>> & colors
+            ) -> int {
+
         lines.push_back({glm::vec3{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}});
+        colors.push_back({glm::vec4{1.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}});
+
         lines.push_back({glm::vec3{0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}});
+        colors.push_back({glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}});
+
         lines.push_back({glm::vec3{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}});
+        colors.push_back({glm::vec4{0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}});
 
         return lines.size();
     });
+    coordRenderer->Init();
     m_coordRenderer = coordRenderer;
 }
 

@@ -60,7 +60,7 @@ public:
 
     int InitWithSource(std::string vertexCode, std::string fragmentCode) {
         const char* vShaderCode = vertexCode.c_str();
-        FUN_ERROR("compile vertex source:%s", vertexCode.c_str());
+        FUN_INFO("compile vertex source:%s", vertexCode.c_str());
         const char * fShaderCode = fragmentCode.c_str();
         // 2. compile shaders
         unsigned int vertex, fragment;

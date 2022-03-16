@@ -211,7 +211,6 @@ void PBOSample::Init()
 	delete objLoader;
 
 	auto renderer2 = new LineRenderer();
-	renderer2->Init();
 	renderer2->LoadLines([](LinesType &lines) -> int {
 		happly::PLYData plyIn("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/bun_zipper.ply");
 		std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
@@ -229,13 +228,14 @@ void PBOSample::Init()
 		}
 		return lines.size();
 	});
+    renderer2->Init();
 
 	auto lightSourceRenderer = new LineRenderer();
-	lightSourceRenderer->Init();
 	lightSourceRenderer->LoadLines([&](LinesType &lines) -> int {
 		lines.push_back({m_lights[0].getLightPos(), m_lights[0].getLightPos()});
 		return lines.size();
 	});
+    lightSourceRenderer->Init();
 
 	auto pointRenderer = new PointRenderer();
 	pointRenderer->Init();

@@ -55,6 +55,21 @@ int LineRenderer::LoadLines(LineLoader loader) {
         return ret;
     }
     m_NumElements = lines.size() * 2;
+
+    return lines.size();
+}
+
+int LineRenderer::LoadLines(LineLoader2 loader) {
+    auto ret = loader(lines, colors);
+    if(ret <= 0) {
+        return ret;
+    }
+    m_NumElements = lines.size() * 2;
+
+    return lines.size();
+}
+
+void LineRenderer::PrepareBuffers() {
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
 
@@ -68,7 +83,7 @@ int LineRenderer::LoadLines(LineLoader loader) {
     if(!colors.empty()) {
         glGenBuffers(1, &m_VBOColor);
         glBindBuffer(GL_ARRAY_BUFFER, m_VBOColor);
-        glBufferData(GL_ARRAY_BUFFER, colors.size()*2 *4 * sizeof(float), &colors[0][0][0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, colors.size() * 2 * 4 * sizeof(float), &colors[0][0][0], GL_STATIC_DRAW);
         glVertexAttribPointer(m_VertexAttribColor, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
                               (void *) 0);
         glEnableVertexAttribArray(m_VertexAttribColor);
@@ -77,7 +92,6 @@ int LineRenderer::LoadLines(LineLoader loader) {
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    return lines.size();
 }
 
 int LineRenderer::Init() {
@@ -94,7 +108,7 @@ int LineRenderer::Init() {
             "void main() {\n"
             "#if SHARE_COLOR \n"
             "#else \n"
-            "    v_Color = u_Color;\n"
+            "    v_Color = a_Color;\n"
             "#endif \n"
             "	gl_Position=u_MVPMatrix * vec4(a_Position, 1.0f);\n"
             "}\n";
@@ -110,7 +124,7 @@ int LineRenderer::Init() {
             "#if SHARE_COLOR \n"
             "uniform vec4 u_Color; \n"
             "#else \n"
-            "out vec4 v_Color; \n"
+            "in vec4 v_Color; \n"
             "#endif\n"
             "in float depth;\n"
             "void main(){\n"
@@ -121,6 +135,7 @@ int LineRenderer::Init() {
             "#endif \n"
             "}\n";
 
+//    "   outColor = vec4(1.0f, 1.0f, 1.0f,   1.0f); \n"
     std::string vSource;
     std::string fSource;
     if(colors.empty()) {
@@ -145,6 +160,7 @@ int LineRenderer::Init() {
         m_UniformColor = glGetUniformLocation(m_program->ID, "u_Color");
     }
     m_MVPUniformLoc = glGetUniformLocation(m_program->ID, "u_MVPMatrix");
+    PrepareBuffers();
 
     return 0;
 
