@@ -28,7 +28,7 @@ inline int templateLineLoader(std::vector<std::array<glm::vec3, 2>> & lines) {
 // return number of lines loaded
 using LineLoader = std::function<decltype(templateLineLoader)>;
 
-class WireFrameRenderer : public IRenderer {
+class LineRenderer : public IRenderer {
 private:
     GLuint m_ProgramObj;
     GLuint m_VertexShader;

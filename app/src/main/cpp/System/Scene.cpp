@@ -6,7 +6,7 @@
 #include <Components/Renderer/PointRenderer.h>
 #include <Components/Renderer/TexturedMeshRenderer.h>
 #include <Components/Renderer/LightedMeshRenderer.h>
-#include <Components/Renderer/WireFrameRenderer.h>
+#include <Components/Renderer/LineRenderer.h>
 #include <happly.h>
 #include "Scene.h"
 #include "handycpp/file.h"
@@ -94,7 +94,7 @@ void Scene::Init() {
     lightRenderer->LoadTexturedMesh(objLoader);
     delete objLoader;
 
-    auto bunnyWireframeRenderer = new WireFrameRenderer();
+    auto bunnyWireframeRenderer = new LineRenderer();
     bunnyWireframeRenderer->Init();
     bunnyWireframeRenderer->LoadLines([](LinesType &lines) -> int {
 #ifdef ANDROID
@@ -119,7 +119,7 @@ void Scene::Init() {
         return lines.size();
     });
 
-    auto lightSourceRenderer = new WireFrameRenderer();
+    auto lightSourceRenderer = new LineRenderer();
     lightSourceRenderer->Init();
     lightSourceRenderer->LoadLines([&](LinesType &lines) -> int {
         lines.push_back({m_lights[0].getLightPos(), m_lights[0].getLightPos()});
@@ -197,7 +197,7 @@ void Scene::Init() {
 
     m_gameObject = rootGameObject;
 
-    auto coordRenderer = std::make_shared<WireFrameRenderer>();
+    auto coordRenderer = std::make_shared<LineRenderer>();
     coordRenderer->Init();
     using LineLoader = std::function<int(std::vector<std::array<glm::vec3, 2>> &, int &)>;
     coordRenderer->LoadLines([](std::vector<std::array<glm::vec3, 2>> & lines) -> int {

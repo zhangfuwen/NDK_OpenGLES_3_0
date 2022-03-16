@@ -28,7 +28,7 @@
 #include <Components/Renderer/TexturedMeshRenderer.h>
 #include <Components/Renderer/PointRenderer.h>
 #include "PBOSample.h"
-#include "Components/Renderer/WireFrameRenderer.h"
+#include "Components/Renderer/LineRenderer.h"
 #include "Components/Renderer/TexturedMeshRenderer.h"
 #include "Components/Renderer/UIRectRenderer.h"
 #include <handycpp/file.h>
@@ -210,7 +210,7 @@ void PBOSample::Init()
 	lightRenderer->LoadTexturedMesh(objLoader);
 	delete objLoader;
 
-	auto renderer2 = new WireFrameRenderer();
+	auto renderer2 = new LineRenderer();
 	renderer2->Init();
 	renderer2->LoadLines([](LinesType &lines) -> int {
 		happly::PLYData plyIn("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/bun_zipper.ply");
@@ -230,7 +230,7 @@ void PBOSample::Init()
 		return lines.size();
 	});
 
-	auto lightSourceRenderer = new WireFrameRenderer();
+	auto lightSourceRenderer = new LineRenderer();
 	lightSourceRenderer->Init();
 	lightSourceRenderer->LoadLines([&](LinesType &lines) -> int {
 		lines.push_back({m_lights[0].getLightPos(), m_lights[0].getLightPos()});

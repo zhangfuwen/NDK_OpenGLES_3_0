@@ -17,10 +17,10 @@
 #include <happly.h>
 #include <glm/ext.hpp>
 #include <handycpp/image.h>
-#include "WireFrameRenderer.h"
+#include "LineRenderer.h"
 
 
-void WireFrameRenderer::printBunnyVars() {
+void LineRenderer::printBunnyVars() {
     FUN_INFO("program:%u", m_ProgramObj);
     FUN_INFO("vertexshader:%d", m_VertexShader);
     FUN_INFO("fragment:%d", m_FragmentShader);
@@ -33,7 +33,7 @@ void WireFrameRenderer::printBunnyVars() {
     printf("adf");
 }
 
-int WireFrameRenderer::LoadLines(ObjLoader * loader) {
+int LineRenderer::LoadLines(ObjLoader * loader) {
     return LoadLines([loader](decltype(lines) &lines) -> int {
         for (const auto &face : loader->faces) {
             auto p0 = loader->vertices[face[0].vertex_index];
@@ -50,7 +50,7 @@ int WireFrameRenderer::LoadLines(ObjLoader * loader) {
     });
 }
 
-int WireFrameRenderer::LoadLines(LineLoader loader) {
+int LineRenderer::LoadLines(LineLoader loader) {
     auto ret = loader(lines);
     if(ret <= 0) {
         return ret;
@@ -74,7 +74,7 @@ int WireFrameRenderer::LoadLines(LineLoader loader) {
     return lines.size();
 }
 
-int WireFrameRenderer::Init() {
+int LineRenderer::Init() {
     const char VertexShaderSrc[] =
             "#version 300 es                            \n"
             "layout(location = 0) in vec3 a_Position;\n"
@@ -98,43 +98,43 @@ int WireFrameRenderer::Init() {
             "}\n";
 
     // 编译链接用于渲染兔子的着色器程序
-    WireFrameRenderer::m_ProgramObj = GLUtils::CreateProgram(VertexShaderSrc, FragmentShaderSrc,
-                                                             WireFrameRenderer::m_VertexShader, WireFrameRenderer::m_FragmentShader);
-    WireFrameRenderer::m_VertexAttribPosition = glGetAttribLocation(WireFrameRenderer::m_ProgramObj, "a_Position");
+    LineRenderer::m_ProgramObj = GLUtils::CreateProgram(VertexShaderSrc, FragmentShaderSrc,
+                                                        LineRenderer::m_VertexShader, LineRenderer::m_FragmentShader);
+    LineRenderer::m_VertexAttribPosition = glGetAttribLocation(LineRenderer::m_ProgramObj, "a_Position");
 //    if(m_VertexAttribPosition <0) {
 //        m_VertexAttribPosition = 0;
 //    }
-    WireFrameRenderer::m_MVPUniformLoc = glGetUniformLocation(WireFrameRenderer::m_ProgramObj, "u_MVPMatrix");
+    LineRenderer::m_MVPUniformLoc = glGetUniformLocation(LineRenderer::m_ProgramObj, "u_MVPMatrix");
 
     return 0;
 
 }
 
-int WireFrameRenderer::Finalize() {
-    if (WireFrameRenderer::m_ProgramObj) {
-        glDeleteProgram(WireFrameRenderer::m_ProgramObj);
-        WireFrameRenderer::m_ProgramObj = 0;
+int LineRenderer::Finalize() {
+    if (LineRenderer::m_ProgramObj) {
+        glDeleteProgram(LineRenderer::m_ProgramObj);
+        LineRenderer::m_ProgramObj = 0;
     }
-    if (WireFrameRenderer::m_VertexShader) {
-        glDeleteShader(WireFrameRenderer::m_VertexShader);
-        WireFrameRenderer::m_VertexShader = 0;
+    if (LineRenderer::m_VertexShader) {
+        glDeleteShader(LineRenderer::m_VertexShader);
+        LineRenderer::m_VertexShader = 0;
     }
-    if (WireFrameRenderer::m_FragmentShader) {
-        glDeleteShader(WireFrameRenderer::m_FragmentShader);
-        WireFrameRenderer::m_FragmentShader = 0;
+    if (LineRenderer::m_FragmentShader) {
+        glDeleteShader(LineRenderer::m_FragmentShader);
+        LineRenderer::m_FragmentShader = 0;
     }
-    if (WireFrameRenderer::m_VAO) {
+    if (LineRenderer::m_VAO) {
         glDeleteVertexArrays(1, (const GLuint *)&m_VAO);
-        WireFrameRenderer::m_VAO = 0;
+        LineRenderer::m_VAO = 0;
     }
-    if (WireFrameRenderer::m_VBOPosition) {
+    if (LineRenderer::m_VBOPosition) {
         glDeleteBuffers(1, &m_VBOPosition);
-        WireFrameRenderer::m_VBOPosition = 0;
+        LineRenderer::m_VBOPosition = 0;
     }
     return 0;
 }
 
-int WireFrameRenderer::Draw(const Transform &transform, const Camera & camera, const std::vector<Light> & lights) {
+int LineRenderer::Draw(const Transform &transform, const Camera & camera, const std::vector<Light> & lights) {
 #if 0
     glUseProgram(m_FboProgramObj);
     glBindVertexArray(m_VaoIds[1]);
@@ -157,10 +157,10 @@ int WireFrameRenderer::Draw(const Transform &transform, const Camera & camera, c
     glCullFace(GL_BACK);
 
 
-    glUseProgram(WireFrameRenderer::m_ProgramObj);
-    glUniformMatrix4fv(WireFrameRenderer::m_MVPUniformLoc, 1, GL_FALSE, &WireFrameRenderer::m_MVPMatrix[0][0]);
-    glBindVertexArray(WireFrameRenderer::m_VAO);
-    glDrawArrays(GL_LINES, 0, WireFrameRenderer::m_NumElements);
+    glUseProgram(LineRenderer::m_ProgramObj);
+    glUniformMatrix4fv(LineRenderer::m_MVPUniformLoc, 1, GL_FALSE, &LineRenderer::m_MVPMatrix[0][0]);
+    glBindVertexArray(LineRenderer::m_VAO);
+    glDrawArrays(GL_LINES, 0, LineRenderer::m_NumElements);
     glBindVertexArray(0);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_DEPTH_TEST);
