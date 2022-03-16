@@ -18,12 +18,11 @@
 #include <glm/ext.hpp>
 #include <handycpp/image.h>
 #include "LineRenderer.h"
+#include "ShaderString.h"
 
 
 void LineRenderer::printBunnyVars() {
-    FUN_INFO("program:%u", m_ProgramObj);
-    FUN_INFO("vertexshader:%d", m_VertexShader);
-    FUN_INFO("fragment:%d", m_FragmentShader);
+    FUN_INFO("program:%u", m_program->ID);
     FUN_INFO("Position:%d", m_VertexAttribPosition);
     FUN_INFO("VBO:%d, VAO:%d", m_VBOPosition, m_VAO);
     FUN_INFO("numElements:%u", m_NumElements);
@@ -56,18 +55,25 @@ int LineRenderer::LoadLines(LineLoader loader) {
         return ret;
     }
     m_NumElements = lines.size() * 2;
-    glGenBuffers(1, &m_VBOPosition);
     glGenVertexArrays(1, &m_VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBOPosition);
-    glBufferData(GL_ARRAY_BUFFER, lines.size() * 2 * 3 * sizeof(float), &lines[0][0][0], GL_STATIC_DRAW);
-
     glBindVertexArray(m_VAO);
 
+    glGenBuffers(1, &m_VBOPosition);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBOPosition);
+    glBufferData(GL_ARRAY_BUFFER, lines.size() * 2 * 3 * sizeof(float), &lines[0][0][0], GL_STATIC_DRAW);
     glVertexAttribPointer(m_VertexAttribPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
                           (void *) 0);
     glEnableVertexAttribArray(m_VertexAttribPosition);
+
+    if(!colors.empty()) {
+        glGenBuffers(1, &m_VBOColor);
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBOColor);
+        glBufferData(GL_ARRAY_BUFFER, colors.size()*2 *4 * sizeof(float), &colors[0][0][0], GL_STATIC_DRAW);
+        glVertexAttribPointer(m_VertexAttribColor, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+                              (void *) 0);
+        glEnableVertexAttribArray(m_VertexAttribColor);
+    } else {
+    }
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -76,10 +82,20 @@ int LineRenderer::LoadLines(LineLoader loader) {
 
 int LineRenderer::Init() {
     const char VertexShaderSrc[] =
-            "#version 300 es                            \n"
+            "precision mediump float;\n"
             "layout(location = 0) in vec3 a_Position;\n"
+            "#if SHARE_COLOR \n"
+            "uniform vec4 u_Color; \n"
+            "#else \n"
+            "layout(location = 1) in vec4 a_Color; \n"
+            "out vec4 v_Color; \n"
+            "#endif\n"
             "uniform mat4 u_MVPMatrix;                  \n"
             "void main() {\n"
+            "#if SHARE_COLOR \n"
+            "#else \n"
+            "    v_Color = u_Color;\n"
+            "#endif \n"
             "	gl_Position=u_MVPMatrix * vec4(a_Position, 1.0f);\n"
             "}\n";
     /*
@@ -89,40 +105,52 @@ int LineRenderer::Init() {
      *   in vec2 gl_PointCoord;
     */
     const char FragmentShaderSrc[] =
-            "#version 300 es                            \n"
             "precision mediump float;\n"
             "layout(location = 0) out vec4 outColor;\n"
+            "#if SHARE_COLOR \n"
+            "uniform vec4 u_Color; \n"
+            "#else \n"
+            "out vec4 v_Color; \n"
+            "#endif\n"
             "in float depth;\n"
             "void main(){\n"
-            "   outColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1.0f); \n"
+            "#if SHARE_COLOR \n"
+            "   outColor = vec4(vec3(u_Color)*gl_FragCoord.z, 1.0f); \n"
+            "#else \n"
+            "   outColor = v_Color; \n"
+            "#endif \n"
             "}\n";
 
+    std::string vSource;
+    std::string fSource;
+    if(colors.empty()) {
+        vSource = MakeShaderString(0x30, "#define SHARE_COLOR 1\n", VertexShaderSrc);
+        fSource = MakeShaderString(0x30, "#define SHARE_COLOR 1\n", FragmentShaderSrc);
+    } else {
+        vSource = MakeShaderString(0x30, "#define SHARE_COLOR 0\n", VertexShaderSrc);
+        fSource = MakeShaderString(0x30, "#define SHARE_COLOR 0\n", FragmentShaderSrc);
+    }
     // 编译链接用于渲染兔子的着色器程序
-    LineRenderer::m_ProgramObj = GLUtils::CreateProgram(VertexShaderSrc, FragmentShaderSrc,
-                                                        LineRenderer::m_VertexShader, LineRenderer::m_FragmentShader);
-    LineRenderer::m_VertexAttribPosition = glGetAttribLocation(LineRenderer::m_ProgramObj, "a_Position");
-//    if(m_VertexAttribPosition <0) {
-//        m_VertexAttribPosition = 0;
-//    }
-    LineRenderer::m_MVPUniformLoc = glGetUniformLocation(LineRenderer::m_ProgramObj, "u_MVPMatrix");
+    m_program = std::make_unique<RenderProgram>();
+    auto ret = m_program->InitWithSource(vSource, fSource);
+    if(ret < 0) {
+        FUN_ERROR("failed to init program");
+        return ret;
+    }
+
+    m_VertexAttribPosition = glGetAttribLocation(m_program->ID, "a_Position");
+    if(!colors.empty()) {
+        m_VertexAttribColor = glGetAttribLocation(m_program->ID, "a_Color");
+    } else {
+        m_UniformColor = glGetUniformLocation(m_program->ID, "u_Color");
+    }
+    m_MVPUniformLoc = glGetUniformLocation(m_program->ID, "u_MVPMatrix");
 
     return 0;
 
 }
 
 int LineRenderer::Finalize() {
-    if (LineRenderer::m_ProgramObj) {
-        glDeleteProgram(LineRenderer::m_ProgramObj);
-        LineRenderer::m_ProgramObj = 0;
-    }
-    if (LineRenderer::m_VertexShader) {
-        glDeleteShader(LineRenderer::m_VertexShader);
-        LineRenderer::m_VertexShader = 0;
-    }
-    if (LineRenderer::m_FragmentShader) {
-        glDeleteShader(LineRenderer::m_FragmentShader);
-        LineRenderer::m_FragmentShader = 0;
-    }
     if (LineRenderer::m_VAO) {
         glDeleteVertexArrays(1, (const GLuint *)&m_VAO);
         LineRenderer::m_VAO = 0;
@@ -157,8 +185,11 @@ int LineRenderer::Draw(const Transform &transform, const Camera & camera, const 
     glCullFace(GL_BACK);
 
 
-    glUseProgram(LineRenderer::m_ProgramObj);
+    m_program->use();
     glUniformMatrix4fv(LineRenderer::m_MVPUniformLoc, 1, GL_FALSE, &LineRenderer::m_MVPMatrix[0][0]);
+    if(colors.empty()) {
+        glUniform4f(m_UniformColor, m_sharedColor[0], m_sharedColor[1], m_sharedColor[2], m_sharedColor[3]);
+    }
     glBindVertexArray(LineRenderer::m_VAO);
     glDrawArrays(GL_LINES, 0, LineRenderer::m_NumElements);
     glBindVertexArray(0);

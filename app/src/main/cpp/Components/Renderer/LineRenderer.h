@@ -16,6 +16,7 @@
 #include "Components//Transform.h"
 #include "Components//ObjLoader.h"
 #include "IRenderer.h"
+#include "RenderProgram.h"
 
 // std::vector<std::array<glm::vec3, 2>> &lines, int &numElements
 using LinesType = std::vector<std::array<glm::vec3, 2>>;
@@ -30,21 +31,23 @@ using LineLoader = std::function<decltype(templateLineLoader)>;
 
 class LineRenderer : public IRenderer {
 private:
-    GLuint m_ProgramObj;
-    GLuint m_VertexShader;
-    GLuint m_FragmentShader;
+    std::unique_ptr<RenderProgram> m_program = nullptr;
     GLint m_VertexAttribPosition;
+    GLint m_VertexAttribColor;
 
     GLuint m_VBOPosition;
-
+    GLuint m_VBOColor;
     GLuint m_VAO;
     glm::mat4 m_MVPMatrix{1.0f};
-    GLuint m_MVPUniformLoc;
-    int m_NumElements;
+    GLuint m_MVPUniformLoc{};
+    GLuint m_UniformColor{};
+    int m_NumElements{};
 
     void printBunnyVars();
 
     std::vector<std::array<glm::vec3, 2>> lines;
+    std::vector<std::array<glm::vec4, 2>> colors;
+    glm::vec4 m_sharedColor{1.0f, 1.0f, 1.0f, 1.0f};
 
 public:
     /**
