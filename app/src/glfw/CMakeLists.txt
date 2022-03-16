@@ -35,3 +35,10 @@ target_include_directories(LearnRenderer PRIVATE
         ${CMAKE_BINARY_DIR}/handycpp/src/include
         )
 target_compile_definitions(LearnRenderer PRIVATE -DWORLD_SIZE=2000)
+
+
+add_executable(triangle triangle.cpp)
+target_link_libraries(triangle
+        ${OPENGL_gl_LIBRARY}
+        ${OPENGL_egl_LIBRARY}
+        glfw)
