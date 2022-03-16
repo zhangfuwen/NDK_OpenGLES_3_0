@@ -13,10 +13,15 @@
 #include "handycpp/string.h"
 #include <handycpp/dyntype.h>
 using namespace handycpp::dyntype::arithmetic;
+#ifdef ANDROID
+#define DEFAULT_OGL_ASSETS_DIR "/sdcard/Android/data/com.byteflow.app/files/Download/"
+#else
+#define DEFAULT_OGL_ASSETS_DIR "" RENDERER_SOURCE "/../assets/"
+#endif
 
 std::vector<UIRectRenderer::Rect> loadChart() {
     std::vector<UIRectRenderer::Rect> rects;
-    std::string baseDir = "/sdcard/Android/data/com.byteflow.app/files/Download/";
+    std::string baseDir = DEFAULT_OGL_ASSETS_DIR;
     auto csvPath = baseDir + "/other/1.csv";
 
     // load records
@@ -67,11 +72,6 @@ std::vector<UIRectRenderer::Rect> loadChart() {
     return rects;
 }
 
-#ifdef ANDROID
-#define DEFAULT_OGL_ASSETS_DIR "/sdcard/Android/data/com.byteflow.app/files/Download/"
-#else
-#define DEFAULT_OGL_ASSETS_DIR "" RENDERER_SOURCE "/../assets/"
-#endif
 void Scene::Init() {
     m_lights.emplace_back(glm::vec3{ 0.0f, 0.5f, 0.5f},
                           glm::vec3{0.9f, 0.9f, 0.0f},
@@ -96,7 +96,7 @@ void Scene::Init() {
 
     auto bunnyWireframeRenderer = new WireFrameRenderer();
     bunnyWireframeRenderer->Init();
-    bunnyWireframeRenderer->LoadLines([](LinesType &lines, int & numElements) -> int {
+    bunnyWireframeRenderer->LoadLines([](LinesType &lines) -> int {
 #ifdef ANDROID
         happly::PLYData plyIn(DEFAULT_OGL_ASSETS_DIR "/model/poly/bun_zipper.ply");
 #else
@@ -115,16 +115,14 @@ void Scene::Init() {
             lines.push_back({glm::vec3(p1[0], p1[1], p1[2]), glm::vec3(p2[0], p2[1], p2[2])});
             lines.push_back({glm::vec3(p2[0], p2[1], p2[2]), glm::vec3(p0[0], p0[1], p0[2])});
         }
-        numElements = lines.size() * 2;
 
         return lines.size();
     });
 
     auto lightSourceRenderer = new WireFrameRenderer();
     lightSourceRenderer->Init();
-    lightSourceRenderer->LoadLines([&](LinesType &lines, int & numElements) -> int {
+    lightSourceRenderer->LoadLines([&](LinesType &lines) -> int {
         lines.push_back({m_lights[0].getLightPos(), m_lights[0].getLightPos()});
-        numElements = lines.size() *2;
         return lines.size();
     });
 
@@ -202,12 +200,11 @@ void Scene::Init() {
     auto coordRenderer = std::make_shared<WireFrameRenderer>();
     coordRenderer->Init();
     using LineLoader = std::function<int(std::vector<std::array<glm::vec3, 2>> &, int &)>;
-    coordRenderer->LoadLines([](std::vector<std::array<glm::vec3, 2>> & lines, int & numElements) -> int {
+    coordRenderer->LoadLines([](std::vector<std::array<glm::vec3, 2>> & lines) -> int {
         lines.push_back({glm::vec3{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}});
         lines.push_back({glm::vec3{0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}});
         lines.push_back({glm::vec3{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}});
 
-        numElements = lines.size() *2;
         return lines.size();
     });
     m_coordRenderer = coordRenderer;

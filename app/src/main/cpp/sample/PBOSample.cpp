@@ -212,7 +212,7 @@ void PBOSample::Init()
 
 	auto renderer2 = new WireFrameRenderer();
 	renderer2->Init();
-	renderer2->LoadLines([](LinesType &lines, int & numElements) -> int {
+	renderer2->LoadLines([](LinesType &lines) -> int {
 		happly::PLYData plyIn("/sdcard/Android/data/com.byteflow.app/files/Download/model/poly/bun_zipper.ply");
 		std::vector<std::array<double, 3>> vPos = plyIn.getVertexPositions();
 		std::vector<std::vector<size_t>> fInd = plyIn.getFaceIndices<size_t>();
@@ -227,16 +227,13 @@ void PBOSample::Init()
 			lines.push_back({glm::vec3(p1[0], p1[1], p1[2]), glm::vec3(p2[0], p2[1], p2[2])});
 			lines.push_back({glm::vec3(p2[0], p2[1], p2[2]), glm::vec3(p0[0], p0[1], p0[2])});
 		}
-		numElements = lines.size() * 2;
-
 		return lines.size();
 	});
 
 	auto lightSourceRenderer = new WireFrameRenderer();
 	lightSourceRenderer->Init();
-	lightSourceRenderer->LoadLines([&](LinesType &lines, int & numElements) -> int {
+	lightSourceRenderer->LoadLines([&](LinesType &lines) -> int {
 		lines.push_back({m_lights[0].getLightPos(), m_lights[0].getLightPos()});
-		numElements = lines.size() *2;
 		return lines.size();
 	});
 

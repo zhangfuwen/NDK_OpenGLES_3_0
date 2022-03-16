@@ -34,7 +34,7 @@ void WireFrameRenderer::printBunnyVars() {
 }
 
 int WireFrameRenderer::LoadLines(ObjLoader * loader) {
-    return LoadLines([loader](decltype(lines) &lines, int &m_NumElements) -> int {
+    return LoadLines([loader](decltype(lines) &lines) -> int {
         for (const auto &face : loader->faces) {
             auto p0 = loader->vertices[face[0].vertex_index];
             auto p1 = loader->vertices[face[1].vertex_index];
@@ -51,10 +51,11 @@ int WireFrameRenderer::LoadLines(ObjLoader * loader) {
 }
 
 int WireFrameRenderer::LoadLines(LineLoader loader) {
-    auto ret = loader(lines, m_NumElements);
+    auto ret = loader(lines);
     if(ret <= 0) {
         return ret;
     }
+    m_NumElements = lines.size() * 2;
     glGenBuffers(1, &m_VBOPosition);
     glGenVertexArrays(1, &m_VAO);
 

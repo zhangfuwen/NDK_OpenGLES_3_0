@@ -19,7 +19,14 @@
 
 // std::vector<std::array<glm::vec3, 2>> &lines, int &numElements
 using LinesType = std::vector<std::array<glm::vec3, 2>>;
-using LineLoader = std::function<int(std::vector<std::array<glm::vec3, 2>> &, int &)>;
+
+inline int templateLineLoader(std::vector<std::array<glm::vec3, 2>> & lines) {
+    // lines.push_back or emplace back
+    return lines.size(); // return non-positive number of error
+}
+
+// return number of lines loaded
+using LineLoader = std::function<decltype(templateLineLoader)>;
 
 class WireFrameRenderer : public IRenderer {
 private:
