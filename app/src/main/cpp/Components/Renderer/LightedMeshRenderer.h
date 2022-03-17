@@ -11,6 +11,7 @@
 #include "RenderProgram.h"
 #include "Components/Camera.h"
 #include "Material.h"
+#include "Components/GLESHelpers/OwnedResources.h"
 
 class LightedMeshRenderer : public IRenderer {
 public:
@@ -20,12 +21,23 @@ public:
         glm::vec2 tex_coord;
     };
 
+    struct VertexTB {
+        glm::vec3 T;
+        glm::vec3 B;
+    };
+
     struct Triangle {
         Vertex v1, v2, v3;
     };
 
+    struct TriangleTB {
+        VertexTB tb1, tb2, tb3;
+    };
+
 
 private:
+
+    bool m_normalMap = false;
     std::unique_ptr<RenderProgram> m_program;
 
     Material m_material;
@@ -35,6 +47,7 @@ private:
     GLint m_VertexAttribTexCoord;
 
     GLuint m_colorTexuture;
+    std::unique_ptr<OwnedTexture> m_bumpTexture = nullptr;
 
     GLuint m_VBOPosition;
 
@@ -46,6 +59,7 @@ private:
 
 
     std::vector<Triangle> triangles;
+    std::vector<TriangleTB> trianglesTB;
     int m_NumElements;
 
 public:
@@ -66,7 +80,8 @@ public:
     int Draw(const Transform &transform, const Camera & camera, const std::vector<Light> &lights) override;
     void Dump() override { printBunnyVars();}
 
-
+    static TriangleTB calcTB(Triangle tri);
+    LightedMeshRenderer(bool normalMap) : m_normalMap(normalMap) {}
 };
 
 

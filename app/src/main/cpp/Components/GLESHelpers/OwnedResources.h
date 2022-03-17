@@ -26,6 +26,10 @@ public:
     GLuint getId() override {
         return m_ImageTextureId;
     }
+    void useSampler(GLuint sampler) {
+        glActiveTexture(GL_TEXTURE0 + sampler);
+        glBindTexture(GL_TEXTURE_2D, m_ImageTextureId);
+    }
 
 private:
     GLuint m_ImageTextureId = 0;

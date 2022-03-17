@@ -3,6 +3,7 @@
 //
 
 #include "LightedMeshRenderer.h"
+#include "ShaderString.h"
 #ifdef ANDROID
 #include <android/log.h>
 
@@ -40,10 +41,47 @@ void LightedMeshRenderer::printBunnyVars() {
     printf("adf");
 }
 
+LightedMeshRenderer::TriangleTB LightedMeshRenderer::calcTB(Triangle tri) {
+    // positions
+    glm::vec3 & pos1 = tri.v1.pos;
+    glm::vec3 & pos2 = tri.v2.pos;
+    glm::vec3 & pos3 = tri.v3.pos;
+
+    glm::vec2 &uv1 = tri.v1.tex_coord;
+    glm::vec2 &uv2 = tri.v2.tex_coord;
+    glm::vec2 &uv3 = tri.v3.tex_coord;
+
+    glm::vec3 edge1 = pos2 - pos1;
+    glm::vec3 edge2 = pos3 - pos1;
+    glm::vec2 deltaUV1 = uv2 - uv1;
+    glm::vec2 deltaUV2 = uv3 - uv1;
+    GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+    glm::vec3 tan1;
+    tan1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tan1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tan1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+    tan1 = glm::normalize(tan1);
+
+    glm::vec3 bitan1;
+    bitan1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitan1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitan1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+    bitan1 = glm::normalize(bitan1);
+
+    TriangleTB tb;
+    tb.tb1.T = tan1;
+    tb.tb1.B = bitan1;
+    tb.tb2.T = tan1;
+    tb.tb2.B = bitan1;
+    tb.tb3.T = tan1;
+    tb.tb3.B = bitan1;
+
+    return tb;
+}
+
 
 int LightedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
-
-    loader->LoadObjFile();
     loader->Dump();
 
     triangles.reserve(loader->faces.size() * 2); // every face is translated into two triangles
@@ -74,6 +112,13 @@ int LightedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
                 Vertex{.pos = p2, .normal = n2, .tex_coord = t2},
                 Vertex{.pos = p3, .normal = n3, .tex_coord = t3}
         });
+
+        if(m_normalMap) {
+            auto tri1TB = calcTB(triangles[triangles.size()-2]);
+            auto tri2TB = calcTB(triangles[triangles.size()-1]);
+            trianglesTB.emplace_back(tri1TB);
+            trianglesTB.emplace_back(tri2TB);
+        }
     }
     m_NumElements = triangles.size() * 3; // every triangle has 3 points
 
@@ -98,30 +143,39 @@ int LightedMeshRenderer::LoadTexturedMesh(ObjLoader *loader) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
-    if (!loader->materials.empty() &&
-        loader->materials[0].m_textureFiles.count("map_Ka")) {
-        std::string textureFileName = loader->materials[0].m_textureFiles["map_Ka"];
-        auto data = handycpp::image::readPngAsRgba(textureFileName);
-        FUN_INFO("map_Ka: %d, %d", data.width, data.height);
-        glActiveTexture(GL_TEXTURE0);
-        glGenTextures(1, &m_colorTexuture);
-        glBindTexture(GL_TEXTURE_2D, m_colorTexuture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA,
-                     GL_UNSIGNED_BYTE, &data.rgba_image[0]);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glActiveTexture(GL_TEXTURE0);
+    if (!loader->materials.empty()) {
+        if(loader->materials[0].m_textureFiles.count("map_Ka")) {
+            std::string textureFileName = loader->materials[0].m_textureFiles["map_Ka"];
+            auto data = handycpp::image::readPngAsRgba(textureFileName);
+            FUN_INFO("map_Ka: %d, %d", data.width, data.height);
+            glActiveTexture(GL_TEXTURE0);
+            glGenTextures(1, &m_colorTexuture);
+            glBindTexture(GL_TEXTURE_2D, m_colorTexuture);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA,
+                         GL_UNSIGNED_BYTE, &data.rgba_image[0]);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glActiveTexture(GL_TEXTURE0);
 
-        m_program->setInt("color_sampler", 0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        m_material.setKa(loader->materials[0].m_Ka);
-        m_material.setKd(loader->materials[0].m_Kd);
-        m_material.setKs(loader->materials[0].m_Ks);
-        m_material.setKe(loader->materials[0].m_Ke);
-        m_material.setMShininess(0.3f);
+            m_program->setInt("color_sampler", 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            m_material.setKa(loader->materials[0].m_Ka);
+            m_material.setKd(loader->materials[0].m_Kd);
+            m_material.setKs(loader->materials[0].m_Ks);
+            m_material.setKe(loader->materials[0].m_Ke);
+            m_material.setMShininess(0.3f);
+        }
+        if(m_normalMap && loader->materials[0].m_textureFiles.count("map_bump")) {
+            std::string textureFileName = loader->materials[0].m_textureFiles["map_bump"];
+            auto data = handycpp::image::readPngAsRgba(textureFileName);
+            FUN_INFO("map_bump: %d, %d", data.width, data.height);
+
+            m_bumpTexture = std::make_unique<OwnedTexture>(data.width, data.height, data.rgba_image.data(), true);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
     } else {
         FUN_INFO("no texture file found");
     }
@@ -167,7 +221,17 @@ int LightedMeshRenderer::Init() {
     });
     GO_CHECK_GL_ERROR();
 
-    int ret = m_program->InitWithSource(source1.c_str(), source2.c_str());
+    std::string vSource;
+    std::string fSource;
+    if(m_normalMap) {
+        vSource = MakeShaderString(0x31, "#define NORMAL_MAP 1\n", source1);
+        fSource = MakeShaderString(0x31, "#define NORMAL_MAP 1\n", source2);
+    } else {
+        vSource = MakeShaderString(0x31, "#define NORMAL_MAP 0\n", source1);
+        fSource = MakeShaderString(0x31, "#define NORMAL_MAP 0\n", source2);
+    }
+
+    int ret = m_program->InitWithSource(vSource.c_str(), fSource.c_str());
     if(ret < 0) {
         FUN_ERROR("compile: failed to init program");
         return -1;
@@ -231,17 +295,22 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
     glCullFace(GL_BACK);
 
 
+    m_program->use();
+
     if (m_colorTexuture != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_colorTexuture);
     }
-    m_program->use();
+    if(m_normalMap) {
+        m_bumpTexture->useSampler(1);
+    }
+    m_program->setInt("u_color_sampler", 0);
+    m_program->setInt("u_bump_sampler", 1);
     m_program->setMat4("u_model", transform.GetModel());
     m_program->setMat4("u_view", camera.GetView());
     m_program->setMat4("u_projection", camera.GetProjection());
     m_program->setVec3("u_light_pos",lights[0].getLightPos());
     m_program->setVec3("u_view_pos", camera.GetViewPos());
-//    m_program->setInt("u_color_sampler", 0);
     m_program->setVec3("u_light.ambient_color", lights[0].getAmbientColor());
     m_program->setVec3("u_light.diffuse_color", lights[0].getDiffuseColor());
     m_program->setVec3("u_light.specular_color", lights[0].getSpecularColor());
@@ -269,4 +338,7 @@ int LightedMeshRenderer::Draw(const Transform &transform, const Camera &camera, 
 #endif
     return 0;
 }
+
+
+
 
